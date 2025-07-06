@@ -17,6 +17,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
@@ -33,11 +36,38 @@ import llamacppdektoptool.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import ru.llama.tool.getPlatform
 import ru.llama.tool.presentation.screen_a.ScreenAComponent
-import ru.llama.tool.presentation.screen_b.ScreenBContent
+import ru.llama.tool.presentation.screen_b.SettingsContent
+
+private val DarkColorScheme = darkColorScheme(
+    primary = Color(0xFFBB86FC),
+    secondary = Color(0xFF03DAC6),
+    tertiary = Color(0xFF3700B3),
+    background = Color(0xFF121212),
+    surface = Color(0xFF121212),
+    onPrimary = Color.Black,
+    onSecondary = Color.Black,
+    onTertiary = Color.White,
+    onBackground = Color.White,
+    onSurface = Color.White,
+)
+
+private val LightColorScheme = lightColorScheme(
+    primary = Color(0xFF6200EE),
+    secondary = Color(0xFF03DAC6),
+    tertiary = Color(0xFF3700B3),
+    background = Color.White,
+    surface = Color.White,
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onTertiary = Color.White,
+    onBackground = Color.Black,
+    onSurface = Color.Black,
+)
 
 @Composable
 fun App(root: IRootComponent) {
-    MaterialTheme {
+    val isDarkMode by root.isDarkMode.subscribeAsState()
+    MaterialTheme(colorScheme = if (isDarkMode) DarkColorScheme else LightColorScheme) {
         val childStack by root.stack.subscribeAsState()
         val selectedIndex by root.selectedIndex.subscribeAsState()
 
@@ -64,7 +94,7 @@ fun App(root: IRootComponent) {
             ) {
                 when (val child = it.instance) {
                     is IRootComponent.Child.ScreenA -> ScreenAContent(child.component)
-                    is IRootComponent.Child.SettingScreenChild -> ScreenBContent(child.component)
+                    is IRootComponent.Child.SettingScreenChild -> SettingsContent(child.component)
                 }
             }
         }

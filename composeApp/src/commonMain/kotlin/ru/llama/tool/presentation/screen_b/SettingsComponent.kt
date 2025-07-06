@@ -19,21 +19,13 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.value.Value
 
 interface SettingsComponent {
-    val state: Value<ApplicationSettingsState>
-    fun onEvent(event: SettingsScreenEvent)
-}
-
-data class ApplicationSettingsState(
-    val isDarkMode: Boolean = false,
-)
-
-sealed interface SettingsScreenEvent {
-    data class ToggleDarkMode(val isDarkMode: Boolean) : SettingsScreenEvent
+    val isDarkMode: Value<Boolean>
+    val onToggleDarkMode: () -> Unit
 }
 
 @Composable
-fun ScreenBContent(component: SettingsComponent, modifier: Modifier = Modifier) {
-    val state by component.state.subscribeAsState()
+fun SettingsContent(component: SettingsComponent, modifier: Modifier = Modifier) {
+    val isDarkMode by component.isDarkMode.subscribeAsState()
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -61,11 +53,9 @@ fun ScreenBContent(component: SettingsComponent, modifier: Modifier = Modifier) 
         ) {
             Text("Темная тема", color = MaterialTheme.colorScheme.onBackground)
             Switch(
-                checked = state.isDarkMode,
+                checked = isDarkMode,
                 onCheckedChange = { newValue ->
-                    component.onEvent(
-                        SettingsScreenEvent.ToggleDarkMode(newValue)
-                    )
+                    component.onToggleDarkMode()
                 }
             )
         }

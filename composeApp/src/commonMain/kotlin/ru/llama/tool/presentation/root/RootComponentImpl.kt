@@ -22,8 +22,10 @@ class RootComponentImpl(
 
     private val navigation = StackNavigation<Config>()
     private val _selectedIndex = MutableValue(0)
+    private val _isDarkMode = MutableValue(false)
 
     override val selectedIndex: Value<Int> = _selectedIndex
+    override val isDarkMode: Value<Boolean> = _isDarkMode
 
     override val stack: Value<ChildStack<*, Child>> =
         childStack(
@@ -44,8 +46,16 @@ class RootComponentImpl(
         navigation.bringToFront(Config.SettingScreenConfig)
     }
 
+    override fun toggleDarkMode() {
+        _isDarkMode.value = !_isDarkMode.value
+    }
+
     private val settingsComponent: SettingsComponent = instanceKeeper.getOrCreate {
-        SettingsComponentImpl(componentContext.childContext("settings"))
+        SettingsComponentImpl(
+            componentContext.childContext("settings"),
+            isDarkMode = _isDarkMode,
+            onToggleDarkMode = ::toggleDarkMode
+        )
     }
 
     private fun child(config: Config, componentContext: ComponentContext): Child =

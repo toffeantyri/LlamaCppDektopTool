@@ -8,8 +8,10 @@ import ru.llama.tool.presentation.screen_b.SettingsComponent
 interface IRootComponent {
     val stack: Value<ChildStack<*, Child>>
     val selectedIndex: Value<Int>
+    val isDarkMode: Value<Boolean>
     fun onChatTabClicked()
     fun onSettingsTabClicked()
+    fun toggleDarkMode()
 
     sealed interface Child {
         data class ScreenA(val component: ScreenAComponent) : Child
