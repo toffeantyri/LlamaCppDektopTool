@@ -14,18 +14,21 @@ import ru.llama.tool.presentation.root.IRootComponent.Child
 import ru.llama.tool.presentation.screen_a.ScreenAComponentImpl
 import ru.llama.tool.presentation.screen_b.SettingsComponent
 import ru.llama.tool.presentation.screen_b.SettingsComponentImpl
+import ru.llama.tool.presentation.screen_b.SettingsState
 
 class RootComponentImpl(
     componentContext: ComponentContext,
-    private val onExitAction: () -> Unit
 ) : IRootComponent, ComponentContext by componentContext {
 
     private val navigation = StackNavigation<Config>()
     private val _selectedIndex = MutableValue(0)
-    private val _isDarkMode = MutableValue(false)
-
+    private val settingsComponent: SettingsComponent = instanceKeeper.getOrCreate {
+        SettingsComponentImpl(
+            componentContext.childContext("settings")
+        )
+    }
     override val selectedIndex: Value<Int> = _selectedIndex
-    override val isDarkMode: Value<Boolean> = _isDarkMode
+    override val appSettingState: Value<SettingsState> = settingsComponent.state
 
     override val stack: Value<ChildStack<*, Child>> =
         childStack(
@@ -46,17 +49,6 @@ class RootComponentImpl(
         navigation.bringToFront(Config.SettingScreenConfig)
     }
 
-    override fun toggleDarkMode() {
-        _isDarkMode.value = !_isDarkMode.value
-    }
-
-    private val settingsComponent: SettingsComponent = instanceKeeper.getOrCreate {
-        SettingsComponentImpl(
-            componentContext.childContext("settings"),
-            isDarkMode = _isDarkMode,
-            onToggleDarkMode = ::toggleDarkMode
-        )
-    }
 
     private fun child(config: Config, componentContext: ComponentContext): Child =
         when (config) {

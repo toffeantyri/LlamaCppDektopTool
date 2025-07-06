@@ -19,13 +19,21 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.value.Value
 
 interface SettingsComponent {
-    val isDarkMode: Value<Boolean>
-    val onToggleDarkMode: () -> Unit
+    val state: Value<SettingsState>
+    fun onEvent(event: SettingsEvent)
+}
+
+data class SettingsState(
+    val isDarkMode: Boolean = false,
+)
+
+sealed interface SettingsEvent {
+    data class ToggleDarkMode(val isDarkMode: Boolean) : SettingsEvent
 }
 
 @Composable
 fun SettingsContent(component: SettingsComponent, modifier: Modifier = Modifier) {
-    val isDarkMode by component.isDarkMode.subscribeAsState()
+    val state by component.state.subscribeAsState()
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -53,9 +61,11 @@ fun SettingsContent(component: SettingsComponent, modifier: Modifier = Modifier)
         ) {
             Text("Темная тема", color = MaterialTheme.colorScheme.onBackground)
             Switch(
-                checked = isDarkMode,
+                checked = state.isDarkMode,
                 onCheckedChange = { newValue ->
-                    component.onToggleDarkMode()
+                    component.onEvent(
+                        SettingsEvent.ToggleDarkMode(newValue)
+                    )
                 }
             )
         }

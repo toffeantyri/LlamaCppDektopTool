@@ -25,7 +25,7 @@ fun main() = application {
                 DefaultComponentContext(
                     lifecycle,
                     stateKeeper
-                ), onExitAction = ::exitApplication
+                )
         )
     }
     val windowState = rememberWindowState(width = 500.dp, height = 700.dp)

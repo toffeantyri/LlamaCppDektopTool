@@ -66,8 +66,9 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun App(root: IRootComponent) {
-    val isDarkMode by root.isDarkMode.subscribeAsState()
-    MaterialTheme(colorScheme = if (isDarkMode) DarkColorScheme else LightColorScheme) {
+    val appSettingsState by root.appSettingState.subscribeAsState()
+
+    MaterialTheme(colorScheme = if (appSettingsState.isDarkMode) DarkColorScheme else LightColorScheme) {
         val childStack by root.stack.subscribeAsState()
         val selectedIndex by root.selectedIndex.subscribeAsState()
 

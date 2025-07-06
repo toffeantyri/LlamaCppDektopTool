@@ -4,14 +4,14 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
 import ru.llama.tool.presentation.screen_a.ScreenAComponent
 import ru.llama.tool.presentation.screen_b.SettingsComponent
+import ru.llama.tool.presentation.screen_b.SettingsState
 
 interface IRootComponent {
     val stack: Value<ChildStack<*, Child>>
     val selectedIndex: Value<Int>
-    val isDarkMode: Value<Boolean>
+    val appSettingState: Value<SettingsState>
     fun onChatTabClicked()
     fun onSettingsTabClicked()
-    fun toggleDarkMode()
 
     sealed interface Child {
         data class ScreenA(val component: ScreenAComponent) : Child
