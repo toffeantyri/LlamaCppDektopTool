@@ -10,21 +10,32 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.instancekeeper.getOrCreate
 import kotlinx.serialization.Serializable
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
+import ru.llama.tool.core.data_store.preferances.IAppPreferences
 import ru.llama.tool.presentation.root.IRootComponent.Child
 import ru.llama.tool.presentation.screen_a.ScreenAComponentImpl
 import ru.llama.tool.presentation.screen_b.SettingsComponent
 import ru.llama.tool.presentation.screen_b.SettingsComponentImpl
 import ru.llama.tool.presentation.screen_b.SettingsState
+import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class RootComponentImpl(
     componentContext: ComponentContext,
-) : IRootComponent, ComponentContext by componentContext {
+) : IRootComponent, ComponentContext by componentContext, KoinComponent {
+
+    private val rootCoroutineScope = componentContext.componentCoroutineScope()
+
+    private val preferences: IAppPreferences = get<IAppPreferences>()
 
     private val navigation = StackNavigation<Config>()
     private val _selectedIndex = MutableValue(0)
+
     private val settingsComponent: SettingsComponent = instanceKeeper.getOrCreate {
         SettingsComponentImpl(
-            componentContext.childContext("settings")
+            componentContext = componentContext.childContext("settings"),
+            parentCoroutineScope = rootCoroutineScope,
+            preferences = preferences
         )
     }
     override val selectedIndex: Value<Int> = _selectedIndex

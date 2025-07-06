@@ -17,6 +17,10 @@ class AppPreferencesImpl(
         return preferences.syncLoad(key)
     }
 
+    override fun getThemeIsDarkMode(): Boolean {
+        return syncLoad(PreferencesConstants.PREF_KEY_IS_DARK_MODEL) ?: false
+    }
+
     override suspend fun getAppThemeIsDarkMode(): Flow<Boolean> {
         return flow {
             preferences.load(PreferencesConstants.PREF_KEY_IS_DARK_MODEL, false)
@@ -25,5 +29,10 @@ class AppPreferencesImpl(
                 }
         }.flowOn(Dispatchers.io())
     }
+
+    override suspend fun setThemeIsDarkMode(isDarkMode: Boolean) {
+        preferences.save(PreferencesConstants.PREF_KEY_IS_DARK_MODEL, isDarkMode)
+    }
+
 
 }
