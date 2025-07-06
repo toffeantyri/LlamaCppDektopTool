@@ -11,6 +11,8 @@ import llamacppdektoptool.composeapp.generated.resources.Res
 import llamacppdektoptool.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import ru.delivery.client.utils.runOnUiThread
+import ru.llama.tool.core.data_store.initializeDataStore
+import ru.llama.tool.di.initKoin
 import ru.llama.tool.presentation.root.App
 import ru.llama.tool.presentation.root.RootComponentImpl
 import java.awt.Dimension
@@ -19,13 +21,15 @@ fun main() = application {
     val lifecycle = LifecycleRegistry()
     val stateKeeper = StateKeeperDispatcher()
 
+    initKoin(enableNetworkLogs = true)
+    initializeDataStore()
+
     val rootComponent = runOnUiThread {
         RootComponentImpl(
-            componentContext =
-                DefaultComponentContext(
-                    lifecycle,
-                    stateKeeper
-                )
+            componentContext = DefaultComponentContext(
+                lifecycle,
+                stateKeeper
+            )
         )
     }
     val windowState = rememberWindowState(width = 500.dp, height = 700.dp)
