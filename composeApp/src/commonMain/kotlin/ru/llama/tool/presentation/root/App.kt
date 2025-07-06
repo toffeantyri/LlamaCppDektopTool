@@ -33,7 +33,7 @@ import llamacppdektoptool.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import ru.llama.tool.getPlatform
 import ru.llama.tool.presentation.screen_a.ScreenAComponent
-import ru.llama.tool.presentation.screen_b.ScreenBComponent
+import ru.llama.tool.presentation.screen_b.ScreenBContent
 
 @Composable
 fun App(root: IRootComponent) {
@@ -64,7 +64,7 @@ fun App(root: IRootComponent) {
             ) {
                 when (val child = it.instance) {
                     is IRootComponent.Child.ScreenA -> ScreenAContent(child.component)
-                    is IRootComponent.Child.ScreenB -> ScreenBContent(child.component)
+                    is IRootComponent.Child.SettingScreenChild -> ScreenBContent(child.component)
                 }
             }
         }
@@ -90,15 +90,5 @@ fun ScreenAContent(component: ScreenAComponent) {
                 Text("Compose: $greeting")
             }
         }
-    }
-}
-
-@Composable
-fun ScreenBContent(component: ScreenBComponent) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Screen B Content")
     }
 }
