@@ -7,6 +7,9 @@ import ru.llama.tool.presentation.screen_b.ScreenBComponent
 
 interface IRootComponent {
     val stack: Value<ChildStack<*, Child>>
+    val selectedIndex: Value<Int>
+    fun onChatTabClicked()
+    fun onSettingsTabClicked()
 
     sealed interface Child {
         data class ScreenA(val component: ScreenAComponent) : Child

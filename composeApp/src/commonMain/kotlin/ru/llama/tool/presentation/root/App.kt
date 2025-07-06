@@ -5,9 +5,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,14 +39,33 @@ import ru.llama.tool.presentation.screen_b.ScreenBComponent
 fun App(root: IRootComponent) {
     MaterialTheme {
         val childStack by root.stack.subscribeAsState()
+        val selectedIndex by root.selectedIndex.subscribeAsState()
 
-        Children(
-            stack = childStack,
-            animation = stackAnimation(animator = slide())
-        ) {
-            when (val child = it.instance) {
-                is IRootComponent.Child.ScreenA -> ScreenAContent(child.component)
-                is IRootComponent.Child.ScreenB -> ScreenBContent(child.component)
+        Scaffold(bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = selectedIndex == 0,
+                    onClick = root::onChatTabClicked,
+                    icon = { Icon(Icons.Filled.Home, contentDescription = "Чат") },
+                    label = { Text("Чат") }
+                )
+                NavigationBarItem(
+                    selected = selectedIndex == 1,
+                    onClick = root::onSettingsTabClicked,
+                    icon = { Icon(Icons.Filled.Settings, contentDescription = "Настройки") },
+                    label = { Text("Настройки") }
+                )
+            }
+        }) { innerPadding ->
+            Children(
+                stack = childStack,
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                animation = stackAnimation(animator = slide())
+            ) {
+                when (val child = it.instance) {
+                    is IRootComponent.Child.ScreenA -> ScreenAContent(child.component)
+                    is IRootComponent.Child.ScreenB -> ScreenBContent(child.component)
+                }
             }
         }
     }
