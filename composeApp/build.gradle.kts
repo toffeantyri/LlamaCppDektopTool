@@ -76,8 +76,13 @@ room {
 compose.desktop {
     application {
         mainClass = "ru.llama.tool.MainKt"
+        jvmArgs += listOf(
+            "--add-opens=java.base/sun.misc=ALL-UNNAMED",
+            "--add-opens=java.base/java.lang=ALL-UNNAMED"
+        )
 
         nativeDistributions {
+            modules("jdk.unsupported") // Добавляем модуль с Unsafe
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "LlamaTool"
             packageVersion = "1.0.0"
