@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -41,10 +42,21 @@ fun ChatScreenContent(component: ChatComponent) {
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(chatMessages) {
-                    Text(text = it)
+                items(chatMessages) { message ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .padding(horizontal = 4.dp).padding(end = 20.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                    ) {
+                        Text(
+                            text = message,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
                 }
             }
 
