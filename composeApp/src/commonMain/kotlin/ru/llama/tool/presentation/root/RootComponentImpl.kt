@@ -45,34 +45,40 @@ class RootComponentImpl(
         childStack(
             source = navigation,
             serializer = Config.serializer(),
-            initialStack = { listOf(Config.ScreenA) },
+            initialStack = { listOf(Config.ChatContentConfig) },
             handleBackButton = true,
             childFactory = ::child,
         )
 
     override fun onChatTabClicked() {
         _selectedIndex.value = 0
-        navigation.bringToFront(Config.ScreenA)
+        navigation.bringToFront(Config.ChatContentConfig)
     }
 
     override fun onSettingsTabClicked() {
         _selectedIndex.value = 1
-        navigation.bringToFront(Config.SettingScreenConfig)
+        navigation.bringToFront(Config.SettingContentConfig)
     }
 
 
     private fun child(config: Config, componentContext: ComponentContext): Child =
         when (config) {
-            Config.ScreenA -> Child.ChatContentChild(ChatComponentImpl(componentContext))
-            Config.SettingScreenConfig -> Child.SettingContentChild(settingsComponent)
+            Config.ChatContentConfig -> Child.ChatContentChild(
+                ChatComponentImpl(
+                    componentContext = componentContext,
+                    onChatListOpenAction = {/*TODO */ }
+                )
+            )
+
+            Config.SettingContentConfig -> Child.SettingContentChild(settingsComponent)
         }
 
     @Serializable
     private sealed interface Config {
         @Serializable
-        data object ScreenA : Config
+        data object ChatContentConfig : Config
 
         @Serializable
-        data object SettingScreenConfig : Config
+        data object SettingContentConfig : Config
     }
 }
