@@ -1,11 +1,31 @@
 package ru.llama.tool.presentation.chat_screen
 
 import com.arkivanov.decompose.ComponentContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-class ChatComponentImpl(componentContext: ComponentContext) : ChatComponent,
-    ComponentContext by componentContext {
+class ChatComponentImpl(
+    componentContext: ComponentContext,
+    private val onChatListOpenAction: () -> Unit
+) : ChatComponent, ComponentContext by componentContext {
 
-    override fun onChatListOpenClicked() {
-        // Handle navigation to next screen
+    private val _chatMessages = MutableStateFlow<List<String>>(emptyList())
+    override val chatMessages: StateFlow<List<String>> = _chatMessages.asStateFlow()
+
+    private val _messageInput = MutableStateFlow("")
+    override val messageInput: StateFlow<String> = _messageInput.asStateFlow()
+
+    override fun onChatListOpenClicked() = onChatListOpenAction()
+
+    override fun onMessageSend(message: String) {
+        if (message.isNotBlank()) {
+            _chatMessages.value = _chatMessages.value + message
+            _messageInput.value = ""
+        }
+    }
+
+    override fun onMessageInputChanged(input: String) {
+        _messageInput.value = input
     }
 } 
