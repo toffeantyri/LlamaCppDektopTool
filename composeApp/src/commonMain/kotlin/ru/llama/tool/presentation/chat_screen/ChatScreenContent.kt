@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreenContent(component: ChatComponent) {
     val chatMessages by component.chatMessages.collectAsState()
@@ -29,23 +28,12 @@ fun ChatScreenContent(component: ChatComponent) {
     Scaffold(
         topBar = {
             ChatTopBar(onChatListOpenClicked = component::onChatListOpenClicked)
-        },
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                MessageInputPanel(
-                    messageInput = messageInput,
-                    onMessageInputChanged = component::onMessageInputChanged,
-                    onMessageSend = component::onMessageSend
-                )
-            }
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(top = paddingValues.calculateTopPadding()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             LazyColumn(
@@ -58,6 +46,18 @@ fun ChatScreenContent(component: ChatComponent) {
                 items(chatMessages) {
                     Text(text = it)
                 }
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shadowElevation = 8.dp
+            ) {
+                MessageInputPanel(
+                    messageInput = messageInput,
+                    onMessageInputChanged = component::onMessageInputChanged,
+                    onMessageSend = component::onMessageSend
+                )
             }
         }
     }

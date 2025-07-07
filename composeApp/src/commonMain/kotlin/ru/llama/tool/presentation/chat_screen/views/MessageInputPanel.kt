@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,19 +40,21 @@ fun MessageInputPanel(
         TextField(
             value = messageInput,
             onValueChange = onMessageInputChanged,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .heightIn(min = 48.dp, max = 150.dp),
             shape = RoundedCornerShape(10.dp),
             placeholder = { Text("Введите ваше сообщение") },
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
             keyboardActions = KeyboardActions(onSend = { onMessageSend(messageInput) }),
             colors = TextFieldDefaults.colors(
-//                focusedContainerColor = Color.White,
-//                unfocusedContainerColor = Color.White,
-//                disabledContainerColor = Color.LightGray,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
-            )
+            ),
+            singleLine = false,
+            maxLines = 5,
+            minLines = 1
         )
         Button(
             modifier = Modifier.padding(horizontal = 8.dp).padding(vertical = 4.dp),
