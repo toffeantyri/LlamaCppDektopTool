@@ -1,4 +1,4 @@
-package ru.llama.tool.presentation.screen_b
+package ru.llama.tool.presentation.setting_screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,12 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import com.arkivanov.decompose.value.Value
 
-interface SettingsComponent {
-    val state: Value<SettingsState>
-    fun onEvent(event: SettingsEvent)
-}
 
 data class SettingsState(
     val isDarkMode: Boolean = false,
@@ -32,7 +27,7 @@ sealed interface SettingsEvent {
 }
 
 @Composable
-fun SettingsContent(component: SettingsComponent, modifier: Modifier = Modifier) {
+fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) {
     val state by component.state.subscribeAsState()
     Column(
         modifier = modifier

@@ -1,4 +1,4 @@
-package ru.llama.tool.presentation.screen_b
+package ru.llama.tool.presentation.setting_screen
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
@@ -12,7 +12,7 @@ class SettingsComponentImpl(
     componentContext: ComponentContext,
     private val parentCoroutineScope: CoroutineScope,
     private val preferences: IAppPreferences,
-) : SettingsComponent, ComponentContext by componentContext, InstanceKeeper.Instance {
+) : SettingComponent, ComponentContext by componentContext, InstanceKeeper.Instance {
 
 
     private val _state = MutableValue(SettingsState(isDarkMode = preferences.getThemeIsDarkMode()))

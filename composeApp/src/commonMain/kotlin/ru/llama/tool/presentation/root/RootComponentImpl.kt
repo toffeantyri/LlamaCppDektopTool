@@ -13,11 +13,11 @@ import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import ru.llama.tool.core.data_store.preferances.IAppPreferences
+import ru.llama.tool.presentation.chat_screen.ChatComponentImpl
 import ru.llama.tool.presentation.root.IRootComponent.Child
-import ru.llama.tool.presentation.screen_a.ScreenAComponentImpl
-import ru.llama.tool.presentation.screen_b.SettingsComponent
-import ru.llama.tool.presentation.screen_b.SettingsComponentImpl
-import ru.llama.tool.presentation.screen_b.SettingsState
+import ru.llama.tool.presentation.setting_screen.SettingComponent
+import ru.llama.tool.presentation.setting_screen.SettingsComponentImpl
+import ru.llama.tool.presentation.setting_screen.SettingsState
 import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class RootComponentImpl(
@@ -31,7 +31,7 @@ class RootComponentImpl(
     private val navigation = StackNavigation<Config>()
     private val _selectedIndex = MutableValue(0)
 
-    private val settingsComponent: SettingsComponent = instanceKeeper.getOrCreate {
+    private val settingsComponent: SettingComponent = instanceKeeper.getOrCreate {
         SettingsComponentImpl(
             componentContext = componentContext.childContext("settings"),
             parentCoroutineScope = rootCoroutineScope,
@@ -63,8 +63,8 @@ class RootComponentImpl(
 
     private fun child(config: Config, componentContext: ComponentContext): Child =
         when (config) {
-            Config.ScreenA -> Child.ScreenA(ScreenAComponentImpl(componentContext))
-            Config.SettingScreenConfig -> Child.SettingScreenChild(settingsComponent)
+            Config.ScreenA -> Child.ChatContentChild(ChatComponentImpl(componentContext))
+            Config.SettingScreenConfig -> Child.SettingContentChild(settingsComponent)
         }
 
     @Serializable

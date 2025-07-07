@@ -1,9 +1,10 @@
-package ru.llama.tool.presentation.screen_a
+package ru.llama.tool.presentation.chat_screen
 
 import com.arkivanov.decompose.ComponentContext
 
-class ScreenAComponentImpl(componentContext: ComponentContext) : ScreenAComponent,
+class ChatComponentImpl(componentContext: ComponentContext) : ChatComponent,
     ComponentContext by componentContext {
+
     override fun onNextScreenClicked() {
         // Handle navigation to next screen
     }

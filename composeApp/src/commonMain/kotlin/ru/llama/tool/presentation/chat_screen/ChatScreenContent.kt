@@ -1,4 +1,4 @@
-package ru.llama.tool.presentation.screen_a
+package ru.llama.tool.presentation.chat_screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -20,12 +20,9 @@ import llamacppdektoptool.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import ru.llama.tool.getPlatform
 
-interface ScreenAComponent {
-    fun onNextScreenClicked()
-}
 
 @Composable
-fun ScreenAContent(component: ScreenAComponent) {
+fun ChatScreenContent(component: ChatComponent) {
     Column(
         modifier = Modifier
             .safeContentPadding()
