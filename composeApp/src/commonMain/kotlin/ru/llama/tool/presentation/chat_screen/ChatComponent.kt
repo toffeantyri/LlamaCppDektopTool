@@ -6,8 +6,9 @@ import ru.llama.tool.domain.models.Message
 interface ChatComponent {
     val chatMessages: StateFlow<List<Message>>
     val messageInput: StateFlow<String>
+    val isAITyping: StateFlow<Boolean>
 
     fun onChatListOpenClicked()
-    fun onMessageSend(message: String)
+    fun onMessageSend(userMessage: String)
     fun onMessageInputChanged(input: String)
 }
