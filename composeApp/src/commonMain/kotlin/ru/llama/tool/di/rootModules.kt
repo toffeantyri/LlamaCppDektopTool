@@ -16,7 +16,8 @@ private fun rootModules(enableNetworkLogs: Boolean) = module {
 
     includes(
         dataStoreModule,
-        networkModule(enableNetworkLogs)
+        networkModule(enableNetworkLogs),
+        dataSourceModule
     )
 
 }

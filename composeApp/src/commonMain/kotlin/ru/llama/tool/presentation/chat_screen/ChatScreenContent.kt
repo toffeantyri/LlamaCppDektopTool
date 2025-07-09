@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
 
@@ -56,7 +57,7 @@ fun ChatScreenContent(component: ChatComponent) {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(chatMessages) { message ->
-                        val isUserMessage = message.sender == Sender.User
+                        val isUserMessage = message.sender == EnumSender.User
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()

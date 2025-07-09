@@ -4,6 +4,8 @@ import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import ru.llama.tool.domain.models.EnumSender
+import ru.llama.tool.domain.models.Message
 
 class ChatComponentImpl(
     componentContext: ComponentContext,
@@ -20,8 +22,7 @@ class ChatComponentImpl(
 
     override fun onMessageSend(message: String) {
         if (message.isNotBlank()) {
-            _chatMessages.value =
-                _chatMessages.value + Message(content = message, sender = Sender.User)
+            _chatMessages.value += Message(content = message, sender = EnumSender.User)
             _messageInput.value = ""
         }
     }
