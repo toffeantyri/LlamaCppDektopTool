@@ -1,12 +1,21 @@
 package ru.llama.tool.presentation.chat_screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -17,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
@@ -37,25 +47,70 @@ fun ChatScreenContent(component: ChatComponent) {
                 .padding(top = paddingValues.calculateTopPadding()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(chatMessages) { message ->
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .padding(horizontal = 4.dp).padding(end = 20.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer
-                    ) {
-                        Text(
-                            text = message,
-                            modifier = Modifier.padding(12.dp)
-                        )
+            BoxWithConstraints(modifier = Modifier.weight(1f)) {
+                val maxMessageWidth = maxWidth * 0.7f
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(chatMessages) { message ->
+                        val isUserMessage = message.sender == Sender.User
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = if (isUserMessage) Arrangement.End else Arrangement.Start,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            if (!isUserMessage) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary)
+                                        .align(Alignment.Bottom),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = message.sender.name.first().toString(),
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+
+                            Surface(
+                                modifier = Modifier
+                                    .widthIn(max = maxMessageWidth)
+                                    .padding(horizontal = 4.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (isUserMessage) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Text(
+                                    text = message.content,
+                                    modifier = Modifier.padding(12.dp)
+                                )
+                            }
+
+                            if (isUserMessage) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.secondary)
+                                        .align(Alignment.Bottom),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = message.sender.name.first().toString(),
+                                        color = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

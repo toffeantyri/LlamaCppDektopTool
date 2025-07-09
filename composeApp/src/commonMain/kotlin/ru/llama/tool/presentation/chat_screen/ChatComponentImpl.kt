@@ -10,8 +10,8 @@ class ChatComponentImpl(
     private val onChatListOpenAction: () -> Unit
 ) : ChatComponent, ComponentContext by componentContext {
 
-    private val _chatMessages = MutableStateFlow<List<String>>(emptyList())
-    override val chatMessages: StateFlow<List<String>> = _chatMessages.asStateFlow()
+    private val _chatMessages = MutableStateFlow<List<Message>>(emptyList())
+    override val chatMessages: StateFlow<List<Message>> = _chatMessages.asStateFlow()
 
     private val _messageInput = MutableStateFlow("")
     override val messageInput: StateFlow<String> = _messageInput.asStateFlow()
@@ -20,7 +20,8 @@ class ChatComponentImpl(
 
     override fun onMessageSend(message: String) {
         if (message.isNotBlank()) {
-            _chatMessages.value = _chatMessages.value + message
+            _chatMessages.value =
+                _chatMessages.value + Message(content = message, sender = Sender.User)
             _messageInput.value = ""
         }
     }

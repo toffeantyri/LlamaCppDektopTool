@@ -3,7 +3,7 @@ package ru.llama.tool.presentation.chat_screen
 import kotlinx.coroutines.flow.StateFlow
 
 interface ChatComponent {
-    val chatMessages: StateFlow<List<String>>
+    val chatMessages: StateFlow<List<Message>>
     val messageInput: StateFlow<String>
 
     fun onChatListOpenClicked()
