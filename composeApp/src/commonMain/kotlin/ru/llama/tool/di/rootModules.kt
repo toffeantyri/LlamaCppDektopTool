@@ -15,7 +15,8 @@ fun initKoin(enableNetworkLogs: Boolean = false, appDeclaration: KoinAppDeclarat
 private fun rootModules(enableNetworkLogs: Boolean) = module {
 
     includes(
-        dataStoreModule
+        dataStoreModule,
+        networkModule(enableNetworkLogs)
     )
 
 }

@@ -40,6 +40,7 @@ kotlin {
             // Ktor for networking
             implementation(libs.ktor.core)
             implementation(libs.ktor.negotiation)
+            implementation(libs.ktor.logging)
             implementation(libs.ktor.serialization.kotlinx.json)
 
             // Kotlinx Serialization
@@ -64,6 +65,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+            implementation(libs.ktor.client.okhttp)
         }
     }
 }
