@@ -1,10 +1,8 @@
 package ru.llama.tool.data.repository
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import ru.llama.tool.data.api.models.llama_models.MessageRequest
 import ru.llama.tool.data.data_sources.LlamaAiDataSource
-import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
 
 
@@ -17,11 +15,7 @@ class LlamaAiRepositoryImpl(private val llamaAiDataSource: LlamaAiDataSource) : 
                 role = message.sender.name.lowercase()
             )
         )
-        return request.map {
-            Message(
-                content = it.choices.first().delta.content ?: " ",
-                sender = EnumSender.AI
-            )
-        }
+
+        return request
     }
 } 
