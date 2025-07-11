@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 fun MessageInputPanel(
     messageInput: String,
     onMessageInputChanged: (String) -> Unit,
-    onMessageSend: (String) -> Unit
+    onMessageSend: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -45,8 +45,8 @@ fun MessageInputPanel(
                 .heightIn(min = 48.dp, max = 150.dp),
             shape = RoundedCornerShape(10.dp),
             placeholder = { Text("Введите ваше сообщение") },
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
-            keyboardActions = KeyboardActions(onSend = { onMessageSend(messageInput) }),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onSend = { onMessageSend() }),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
@@ -58,7 +58,7 @@ fun MessageInputPanel(
         )
         Button(
             modifier = Modifier.padding(horizontal = 8.dp).padding(vertical = 4.dp),
-            onClick = { onMessageSend(messageInput) }
+            onClick = { onMessageSend() }
         ) {
             Icon(
                 modifier = Modifier.size(20.dp).aspectRatio(1f),

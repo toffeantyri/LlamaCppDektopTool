@@ -9,6 +9,6 @@ interface ChatComponent {
     val isAITyping: StateFlow<Boolean>
 
     fun onChatListOpenClicked()
-    fun onMessageSend(userMessage: String)
+    fun onMessageSend()
     fun onMessageInputChanged(input: String)
 }

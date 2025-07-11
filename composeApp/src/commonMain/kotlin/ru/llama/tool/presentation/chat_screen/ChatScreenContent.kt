@@ -22,22 +22,33 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
+import ru.llama.tool.presentation.utils.onKeyEnter
 
 @Composable
 fun ChatScreenContent(component: ChatComponent) {
     val chatMessages by component.chatMessages.collectAsState()
     val messageInput by component.messageInput.collectAsState()
 
+
+    val focusRequester = remember { FocusRequester() }
+
+
     Scaffold(
+        modifier = Modifier.onKeyEnter(focusRequester) {
+            component.onMessageSend()
+        },
         topBar = {
             ChatTopBar(onChatListOpenClicked = component::onChatListOpenClicked)
         }
@@ -128,5 +139,9 @@ fun ChatScreenContent(component: ChatComponent) {
                 )
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 } 

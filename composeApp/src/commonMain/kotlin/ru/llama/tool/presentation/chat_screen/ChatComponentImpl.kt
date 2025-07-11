@@ -44,11 +44,11 @@ class ChatComponentImpl(
 
     override fun onChatListOpenClicked() = onChatListOpenAction()
 
-    override fun onMessageSend(userMessage: String) {
+    override fun onMessageSend() {
         var id = counter++
 
         val message = Message(
-            content = userMessage,
+            content = _messageInput.value.trim(),
             sender = EnumSender.User,
             id = id
         )
