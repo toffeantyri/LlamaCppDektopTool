@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -26,11 +27,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
@@ -44,9 +47,16 @@ fun ChatScreenContent(component: ChatComponent) {
 
     val focusRequester = remember { FocusRequester() }
 
+    val scrollState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+
+
 
     Scaffold(
         modifier = Modifier.onKeyEnter(focusRequester) {
+            scope.launch {
+                scrollState.scrollToItem(chatMessages.lastIndex)
+            }
             component.onMessageSend()
         },
         topBar = {
@@ -65,7 +75,8 @@ fun ChatScreenContent(component: ChatComponent) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    state = scrollState
                 ) {
                     items(chatMessages) { message ->
                         val isUserMessage = message.sender == EnumSender.User
