@@ -19,6 +19,12 @@ import ru.llama.tool.data.api.models.llama_models.MessageRequest
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
 
+private val json = Json {
+    prettyPrint = true
+    ignoreUnknownKeys = true
+    explicitNulls = true
+}
+
 class ApiServiceImpl(
     private val client: HttpClient
 ) : ApiService {
@@ -59,7 +65,7 @@ class ApiServiceImpl(
 
                     println("Count ${++counter}")
                     try {
-                        val dto = Json.decodeFromString<LlamaResponseDto>(line)
+                        val dto = json.decodeFromString<LlamaResponseDto>(line)
                         emit(dto)
                     } catch (e: Exception) {
                         println("Error 1 $e")
@@ -76,7 +82,7 @@ class ApiServiceImpl(
             if (jsonString != "[DONE]") {
 
                 try {
-                    val dto = Json.decodeFromString<LlamaResponseDto>(partial)
+                    val dto = json.decodeFromString<LlamaResponseDto>(partial)
                     emit(dto)
 //                println(dto.choices[0].delta.content)
                 } catch (e: Exception) {
@@ -112,8 +118,10 @@ class ApiServiceImpl(
             val line = content.readUTF8Line() ?: break
 
             if (line.startsWith("data:")) {
-                val data = line.substringAfter(":").trim()
-
+                val jsonString = line.substringAfter(":").trim()
+                val data =
+                    json.decodeFromString<LlamaResponseDto>(jsonString).choices[0].delta.content
+                        ?: ""
                 dataBuilder.clear()
                 dataBuilder.append(data)
             } else if (line.isBlank() && dataBuilder.isNotEmpty()) {

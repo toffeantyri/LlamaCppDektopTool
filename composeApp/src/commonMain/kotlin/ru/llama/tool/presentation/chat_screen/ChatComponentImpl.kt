@@ -1,10 +1,12 @@
 package ru.llama.tool.presentation.chat_screen
 
 import com.arkivanov.decompose.ComponentContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -48,8 +50,8 @@ class ChatComponentImpl(
                 sendChatRequestUseCase(message)
                     .onStart { _isAITyping.value = true }
                     .onCompletion { _isAITyping.value = false }
+                    .flowOn(Dispatchers.IO)
                     .collectLatest { aiResponse ->
-                        println(aiResponse)
                         _chatMessages.value += aiResponse
                     }
             }
