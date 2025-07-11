@@ -1,5 +1,7 @@
 package ru.llama.tool.presentation.chat_screen
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,8 +28,11 @@ class ChatComponentImpl(
 
     private val sendChatRequestUseCase: SendChatRequestUseCase by inject()
 
-    private val _chatMessages = MutableStateFlow<List<Message>>(emptyList())
-    override val chatMessages: StateFlow<List<Message>> = _chatMessages.asStateFlow()
+    private val _chatMessagesData =
+        MutableStateFlow<SnapshotStateList<Message>>(mutableStateListOf())
+
+    override val chatMessages: StateFlow<SnapshotStateList<Message>> =
+        _chatMessagesData.asStateFlow()
 
     private val _messageInput = MutableStateFlow("")
     override val messageInput: StateFlow<String> = _messageInput.asStateFlow()
@@ -35,24 +40,48 @@ class ChatComponentImpl(
     private val _isAITyping = MutableStateFlow(false)
     override val isAITyping: StateFlow<Boolean> = _isAITyping.asStateFlow()
 
+    private var counter = 0
+
     override fun onChatListOpenClicked() = onChatListOpenAction()
 
     override fun onMessageSend(userMessage: String) {
+        var id = counter++
+
         val message = Message(
             content = userMessage,
-            sender = EnumSender.User
+            sender = EnumSender.User,
+            id = id
         )
+
         if (message.content.isNotBlank()) {
-            _chatMessages.value += message
+            _chatMessagesData.value += message
             _messageInput.value = ""
 
             coroutineScope.launch {
-                sendChatRequestUseCase(message)
+                sendChatRequestUseCase(message.copy(id = ++id))
                     .onStart { _isAITyping.value = true }
                     .onCompletion { _isAITyping.value = false }
                     .flowOn(Dispatchers.IO)
                     .collectLatest { aiResponse ->
-                        _chatMessages.value += aiResponse
+                        if (aiResponse.id != id) {
+                            _chatMessagesData.value += aiResponse
+                        } else if (_chatMessagesData.value.firstOrNull {
+                                it.id == aiResponse.id
+                            } == null) {
+                            _chatMessagesData.value += aiResponse
+                        } else {
+                            _chatMessagesData.value.firstOrNull {
+                                it.id == aiResponse.id
+                            }?.let { oldMessage ->
+                                val oldIndex = _chatMessagesData.value.indexOf(oldMessage)
+                                val newMessage = Message(
+                                    id = id,
+                                    sender = aiResponse.sender,
+                                    content = oldMessage.content + aiResponse.content
+                                )
+                                _chatMessagesData.value[oldIndex] = newMessage
+                            }
+                        }
                     }
             }
         }

@@ -8,7 +8,7 @@ import ru.llama.tool.domain.models.Message
 class LlamaAiDataSourceImpl(private val api: ApiService) : LlamaAiDataSource {
 
     override suspend fun sendMessageToAi(message: MessageRequest): Flow<Message> {
-        return api.simpleRequestAi2(message)
+        return api.simpleRequestAi(message)
     }
 
 }

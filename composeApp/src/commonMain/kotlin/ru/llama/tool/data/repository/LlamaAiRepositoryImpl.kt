@@ -12,7 +12,8 @@ class LlamaAiRepositoryImpl(private val llamaAiDataSource: LlamaAiDataSource) : 
         val request = llamaAiDataSource.sendMessageToAi(
             MessageRequest(
                 content = message.content,
-                role = message.sender.name.lowercase()
+                role = message.sender.name.lowercase(),
+                id = message.id
             )
         )
 
