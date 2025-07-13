@@ -6,6 +6,6 @@ import ru.llama.tool.domain.models.Message
 
 interface LlamaAiDataSource {
 
-    suspend fun sendMessageToAi(message: MessageRequest): Flow<Message>
+    suspend fun sendMessageToAi(messages: List<MessageRequest>): Flow<Message>
 
 }

@@ -8,6 +8,6 @@ import ru.llama.tool.domain.models.Message
 interface ApiService {
 
     suspend fun getModelProperties(): LlamaProperties
-    suspend fun simpleRequestAi(message: MessageRequest): Flow<Message>
+    suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message>
 
 }

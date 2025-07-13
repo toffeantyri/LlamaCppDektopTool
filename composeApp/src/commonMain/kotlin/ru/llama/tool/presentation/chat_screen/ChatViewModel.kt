@@ -26,12 +26,22 @@ class ChatViewModel(
     private var idCounter = 0
 
     override fun onMessageSend() {
-        var id = idCounter++
+        // Добавляем системный промпт если это первое сообщение
+        if (uiModel.value.chatMessagesData.value.isEmpty()) {
+            uiModel.value.chatMessagesData.value += Message(
+                sender = EnumSender.System,
+                id = -1,
+                content = uiModel.value.systemPrompt.value
+            )
+        }
+
+        val userMessageId = idCounter++
+        val aiResponseId = idCounter++ // Заранее резервируем ID для ответа
 
         val message = Message(
             content = uiModel.value.messageInput.value.trim(),
             sender = EnumSender.User,
-            id = id
+            id = userMessageId
         )
 
         if (message.content.isNotBlank()) {
@@ -39,27 +49,26 @@ class ChatViewModel(
             uiModel.value.messageInput.value = ""
 
             coroutineScope.launch {
-                sendChatRequestUseCase(message.copy(id = ++id))
+                sendChatRequestUseCase(uiModel.value.chatMessagesData.value)
                     .onStart { uiModel.value.isAiTyping.value = true }
                     .onCompletion { uiModel.value.isAiTyping.value = false }
                     .flowOn(Dispatchers.IO)
                     .collectLatest { aiResponse ->
-                        if (aiResponse.id != id) {
-                            uiModel.value.chatMessagesData.value += aiResponse
-                        } else if (uiModel.value.chatMessagesData.value.firstOrNull {
-                                it.id == aiResponse.id
-                            } == null) {
-                            uiModel.value.chatMessagesData.value += aiResponse
+                        // Обновляем ID ответа, чтобы он соответствовал зарезервированному
+                        val updatedResponse = aiResponse.copy(id = aiResponseId)
+
+                        if (uiModel.value.chatMessagesData.value.none { it.id == updatedResponse.id }) {
+                            uiModel.value.chatMessagesData.value += updatedResponse
                         } else {
                             uiModel.value.chatMessagesData.value.firstOrNull {
-                                it.id == aiResponse.id
+                                it.id == updatedResponse.id
                             }?.let { oldMessage ->
                                 val oldIndex =
                                     uiModel.value.chatMessagesData.value.indexOf(oldMessage)
                                 val newMessage = Message(
-                                    id = id,
-                                    sender = aiResponse.sender,
-                                    content = oldMessage.content + aiResponse.content
+                                    id = updatedResponse.id,
+                                    sender = updatedResponse.sender,
+                                    content = oldMessage.content + updatedResponse.content
                                 )
                                 uiModel.value.chatMessagesData.value[oldIndex] = newMessage
                             }

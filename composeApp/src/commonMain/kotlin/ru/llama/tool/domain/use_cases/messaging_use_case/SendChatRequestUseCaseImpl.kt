@@ -6,7 +6,7 @@ import ru.llama.tool.domain.models.Message
 
 class SendChatRequestUseCaseImpl(private val llamaAiRepository: LlamaAiRepository) :
     SendChatRequestUseCase {
-    override suspend fun invoke(message: Message): Flow<Message> {
+    override suspend fun invoke(message: List<Message>): Flow<Message> {
         return llamaAiRepository.sendMessage(message)
     }
 } 

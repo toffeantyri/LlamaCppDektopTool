@@ -8,13 +8,15 @@ import ru.llama.tool.domain.models.Message
 
 class LlamaAiRepositoryImpl(private val llamaAiDataSource: LlamaAiDataSource) : LlamaAiRepository {
 
-    override suspend fun sendMessage(message: Message): Flow<Message> {
+    override suspend fun sendMessage(messages: List<Message>): Flow<Message> {
         val request = llamaAiDataSource.sendMessageToAi(
-            MessageRequest(
-                content = message.content,
-                role = message.sender.name.lowercase(),
-                id = message.id
-            )
+            messages.map { message ->
+                MessageRequest(
+                    content = message.content,
+                    role = message.sender.name.lowercase(),
+                    id = message.id
+                )
+            }
         )
         return request
 

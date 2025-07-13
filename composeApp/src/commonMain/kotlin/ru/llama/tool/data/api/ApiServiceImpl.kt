@@ -43,7 +43,7 @@ class ApiServiceImpl(
     }
 
 
-    override suspend fun simpleRequestAi(message: MessageRequest): Flow<Message> = flow {
+    override suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message> = flow {
         val path = "v1/chat/completions"
 
         val response = client.post(settingProvider.getBaseUrl()) {
@@ -53,7 +53,7 @@ class ApiServiceImpl(
             contentType(ContentType.Application.Json)
             setBody(
                 LLamaMessageDto(
-                    messages = listOf(message),
+                    messages = messages,
                     stream = true
                 )
             )
@@ -76,7 +76,7 @@ class ApiServiceImpl(
                         Message(
                             content = "",
                             sender = EnumSender.AI,
-                            id = message.id
+                            id = messages.last().id
                         )
                     )
                 } else {
@@ -89,7 +89,7 @@ class ApiServiceImpl(
                         Message(
                             content = data,
                             sender = EnumSender.AI,
-                            id = message.id
+                            id = messages.last().id
                         )
                     )
                 }
@@ -102,7 +102,7 @@ class ApiServiceImpl(
                 Message(
                     content = dataBuilder.toString(),
                     sender = EnumSender.AI,
-                    id = message.id
+                    id = messages.last().id
                 )
             )
         }

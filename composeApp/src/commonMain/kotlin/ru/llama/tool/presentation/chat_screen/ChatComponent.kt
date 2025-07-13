@@ -22,6 +22,7 @@ interface ChatComponent {
             mutableStateListOf()
         ),
         val messageInput: MutableState<String> = mutableStateOf(EMPTY),
+        val systemPrompt: MutableState<String> = mutableStateOf("Ты \"ИИнженер\", русскоязычный ассистент. В конце каждого сообщения ты добавляешь \"Ура!\". Отвечаешь точно. Если не знаешь ответа - пишешь - \"Я не знаю.\""),
         val isAiTyping: MutableState<Boolean> = mutableStateOf(false),
 
         val aiProps: MutableState<AiProperties> = mutableStateOf(AiProperties(UiText.Empty)),

@@ -12,10 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,6 +28,7 @@ fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
 
     Column(modifier = modifier) {
         val isUserMessage = message.sender == EnumSender.User
+        val isAiMessage = message.sender == EnumSender.AI
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -38,7 +36,7 @@ fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
             horizontalArrangement = if (isUserMessage) Arrangement.End else Arrangement.Start,
             verticalAlignment = Alignment.Bottom
         ) {
-            if (!isUserMessage) {
+            if (isAiMessage) {
                 Box(
                     modifier = Modifier
                         .size(32.dp)
@@ -53,24 +51,26 @@ fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-            }
 
-            Surface(
-                modifier = Modifier
-                    .widthIn(max = maxMessageWidth)
-                    .padding(horizontal = 4.dp),
-                shape = RoundedCornerShape(8.dp),
-                color = if (isUserMessage) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
-            ) {
-                SelectionContainer {
-                    Text(
-                        text = message.content,
-                        modifier = Modifier.padding(12.dp)
-                    )
-                }
+
+                ContentCloud(
+                    modifier = Modifier
+                        .widthIn(max = maxMessageWidth)
+                        .padding(horizontal = 4.dp),
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+                    message = message
+                )
             }
 
             if (isUserMessage) {
+                ContentCloud(
+                    modifier = Modifier
+                        .widthIn(max = maxMessageWidth)
+                        .padding(horizontal = 4.dp),
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                    message = message
+                )
+
                 Spacer(modifier = Modifier.width(8.dp))
                 Box(
                     modifier = Modifier
