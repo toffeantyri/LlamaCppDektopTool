@@ -1,4 +1,4 @@
-package ru.llama.tool.domain
+package ru.llama.tool.domain.use_cases.messaging_use_case
 
 import kotlinx.coroutines.flow.Flow
 import ru.llama.tool.domain.models.Message

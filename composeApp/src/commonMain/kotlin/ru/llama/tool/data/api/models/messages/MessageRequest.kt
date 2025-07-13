@@ -1,4 +1,4 @@
-package ru.llama.tool.data.api.models.llama_models
+package ru.llama.tool.data.api.models.messages
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

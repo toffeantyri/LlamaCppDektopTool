@@ -8,12 +8,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import ru.llama.tool.domain.models.AiProperties
+import ru.llama.tool.presentation.utils.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatTopBar(onChatListOpenClicked: () -> Unit) {
+fun ChatTopBar(
+    aiProps: State<AiProperties>,
+    onChatListOpenClicked: () -> Unit
+) {
     TopAppBar(
-        title = { Text("Chat") },
+        title = { Text(aiProps.value.modelName.asString()) },
         navigationIcon = {
             IconButton(onClick = onChatListOpenClicked) {
                 Icon(Icons.Default.Menu, contentDescription = "Menu")

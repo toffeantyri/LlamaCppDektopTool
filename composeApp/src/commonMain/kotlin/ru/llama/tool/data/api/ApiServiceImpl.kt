@@ -1,6 +1,8 @@
 package ru.llama.tool.data.api
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
@@ -14,7 +16,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import ru.llama.tool.data.api.models.llama_models.LLamaMessageDto
 import ru.llama.tool.data.api.models.llama_models.LlamaResponseDto
-import ru.llama.tool.data.api.models.llama_models.MessageRequest
+import ru.llama.tool.data.api.models.llama_props_dto.LlamaProperties
+import ru.llama.tool.data.api.models.messages.MessageRequest
 import ru.llama.tool.data.api.setting_http_client_provider.ISettingHttpClientProvider
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
@@ -30,9 +33,18 @@ class ApiServiceImpl(
     private val settingProvider: ISettingHttpClientProvider
 ) : ApiService {
 
+    override suspend fun getModelProperties(): LlamaProperties {
+        return client.get(settingProvider.getBaseUrl()) {
+            url {
+                appendPathSegments("props")
+            }
+            contentType(ContentType.Application.Json)
+        }.body()
+    }
+
 
     override suspend fun simpleRequestAi(message: MessageRequest): Flow<Message> = flow {
-        val path = "chat/completions"
+        val path = "v1/chat/completions"
 
         val response = client.post(settingProvider.getBaseUrl()) {
             url {

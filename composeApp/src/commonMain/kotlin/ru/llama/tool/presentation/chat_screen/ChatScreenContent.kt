@@ -17,11 +17,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
@@ -30,24 +28,24 @@ import ru.llama.tool.presentation.utils.onKeyEnter
 
 @Composable
 fun ChatScreenContent(component: ChatComponent) {
-    val chatMessages = component.chatMessages.collectAsState()
-    val messageInput by component.messageInput.collectAsState()
 
+    val uiModel by component.viewModel.uiModel.collectAsState()
+
+    val chatMessages = uiModel.chatMessagesData.collectAsState()
 
     val focusRequester = remember { FocusRequester() }
 
     val scrollState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         modifier = Modifier.onKeyEnter(focusRequester) {
-//            scope.launch {
-//                scrollState.scrollToItem(chatMessages.lastIndex)
-//            }
-            component.onMessageSend()
+            component.viewModel.onMessageSend()
         },
         topBar = {
-            ChatTopBar(onChatListOpenClicked = component::onChatListOpenClicked)
+            ChatTopBar(
+                aiProps = uiModel.aiProps,
+                onChatListOpenClicked = component::onChatListOpenClicked
+            )
         }
     ) { paddingValues ->
         Column(
@@ -69,11 +67,7 @@ fun ChatScreenContent(component: ChatComponent) {
                     items(chatMessages.value.asReversed()) { message ->
 
                         MessageItem(
-                            modifier = Modifier.onSizeChanged {
-//                                scope.launch {
-//                                    scrollState.animateScrollToItem(chatMessages.value.lastIndex)
-//                                }
-                            },
+                            modifier = Modifier,
                             message = message,
                             maxMessageWidth = maxMessageWidth
                         )
@@ -90,9 +84,11 @@ fun ChatScreenContent(component: ChatComponent) {
                 shadowElevation = 8.dp
             ) {
                 MessageInputPanel(
-                    messageInput = messageInput,
-                    onMessageInputChanged = component::onMessageInputChanged,
-                    onMessageSend = component::onMessageSend
+                    messageInput = uiModel.messageInput,
+                    onMessageInputChanged = component.viewModel::onMessageInputChanged,
+                    onMessageSend = component.viewModel::onMessageSend,
+                    isAiTyping = uiModel.isAiTyping
+
                 )
             }
         }

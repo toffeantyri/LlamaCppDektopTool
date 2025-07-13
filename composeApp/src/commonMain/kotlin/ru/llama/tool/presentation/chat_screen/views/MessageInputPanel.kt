@@ -13,11 +13,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,9 +30,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun MessageInputPanel(
-    messageInput: String,
+    messageInput: State<String>,
     onMessageInputChanged: (String) -> Unit,
-    onMessageSend: () -> Unit
+    onMessageSend: () -> Unit,
+    isAiTyping: State<Boolean>
 ) {
     Row(
         modifier = Modifier
@@ -38,7 +43,7 @@ fun MessageInputPanel(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         TextField(
-            value = messageInput,
+            value = messageInput.value,
             onValueChange = onMessageInputChanged,
             modifier = Modifier
                 .weight(1f)
@@ -54,18 +59,28 @@ fun MessageInputPanel(
             ),
             singleLine = false,
             maxLines = 5,
-            minLines = 1
+            minLines = 1,
+            enabled = !isAiTyping.value
         )
         Button(
             modifier = Modifier.padding(horizontal = 8.dp).padding(vertical = 4.dp),
-            onClick = { onMessageSend() }
+            onClick = { onMessageSend() },
+            enabled = isAiTyping.value.not(),
+            colors = ButtonDefaults.buttonColors(disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer)
         ) {
-            Icon(
-                modifier = Modifier.size(20.dp).aspectRatio(1f),
-                imageVector = Icons.AutoMirrored.Filled.Send,
-                tint = Color.Black,
-                contentDescription = "Send"
-            )
+            if (isAiTyping.value) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp).aspectRatio(1f),
+                    color = Color.White
+                )
+            } else {
+                Icon(
+                    modifier = Modifier.size(20.dp).aspectRatio(1f),
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    tint = Color.Black,
+                    contentDescription = "Send"
+                )
+            }
         }
     }
 } 

@@ -1,8 +1,8 @@
-package ru.llama.tool.data.repository
+package ru.llama.tool.data.repository.ai_repo
 
 import kotlinx.coroutines.flow.Flow
-import ru.llama.tool.data.api.models.llama_models.MessageRequest
-import ru.llama.tool.data.data_sources.LlamaAiDataSource
+import ru.llama.tool.data.api.models.messages.MessageRequest
+import ru.llama.tool.data.data_sources.messaging_data_source.LlamaAiDataSource
 import ru.llama.tool.domain.models.Message
 
 
