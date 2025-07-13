@@ -1,10 +1,12 @@
 package ru.llama.tool.data.api.models.llama_models
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class MessageRequest(
-    val id: Int,
+
+    @Transient val id: Int = -1,
     val content: String,
     val role: String
 )

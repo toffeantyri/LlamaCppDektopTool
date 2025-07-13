@@ -16,7 +16,18 @@ class LlamaAiRepositoryImpl(private val llamaAiDataSource: LlamaAiDataSource) : 
                 id = message.id
             )
         )
-
         return request
+
+//        delay(2000)
+//        return flow {
+//            repeat(20){
+//                delay(30)
+//                emit(Message(
+//                    sender = EnumSender.AI,
+//                    id = message.id,
+//                    content = "Кто нибудь помогите мне выбраться из локального окружения"
+//                ))
+//            }
+//        }
     }
 } 

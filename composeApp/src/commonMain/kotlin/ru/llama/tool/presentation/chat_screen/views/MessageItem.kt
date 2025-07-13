@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,10 +62,12 @@ fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
                 shape = RoundedCornerShape(8.dp),
                 color = if (isUserMessage) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
             ) {
-                Text(
-                    text = message.content,
-                    modifier = Modifier.padding(12.dp)
-                )
+                SelectionContainer {
+                    Text(
+                        text = message.content,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
             }
 
             if (isUserMessage) {
