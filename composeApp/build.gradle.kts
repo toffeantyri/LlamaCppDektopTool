@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.multiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.application)
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
@@ -74,6 +74,7 @@ kotlin {
 
         androidMain.dependencies {
             //splash screen
+            implementation(libs.koin.android)
             implementation(libs.androidx.activityCompose)
             implementation(libs.androidx.core.splashscreen)
 
@@ -117,7 +118,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
