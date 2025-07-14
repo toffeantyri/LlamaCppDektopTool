@@ -1,7 +1,9 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.multiplatform)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
@@ -10,15 +12,22 @@ plugins {
 }
 
 kotlin {
+
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+
     jvmToolchain(17)
 
     jvm {
         compilerOptions {
-//            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
     sourceSets {
-        
+
         commonMain.dependencies {
             // Compose
             implementation(compose.runtime)
@@ -62,6 +71,19 @@ kotlin {
         commonTest.dependencies {
 //            implementation(libs.kotlin.test)
         }
+
+        androidMain.dependencies {
+            //splash screen
+            implementation(libs.androidx.activityCompose)
+            implementation(libs.androidx.core.splashscreen)
+
+            implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.room.runtime.android)
+            implementation(libs.room.gradle.plugin)
+
+            implementation(libs.ktor.client.okhttp)
+        }
+
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
@@ -75,9 +97,45 @@ room {
 }
 
 
+android {
+    namespace = libs.versions.nameSpace.get()
+    compileSdk = 35
+
+    defaultConfig {
+
+        minSdk = 26
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    sourceSets["main"].apply {
+        //manifest.srcFile("src/androidMain/AndroidManifest.xml")
+        res.srcDirs("src/androidMain/res")
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
+        debug {
+            isMinifyEnabled = false
+        }
+
+    }
+}
+
+
+
 compose.desktop {
     application {
-        mainClass = "ru.llama.tool.MainKt"
+        mainClass = "${libs.versions.nameSpace.get()}.MainKt"
         jvmArgs += listOf(
             "--add-opens=java.base/sun.misc=ALL-UNNAMED",
             "--add-opens=java.base/java.lang=ALL-UNNAMED"
@@ -94,4 +152,5 @@ compose.desktop {
 
 dependencies {
     "kspJvm"(libs.room.compiler)
+    "kspAndroid"(libs.room.compiler)
 }
