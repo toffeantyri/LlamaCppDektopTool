@@ -43,8 +43,9 @@ class ApiServiceImpl(
     }
 
 
-    override suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message> = flow {
+    override suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message> {
         val path = "v1/chat/completions"
+
 
         val response = client.post(settingProvider.getBaseUrl()) {
             url {
@@ -63,52 +64,53 @@ class ApiServiceImpl(
             "Expected text/event-stream but got ${response.contentType()}"
         }
 
-        val content = response.bodyAsChannel()
-        val dataBuilder = StringBuilder()
+        return flow {
+            val content = response.bodyAsChannel()
+            val dataBuilder = StringBuilder()
 
-        while (!content.isClosedForRead) {
-            val line = content.readUTF8Line() ?: break
+            while (!content.isClosedForRead) {
+                val line = content.readUTF8Line() ?: break
 
-            if (line.startsWith("data:")) {
-                val jsonString = line.substringAfter(":").trim()
-                if (jsonString == "[DONE]") {
-                    emit(
-                        Message(
-                            content = "",
-                            sender = EnumSender.AI,
-                            id = messages.last().id
+                if (line.startsWith("data:")) {
+                    val jsonString = line.substringAfter(":").trim()
+                    if (jsonString == "[DONE]") {
+                        emit(
+                            Message(
+                                content = "",
+                                sender = EnumSender.AI,
+                                id = messages.last().id
+                            )
                         )
-                    )
-                } else {
-                    val data =
-                        json.decodeFromString<LlamaResponseDto>(jsonString).choices[0].delta.content
-                            ?: ""
-                    dataBuilder.clear()
-                    dataBuilder.append(data)
-                    emit(
-                        Message(
-                            content = data,
-                            sender = EnumSender.AI,
-                            id = messages.last().id
+                    } else {
+                        val data =
+                            json.decodeFromString<LlamaResponseDto>(jsonString).choices[0].delta.content
+                                ?: ""
+                        dataBuilder.clear()
+                        dataBuilder.append(data)
+                        emit(
+                            Message(
+                                content = data,
+                                sender = EnumSender.AI,
+                                id = messages.last().id
+                            )
                         )
-                    )
+                    }
                 }
+                delay(10)
             }
-            delay(10)
-        }
 
-        if (dataBuilder.isNotEmpty()) {
-            emit(
-                Message(
-                    content = dataBuilder.toString(),
-                    sender = EnumSender.AI,
-                    id = messages.last().id
+            if (dataBuilder.isNotEmpty()) {
+                emit(
+                    Message(
+                        content = dataBuilder.toString(),
+                        sender = EnumSender.AI,
+                        id = messages.last().id
+                    )
                 )
-            )
-        }
+            }
 
+
+        }
 
     }
-
-
 }

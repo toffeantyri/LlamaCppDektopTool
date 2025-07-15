@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,7 +41,7 @@ fun ChatScreenContent(component: ChatComponent) {
     Scaffold(
         modifier = Modifier.onKeyEnter(focusRequester) {
             component.viewModel.onMessageSend()
-        },
+        }.imePadding(),
         topBar = {
             ChatTopBar(
                 aiProps = uiModel.aiProps,

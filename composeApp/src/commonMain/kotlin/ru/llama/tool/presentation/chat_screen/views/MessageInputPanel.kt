@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -50,8 +49,7 @@ fun MessageInputPanel(
                 .heightIn(min = 48.dp, max = 150.dp),
             shape = RoundedCornerShape(10.dp),
             placeholder = { Text("Введите ваше сообщение") },
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onSend = { onMessageSend() }),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Default),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,

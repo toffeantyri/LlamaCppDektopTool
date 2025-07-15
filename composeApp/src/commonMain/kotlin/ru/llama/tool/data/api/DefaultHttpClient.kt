@@ -10,7 +10,7 @@ import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-private const val DEFAULT_REQUEST_TIMEOUT = 120_000L
+private const val DEFAULT_REQUEST_TIMEOUT = 180_000L
 private const val DEFAULT_TIMEOUT = 90_000L
 
 fun configureHttpClient(
