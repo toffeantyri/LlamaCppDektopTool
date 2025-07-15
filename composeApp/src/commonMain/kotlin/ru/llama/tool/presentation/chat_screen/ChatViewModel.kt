@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
@@ -32,7 +31,7 @@ class ChatViewModel(
             uiModel.value.chatMessagesData.value += Message(
                 sender = EnumSender.System,
                 id = -1,
-                content = uiModel.value.systemPrompt.value
+                content = uiModel.value.aiProps.value.systemPrompt
             )
         }
 
@@ -50,32 +49,32 @@ class ChatViewModel(
             uiModel.value.messageInput.value = ""
             coroutineScope.launch {
                 runCatching {
+                    uiModel.value.isAiTyping.value = true
                     sendChatRequestUseCase(uiModel.value.chatMessagesData.value)
-                }.onSuccess { flowResult ->
-                    flowResult.onStart { uiModel.value.isAiTyping.value = true }
                         .onCompletion { uiModel.value.isAiTyping.value = false }
                         .flowOn(Dispatchers.IO)
-                        .collectLatest { aiResponse ->
-                            // Обновляем ID ответа, чтобы он соответствовал зарезервированному
-                            val updatedResponse = aiResponse.copy(id = aiResponseId)
+                }.onSuccess { flowResult ->
+                    flowResult.collectLatest { aiResponse ->
+                        // Обновляем ID ответа, чтобы он соответствовал зарезервированному
+                        val updatedResponse = aiResponse.copy(id = aiResponseId)
 
-                            if (uiModel.value.chatMessagesData.value.none { it.id == updatedResponse.id }) {
-                                uiModel.value.chatMessagesData.value += updatedResponse
-                            } else {
-                                uiModel.value.chatMessagesData.value.firstOrNull {
-                                    it.id == updatedResponse.id
-                                }?.let { oldMessage ->
-                                    val oldIndex =
-                                        uiModel.value.chatMessagesData.value.indexOf(oldMessage)
-                                    val newMessage = Message(
-                                        id = updatedResponse.id,
-                                        sender = updatedResponse.sender,
-                                        content = oldMessage.content + updatedResponse.content
-                                    )
-                                    uiModel.value.chatMessagesData.value[oldIndex] = newMessage
-                                }
+                        if (uiModel.value.chatMessagesData.value.none { it.id == updatedResponse.id }) {
+                            uiModel.value.chatMessagesData.value += updatedResponse
+                        } else {
+                            uiModel.value.chatMessagesData.value.firstOrNull {
+                                it.id == updatedResponse.id
+                            }?.let { oldMessage ->
+                                val oldIndex =
+                                    uiModel.value.chatMessagesData.value.indexOf(oldMessage)
+                                val newMessage = Message(
+                                    id = updatedResponse.id,
+                                    sender = updatedResponse.sender,
+                                    content = oldMessage.content + updatedResponse.content
+                                )
+                                uiModel.value.chatMessagesData.value[oldIndex] = newMessage
                             }
                         }
+                    }
                 }.onFailure { error ->
                     val lastUserMessageIndex = uiModel.value.chatMessagesData.value.indexOfFirst {
                         it.id == userMessageId

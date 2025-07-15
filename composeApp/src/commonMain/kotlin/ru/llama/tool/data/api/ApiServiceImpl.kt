@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import ru.llama.tool.data.api.models.llama_models.LLamaMessageDto
 import ru.llama.tool.data.api.models.llama_models.LlamaResponseDto
+import ru.llama.tool.data.api.models.llama_props_dto.HealthAiDto
 import ru.llama.tool.data.api.models.llama_props_dto.LlamaProperties
 import ru.llama.tool.data.api.models.messages.MessageRequest
 import ru.llama.tool.data.api.setting_http_client_provider.ISettingHttpClientProvider
@@ -33,8 +34,10 @@ class ApiServiceImpl(
     private val settingProvider: ISettingHttpClientProvider
 ) : ApiService {
 
+    private val baseUrl = { settingProvider.getBaseUrl() }
+
     override suspend fun getModelProperties(): LlamaProperties {
-        return client.get(settingProvider.getBaseUrl()) {
+        return client.get(baseUrl()) {
             url {
                 appendPathSegments("props")
             }
@@ -45,9 +48,9 @@ class ApiServiceImpl(
 
     override suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message> {
         val path = "v1/chat/completions"
+        val properties = settingProvider.getRequestSetting()
 
-
-        val response = client.post(settingProvider.getBaseUrl()) {
+        val response = client.post(baseUrl()) {
             url {
                 appendPathSegments(path)
             }
@@ -55,7 +58,11 @@ class ApiServiceImpl(
             setBody(
                 LLamaMessageDto(
                     messages = messages,
-                    stream = true
+                    stream = true,
+                    top_p = properties.topP,
+                    temperature = properties.temperature,
+                    max_tokens = properties.maxTokens,
+
                 )
             )
         }
@@ -112,5 +119,20 @@ class ApiServiceImpl(
 
         }
 
+    }
+
+    override suspend fun stopGeneration() {
+        return client.post(baseUrl()) {
+
+
+        }.body()
+    }
+
+    override suspend fun getHealthAi(): HealthAiDto {
+        return client.get(baseUrl()) {
+            url {
+                appendPathSegments("health")
+            }
+        }.body()
     }
 }
