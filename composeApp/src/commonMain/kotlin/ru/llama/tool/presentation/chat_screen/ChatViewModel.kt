@@ -76,6 +76,7 @@ class ChatViewModel(
                         }
                     }
                 }.onFailure { error ->
+                    uiModel.value.isAiTyping.value = false
                     val lastUserMessageIndex = uiModel.value.chatMessagesData.value.indexOfFirst {
                         it.id == userMessageId
                     }

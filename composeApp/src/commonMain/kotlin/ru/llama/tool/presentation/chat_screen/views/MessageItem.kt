@@ -21,9 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
 
@@ -43,10 +46,16 @@ fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
 
             AnimatedVisibility(message.error != null) {
                 Text(
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 18.2.sp,
+                        letterSpacing = 0.42.sp
+                    ),
                     text = "!",
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.size(20.dp).background(
-                        color = Color.Red.copy(alpha = 0.6f),
+                    modifier = Modifier.size(24.dp).background(
+                        color = Color.Red.copy(alpha = 0.3f),
                         shape = RoundedCornerShape(10.dp)
                     )
                 )
