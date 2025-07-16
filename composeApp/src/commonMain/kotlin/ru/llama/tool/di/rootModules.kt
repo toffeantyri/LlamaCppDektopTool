@@ -19,7 +19,8 @@ private fun rootModules(enableNetworkLogs: Boolean) = module {
         networkModule(enableNetworkLogs),
         dataSourceModule,
         repositoryModule,
-        useCasesModule
+        useCasesModule,
+        databaseModule
     )
 
 }
