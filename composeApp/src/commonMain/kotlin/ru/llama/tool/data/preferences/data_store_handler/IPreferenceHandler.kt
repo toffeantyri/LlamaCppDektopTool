@@ -1,4 +1,4 @@
-package ru.llama.tool.core.data_store.data_store_handler
+package ru.llama.tool.data.preferences.data_store_handler
 
 
 import androidx.datastore.preferences.core.Preferences

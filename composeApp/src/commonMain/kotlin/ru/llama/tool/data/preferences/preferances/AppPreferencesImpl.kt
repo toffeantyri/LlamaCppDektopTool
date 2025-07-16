@@ -1,13 +1,13 @@
-package ru.llama.tool.core.data_store.preferances
+package ru.llama.tool.data.preferences.preferances
 
 import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import ru.llama.tool.core.data_store.PreferencesConstants
-import ru.llama.tool.core.data_store.data_store_handler.IPreferenceHandler
 import ru.llama.tool.core.io
+import ru.llama.tool.data.preferences.PreferencesConstants
+import ru.llama.tool.data.preferences.data_store_handler.IPreferenceHandler
 
 class AppPreferencesImpl(
     private val preferences: IPreferenceHandler

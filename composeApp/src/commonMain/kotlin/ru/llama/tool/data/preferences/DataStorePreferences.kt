@@ -1,4 +1,4 @@
-package ru.llama.tool.core.data_store
+package ru.llama.tool.data.preferences
 
 
 import androidx.datastore.core.DataMigration

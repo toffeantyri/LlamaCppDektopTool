@@ -11,7 +11,7 @@ import llamacppdektoptool.composeapp.generated.resources.Res
 import llamacppdektoptool.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import ru.delivery.client.utils.runOnUiThread
-import ru.llama.tool.core.data_store.initializeDataStore
+import ru.llama.tool.data.preferences.initializeDataStore
 import ru.llama.tool.di.initKoin
 import ru.llama.tool.presentation.root.App
 import ru.llama.tool.presentation.root.RootComponentImpl

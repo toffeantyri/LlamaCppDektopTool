@@ -1,4 +1,4 @@
-package ru.llama.tool.core.data_store
+package ru.llama.tool.data.preferences
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -7,10 +7,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.plus
-import ru.llama.tool.core.data_store.data_store_handler.PreferenceHandlerImpl
-import ru.llama.tool.core.data_store.preferances.AppPreferencesImpl
-import ru.llama.tool.core.data_store.preferances.IAppPreferences
 import ru.llama.tool.core.io
+import ru.llama.tool.data.preferences.data_store_handler.PreferenceHandlerImpl
+import ru.llama.tool.data.preferences.preferances.AppPreferencesImpl
+import ru.llama.tool.data.preferences.preferances.IAppPreferences
 
 interface CoroutinesComponent {
     val mainImmediateDispatcher: CoroutineDispatcher
