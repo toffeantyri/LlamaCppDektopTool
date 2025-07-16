@@ -2,6 +2,8 @@ package ru.llama.tool.di
 
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
+import io.ktor.client.plugins.plugin
+import io.ktor.client.plugins.sse.SSE
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -19,7 +21,9 @@ val networkModule: (enableNetworkLogs: Boolean) -> Module =
             single<HttpClient>(named(DEFAULT_HTTP_CLIENT)) {
                 getHttpClient(
                     configureHttpClient(enableNetworkLogs)
-                )
+                ).apply {
+                    plugin(SSE)
+                }
             }
 
             single<ISettingHttpClientProvider> {

@@ -83,12 +83,15 @@ kotlin {
             implementation(libs.room.gradle.plugin)
 
             implementation(libs.ktor.client.okhttp)
+
+
         }
 
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.ktor.client.okhttp)
+
         }
     }
 }

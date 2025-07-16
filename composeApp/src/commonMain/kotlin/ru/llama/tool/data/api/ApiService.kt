@@ -12,6 +12,8 @@ interface ApiService {
 
     suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message>
 
+    suspend fun sseRequestAi(messages: List<MessageRequest>): Flow<Message>
+
     suspend fun getHealthAi(): HealthAiDto
 
 }
