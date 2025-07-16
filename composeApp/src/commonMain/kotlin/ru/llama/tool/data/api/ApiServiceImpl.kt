@@ -121,13 +121,6 @@ class ApiServiceImpl(
 
     }
 
-    override suspend fun stopGeneration() {
-        return client.post(baseUrl()) {
-
-
-        }.body()
-    }
-
     override suspend fun getHealthAi(): HealthAiDto {
         return client.get(baseUrl()) {
             url {
