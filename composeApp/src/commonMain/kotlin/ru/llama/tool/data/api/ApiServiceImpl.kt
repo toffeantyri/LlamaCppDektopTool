@@ -2,7 +2,7 @@ package ru.llama.tool.data.api
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.sse.sse
+import io.ktor.client.plugins.sse.sseSession
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -10,19 +10,18 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
-import io.ktor.http.URLProtocol
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
-import io.ktor.http.path
-import io.ktor.sse.TypedServerSentEvent
 import io.ktor.utils.io.readUTF8Line
-import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 import ru.llama.tool.data.api.models.llama_models.LLamaMessageDto
 import ru.llama.tool.data.api.models.llama_models.LlamaResponseDto
 import ru.llama.tool.data.api.models.llama_props_dto.HealthAiDto
@@ -31,7 +30,6 @@ import ru.llama.tool.data.api.models.messages.MessageRequest
 import ru.llama.tool.data.api.setting_http_client_provider.ISettingHttpClientProvider
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
-import kotlin.time.Duration
 
 private val json = Json {
     prettyPrint = true
@@ -62,61 +60,66 @@ class ApiServiceImpl(
         }.body()
     }
 
-    override suspend fun sseRequestAi(messages: List<MessageRequest>): Flow<Message> =
-        callbackFlow {
-            val path = "v1/chat/completions"
-            val properties = settingProvider.getRequestSetting()
-            try {
+    override suspend fun sseRequestAi(messages: List<MessageRequest>): Flow<Message> {
+        val path = "v1/chat/completions"
+        val properties = settingProvider.getRequestSetting()
 
 
-                client.sse(
-                    request = {
-                        method = HttpMethod.Post
-                        url {
-                            protocol = URLProtocol.HTTPS
-                            host = "127.0.0.1"
-                            port = 8080
-                            path(path)
-                        }
-                        contentType(ContentType.Application.Json)
-                        header("Accept", "text/event-stream")
-                        header("Cache-Control", "no-store")
-                        setBody(
-                            LLamaMessageDto(
-                                messages = messages,
-                                stream = true,
-                                top_p = properties.topP,
-                                temperature = properties.temperature,
-                                max_tokens = properties.maxTokens,
+        val sseSession = client.sseSession(baseUrl()) {
+            method = HttpMethod.Post
+            url {
+                appendPathSegments(path)
+            }
+            contentType(ContentType.Application.Json)
+            header("Accept", "text/event-stream")
+            header("Cache-Control", "no-store")
+            setBody(
+                LLamaMessageDto(
+                    messages = messages,
+                    stream = true,
+                    top_p = properties.topP,
+                    temperature = properties.temperature,
+                    max_tokens = properties.maxTokens,
+                )
+            )
+        }
+
+        return flow<Message> {
+            sseSession.incoming.collect { event ->
+                event.data?.let { line ->
+                    if (line.startsWith("{")) {
+                        val data =
+                            json.decodeFromString<LlamaResponseDto>(line).choices[0].delta.content
+                                ?: ""
+                        println("-${data}")
+                        emit(
+                            Message(
+                                content = data,
+                                sender = EnumSender.AI,
+                                id = messages.last().id
                             )
                         )
-                    },
-                    reconnectionTime = Duration.INFINITE,
-                    deserialize = { typeInfo, jsonString ->
-                        val serializer = Json.serializersModule.serializer(typeInfo.kotlinType!!)
-                        Json.decodeFromString(serializer, jsonString)!!
-                    }
-                ) {
-                    incoming.collect { event: TypedServerSentEvent<String> ->
-                        println("----------------- event DATA ----------")
-                        println("$event")
+                    } else if (line == "[DONE]") {
 
-                        when (event.event) {
-
-                        }
+                        emit(
+                            Message(
+                                content = "",
+                                sender = EnumSender.AI,
+                                id = messages.last().id
+                            )
+                        )
                     }
                 }
-
-            } catch (e: Exception) {
-                println("ERROR $e")
-                e.printStackTrace()
+                delay(10)
             }
+        }.catch {
+            println("api flow catch $it")
+        }.onCompletion {
+            sseSession.cancel()
+            println("api flow onCompletion $it")
+        }.flowOn(Dispatchers.IO)
 
-            awaitClose {
-                client.close()
-            }
-
-        }
+    }
 
 
     override suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message> {
@@ -148,7 +151,7 @@ class ApiServiceImpl(
             val dataBuilder = StringBuilder()
 
             while (!content.isClosedForRead) {
-                val line = content.readUTF8Line() ?: break
+                val line = content.readUTF8Line(1) ?: break
 
                 if (line.startsWith("data:")) {
                     val jsonString = line.substringAfter(":").trim()

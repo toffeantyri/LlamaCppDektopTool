@@ -4,9 +4,11 @@ import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
@@ -51,10 +53,16 @@ class ChatViewModel(
                 runCatching {
                     uiModel.value.isAiTyping.value = true
                     sendChatRequestUseCase(uiModel.value.chatMessagesData.value)
-                        .onCompletion { uiModel.value.isAiTyping.value = false }
+                        .catch {
+                            println("flow catch $it")
+                            uiModel.value.isAiTyping.value = false
+                        }
+                        .onCompletion {
+                            uiModel.value.isAiTyping.value = false
+                        }
                         .flowOn(Dispatchers.IO)
                 }.onSuccess { flowResult ->
-                    flowResult.collectLatest { aiResponse ->
+                    flowResult.onEach { aiResponse ->
                         // Обновляем ID ответа, чтобы он соответствовал зарезервированному
                         val updatedResponse = aiResponse.copy(id = aiResponseId)
 
@@ -74,8 +82,9 @@ class ChatViewModel(
                                 uiModel.value.chatMessagesData.value[oldIndex] = newMessage
                             }
                         }
-                    }
+                    }.launchIn(this)
                 }.onFailure { error ->
+                    println("onFailure $error")
                     uiModel.value.isAiTyping.value = false
                     val lastUserMessageIndex = uiModel.value.chatMessagesData.value.indexOfFirst {
                         it.id == userMessageId
