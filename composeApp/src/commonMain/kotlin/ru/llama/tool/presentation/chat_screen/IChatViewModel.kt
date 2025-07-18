@@ -4,6 +4,8 @@ interface IChatViewModel {
 
     fun onMessageSend()
 
+    fun stopMessageGen()
+
     fun onMessageInputChanged(input: String)
 
 }

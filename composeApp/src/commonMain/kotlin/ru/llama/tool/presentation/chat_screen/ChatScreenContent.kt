@@ -88,7 +88,8 @@ fun ChatScreenContent(component: ChatComponent) {
                     messageInput = uiModel.messageInput,
                     onMessageInputChanged = component.viewModel::onMessageInputChanged,
                     onMessageSend = component.viewModel::onMessageSend,
-                    isAiTyping = uiModel.isAiTyping
+                    isAiTyping = uiModel.isAiTyping,
+                    onMessageStopGen = component.viewModel::stopMessageGen
 
                 )
             }

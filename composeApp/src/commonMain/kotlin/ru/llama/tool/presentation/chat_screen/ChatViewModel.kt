@@ -3,6 +3,7 @@ package ru.llama.tool.presentation.chat_screen
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -24,6 +25,8 @@ class ChatViewModel(
 ) : InstanceKeeper.Instance, IChatViewModel {
 
     val uiModel: MutableStateFlow<ChatComponent.UiModel> = MutableStateFlow(ChatComponent.UiModel())
+
+    private var messageJob: Job? = null
 
     private var idCounter = 0
 
@@ -49,15 +52,16 @@ class ChatViewModel(
         if (message.content.isNotBlank()) {
             uiModel.value.chatMessagesData.value += message
             uiModel.value.messageInput.value = ""
-            coroutineScope.launch {
+            messageJob = coroutineScope.launch {
                 runCatching {
                     uiModel.value.isAiTyping.value = true
                     sendChatRequestUseCase(uiModel.value.chatMessagesData.value)
                         .catch {
-                            println("flow catch $it")
+                            println("VM catch $it")
                             uiModel.value.isAiTyping.value = false
                         }
                         .onCompletion {
+                            println("VM onCompletion $it")
                             uiModel.value.isAiTyping.value = false
                         }
                         .flowOn(Dispatchers.IO)
@@ -99,6 +103,11 @@ class ChatViewModel(
 
             }
         }
+    }
+
+    override fun stopMessageGen() {
+        messageJob?.cancel()
+        messageJob = null
     }
 
     override fun onMessageInputChanged(input: String) {

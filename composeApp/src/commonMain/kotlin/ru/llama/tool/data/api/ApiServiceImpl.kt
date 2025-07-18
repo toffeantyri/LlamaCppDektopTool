@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import ru.llama.tool.data.api.models.llama_models.LLamaMessageDto
@@ -32,6 +33,7 @@ import ru.llama.tool.data.api.models.messages.MessageRequest
 import ru.llama.tool.data.api.setting_http_client_provider.ISettingHttpClientProvider
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
+import java.util.concurrent.CancellationException
 
 private val json = Json {
     prettyPrint = true
@@ -89,7 +91,13 @@ class ApiServiceImpl(
 
             launch(Dispatchers.IO) {
                 try {
-                    sseSession.incoming.collect { event ->
+                    sseSession.incoming.onCompletion {
+                        println("API onCompletion $it")
+                        this@callbackFlow.cancel(CancellationException(it?.message))
+                    }.catch {
+                        println("API catch $it")
+                        this@callbackFlow.cancel(CancellationException(it?.message))
+                    }.collect { event ->
                         event.data?.let { line ->
                             if (line.startsWith("{")) {
                                 val data = json.decodeFromString<LlamaResponseDto>(line)
@@ -135,8 +143,6 @@ class ApiServiceImpl(
                 )
                 sseSession.cancel()
             }
-        }.catch {
-            println("sseRequestAi error: $it")
         }.flowOn(Dispatchers.IO)
 
     override suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message> {

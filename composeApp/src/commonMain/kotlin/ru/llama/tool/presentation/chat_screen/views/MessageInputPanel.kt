@@ -1,6 +1,7 @@
 package ru.llama.tool.presentation.chat_screen.views
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +34,7 @@ fun MessageInputPanel(
     messageInput: State<String>,
     onMessageInputChanged: (String) -> Unit,
     onMessageSend: () -> Unit,
+    onMessageStopGen: () -> Unit,
     isAiTyping: State<Boolean>
 ) {
     Row(
@@ -62,15 +65,23 @@ fun MessageInputPanel(
         )
         Button(
             modifier = Modifier.padding(horizontal = 8.dp).padding(vertical = 4.dp),
-            onClick = { onMessageSend() },
-            enabled = isAiTyping.value.not(),
+            onClick = { if (isAiTyping.value) onMessageStopGen() else onMessageSend() },
             colors = ButtonDefaults.buttonColors(disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer)
         ) {
             if (isAiTyping.value) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp).aspectRatio(1f),
-                    color = Color.White
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(28.dp).aspectRatio(1f),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                    Icon(
+                        modifier = Modifier.size(18.dp).aspectRatio(1f),
+                        imageVector = Icons.Rounded.Stop,
+                        tint = Color.White,
+                        contentDescription = "Stop"
+                    )
+                }
             } else {
                 Icon(
                     modifier = Modifier.size(20.dp).aspectRatio(1f),
