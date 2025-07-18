@@ -140,13 +140,6 @@ class ApiServiceImpl(
                     println("[SSE] Error in SSE session: $e")
                     close(e)
                 } finally {
-                    trySend(
-                        Message(
-                            content = "closed finally",
-                            sender = EnumSender.AI,
-                            id = messages.last().id
-                        )
-                    )
                     sseSession.cancel()
                     println("[SSE] Old SSE session closed")
                 }
@@ -154,13 +147,6 @@ class ApiServiceImpl(
 
             awaitClose {
                 println("[SSE] Closing SSE session via awaitClose")
-                trySend(
-                    Message(
-                        content = "closed awaitClose",
-                        sender = EnumSender.AI,
-                        id = messages.last().id
-                    )
-                )
                 sseSession.cancel()
             }
         }.flowOn(Dispatchers.IO)
