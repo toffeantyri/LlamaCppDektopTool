@@ -34,6 +34,7 @@ import ru.llama.tool.data.api.setting_http_client_provider.ISettingHttpClientPro
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
 import java.util.concurrent.CancellationException
+import kotlin.time.Duration.Companion.seconds
 
 private val json = Json {
     prettyPrint = true
@@ -70,24 +71,30 @@ class ApiServiceImpl(
             val path = "v1/chat/completions"
             val properties = settingProvider.getRequestSetting()
 
-            val sseSession = client.sseSession(baseUrl()) {
-                method = HttpMethod.Post
-                url {
-                    appendPathSegments(path)
-                }
-                contentType(ContentType.Application.Json)
-                header("Accept", "text/event-stream")
-                header("Cache-Control", "no-store")
-                setBody(
-                    LLamaMessageDto(
-                        messages = messages,
-                        stream = true,
-                        top_p = properties.topP,
-                        temperature = properties.temperature,
-                        max_tokens = properties.maxTokens,
+            val sseSession =
+                client.sseSession(
+                    baseUrl(),
+                    showCommentEvents = true,
+                    showRetryEvents = true,
+                    reconnectionTime = 10.seconds
+                ) {
+                    method = HttpMethod.Post
+                    url {
+                        appendPathSegments(path)
+                    }
+                    contentType(ContentType.Application.Json)
+                    header("Accept", "text/event-stream")
+                    header("Cache-Control", "no-store")
+                    setBody(
+                        LLamaMessageDto(
+                            messages = messages,
+                            stream = true,
+                            top_p = properties.topP,
+                            temperature = properties.temperature,
+                            max_tokens = properties.maxTokens,
+                        )
                     )
-                )
-            }
+                }
 
             launch(Dispatchers.IO) {
                 try {
@@ -96,8 +103,21 @@ class ApiServiceImpl(
                         this@callbackFlow.cancel(CancellationException(it?.message))
                     }.catch {
                         println("API catch $it")
-                        this@callbackFlow.cancel(CancellationException(it?.message))
+                        this@callbackFlow.cancel(CancellationException(it.message))
                     }.collect { event ->
+
+                        event.event?.let {
+                            println("API event $it")
+                        }
+
+                        event.comments?.let {
+                            println("API comments $it")
+                        }
+
+                        event.retry?.let {
+                            println("API retry $it")
+                        }
+
                         event.data?.let { line ->
                             if (line.startsWith("{")) {
                                 val data = json.decodeFromString<LlamaResponseDto>(line)
