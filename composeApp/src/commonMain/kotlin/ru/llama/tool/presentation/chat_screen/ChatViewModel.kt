@@ -49,15 +49,19 @@ class ChatViewModel(
             id = userMessageId
         )
 
+
         if (message.content.isNotBlank()) {
             uiModel.value.chatMessagesData.value += message
             uiModel.value.messageInput.value = ""
+            messageJob?.cancel()
+            messageJob = null
             messageJob = coroutineScope.launch {
                 runCatching {
                     uiModel.value.isAiTyping.value = true
                     sendChatRequestUseCase(uiModel.value.chatMessagesData.value)
                         .catch {
                             println("VM catch $it")
+                            setErrorMessage(userMessageId, it)
                             uiModel.value.isAiTyping.value = false
                         }
                         .onCompletion {
@@ -89,20 +93,26 @@ class ChatViewModel(
                     }.launchIn(this)
                 }.onFailure { error ->
                     println("onFailure $error")
-                    uiModel.value.isAiTyping.value = false
-                    val lastUserMessageIndex = uiModel.value.chatMessagesData.value.indexOfFirst {
-                        it.id == userMessageId
-                    }
-                    val userMessage =
-                        uiModel.value.chatMessagesData.value[lastUserMessageIndex].copy(
-                            error = error.message ?: "Error"
-                        )
-
-                    uiModel.value.chatMessagesData.value[lastUserMessageIndex] = userMessage
+                    setErrorMessage(userMessageId, error)
                 }
 
             }
         }
+    }
+
+    private fun setErrorMessage(userMessageId: Int, error: Throwable) {
+
+        uiModel.value.isAiTyping.value = false
+        val lastUserMessageIndex = uiModel.value.chatMessagesData.value.indexOfFirst {
+            it.id == userMessageId
+        }
+        val userMessage =
+            uiModel.value.chatMessagesData.value[lastUserMessageIndex].copy(
+                error = error.message ?: "Error"
+            )
+
+        uiModel.value.chatMessagesData.value[lastUserMessageIndex] = userMessage
+
     }
 
     override fun stopMessageGen() {
