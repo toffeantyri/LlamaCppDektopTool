@@ -132,12 +132,14 @@ class ApiServiceImpl(
                                 )
                             } else if (line == "[DONE]") {
                                 // Завершаем поток
+                                sseSession.cancel()
                                 close()
                             }
                         }
                     }
                 } catch (e: Exception) {
                     println("[SSE] Error in SSE session: $e")
+                    sseSession.cancel()
                     close(e)
                 } finally {
                     sseSession.cancel()
