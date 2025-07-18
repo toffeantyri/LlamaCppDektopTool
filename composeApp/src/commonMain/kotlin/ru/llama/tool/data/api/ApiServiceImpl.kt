@@ -14,6 +14,7 @@ import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -71,32 +72,36 @@ class ApiServiceImpl(
             val path = "v1/chat/completions"
             val properties = settingProvider.getRequestSetting()
 
-            val sseSession =
-                client.sseSession(
-                    baseUrl(),
-                    showCommentEvents = true,
-                    showRetryEvents = true,
-                    reconnectionTime = 10.seconds
-                ) {
-                    method = HttpMethod.Post
-                    url {
-                        appendPathSegments(path)
-                    }
-                    contentType(ContentType.Application.Json)
-                    header("Accept", "text/event-stream")
-                    header("Cache-Control", "no-store")
-                    setBody(
-                        LLamaMessageDto(
-                            messages = messages,
-                            stream = true,
-                            top_p = properties.topP,
-                            temperature = properties.temperature,
-                            max_tokens = properties.maxTokens,
-                        )
-                    )
-                }
 
-            launch(Dispatchers.IO) {
+            var job: Job? = null
+
+            job = launch(Dispatchers.IO) {
+
+                val sseSession =
+                    client.sseSession(
+                        baseUrl(),
+                        showCommentEvents = true,
+                        showRetryEvents = true,
+                        reconnectionTime = 10.seconds
+                    ) {
+                        method = HttpMethod.Post
+                        url {
+                            appendPathSegments(path)
+                        }
+                        contentType(ContentType.Application.Json)
+                        header("Accept", "text/event-stream")
+                        header("Cache-Control", "no-store")
+                        setBody(
+                            LLamaMessageDto(
+                                messages = messages,
+                                stream = true,
+                                top_p = properties.topP,
+                                temperature = properties.temperature,
+                                max_tokens = properties.maxTokens,
+                            )
+                        )
+                    }
+
                 try {
                     sseSession.incoming.onCompletion {
                         println("API onCompletion $it")
@@ -132,24 +137,34 @@ class ApiServiceImpl(
                                 )
                             } else if (line == "[DONE]") {
                                 // Завершаем поток
-                                sseSession.cancel()
+                                sseSession.call.response.cancel()
+//                                sseSession.cancel()
                                 close()
+                                job?.cancel()
                             }
                         }
                     }
                 } catch (e: Exception) {
                     println("[SSE] Error in SSE session: $e")
-                    sseSession.cancel()
+                    sseSession.call.response.cancel()
+//                    sseSession.cancel()
                     close(e)
+                    job?.cancel()
                 } finally {
-                    sseSession.cancel()
+                    sseSession.call.response.cancel()
+//                    sseSession.cancel()
+                    close()
+                    job?.cancel()
                     println("[SSE] Old SSE session closed")
                 }
             }
 
             awaitClose {
                 println("[SSE] Closing SSE session via awaitClose")
-                sseSession.cancel()
+//                sseSession.call.response.cancel()
+//                                sseSession.cancel()
+                close()
+                job.cancel()
             }
         }.flowOn(Dispatchers.IO)
 
