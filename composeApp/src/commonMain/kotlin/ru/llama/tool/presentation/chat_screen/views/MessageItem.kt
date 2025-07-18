@@ -34,8 +34,9 @@ import ru.llama.tool.domain.models.Message
 fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
 
     Column(modifier = modifier) {
-        val isUserMessage = message.sender == EnumSender.User
-        val isAiMessage = message.sender == EnumSender.AI
+        val isUserMessage = message.sender is EnumSender.User
+        val isAiMessage = message.sender is EnumSender.AI
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -61,6 +62,20 @@ fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
                 )
             }
 
+            if (message.sender is EnumSender.Error) {
+                Text(
+                    modifier = Modifier.fillMaxWidth().background(
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
+                        shape = RoundedCornerShape(10.dp)
+                    ),
+                    text = message.sender.throwable.message ?: "Unknown error",
+                    maxLines = 1,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center
+
+                )
+            }
+
             if (isAiMessage) {
                 Box(
                     modifier = Modifier
@@ -71,7 +86,7 @@ fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = message.sender.name.first().toString(),
+                        text = message.sender.toString().first().toString(),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -106,7 +121,7 @@ fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = message.sender.name.first().toString(),
+                        text = message.sender.toString().first().toString(),
                         color = MaterialTheme.colorScheme.onSecondary
                     )
                 }

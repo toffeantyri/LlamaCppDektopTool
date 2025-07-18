@@ -12,6 +12,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
+import io.ktor.sse.ServerSentEvent
 import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import ru.llama.tool.core.EMPTY
 import ru.llama.tool.data.api.models.llama_models.LLamaMessageDto
 import ru.llama.tool.data.api.models.llama_models.LlamaResponseDto
 import ru.llama.tool.data.api.models.llama_props_dto.HealthAiDto
@@ -72,97 +74,103 @@ class ApiServiceImpl(
             val path = "v1/chat/completions"
             val properties = settingProvider.getRequestSetting()
 
-
             var job: Job? = null
 
             job = launch(Dispatchers.IO) {
-
-                val sseSession =
-                    client.sseSession(
-                        baseUrl(),
-                        showCommentEvents = true,
-                        showRetryEvents = true,
-                        reconnectionTime = 10.seconds
-                    ) {
-                        method = HttpMethod.Post
-                        url {
-                            appendPathSegments(path)
-                        }
-                        contentType(ContentType.Application.Json)
-                        header("Accept", "text/event-stream")
-                        header("Cache-Control", "no-store")
-                        setBody(
-                            LLamaMessageDto(
-                                messages = messages,
-                                stream = true,
-                                top_p = properties.topP,
-                                temperature = properties.temperature,
-                                max_tokens = properties.maxTokens,
-                            )
-                        )
+                val sseSession = client.sseSession(
+                    baseUrl(),
+                    showCommentEvents = true,
+                    showRetryEvents = true,
+                    reconnectionTime = 10.seconds
+                ) {
+                    method = HttpMethod.Post
+                    url {
+                        appendPathSegments(path)
                     }
+                    contentType(ContentType.Application.Json)
+                    header("Accept", "text/event-stream")
+                    header("Cache-Control", "no-store")
+                    setBody(
+                        LLamaMessageDto(
+                            messages = messages,
+                            stream = true,
+                            top_p = properties.topP,
+                            temperature = properties.temperature,
+                            max_tokens = properties.maxTokens,
+                        )
+                    )
+                }
+
+                fun releaseResources(t: Throwable? = null) {
+                    sseSession.call.response.cancel()
+                    job?.cancel()
+                    close(t)
+                }
+
+                fun ServerSentEvent.logEvent() {
+                    if (this.event != null || this.retry != null || this.comments != null) {
+                        println("ServerSentEvent : $this")
+                    }
+                }
+
+
 
                 try {
+                    var emitted: Boolean = false
+
+                    fun sendNotEmittedError(t: Throwable? = null) {
+                        if (emitted.not()) {
+                            trySend(
+                                Message(
+                                    content = EMPTY,
+                                    sender = EnumSender.Error(
+                                        t ?: Throwable("Server is busy. Try again later.")
+                                    ),
+                                    id = messages.last().id,
+                                )
+                            )
+                        }
+                    }
+
                     sseSession.incoming.onCompletion {
                         println("API onCompletion $it")
+                        sendNotEmittedError(it)
                         this@callbackFlow.cancel(CancellationException(it?.message))
                     }.catch {
                         println("API catch $it")
+                        sendNotEmittedError(it)
                         this@callbackFlow.cancel(CancellationException(it.message))
                     }.collect { event ->
+                        event.logEvent()
 
-                        event.event?.let {
-                            println("API event $it")
-                        }
-
-                        event.comments?.let {
-                            println("API comments $it")
-                        }
-
-                        event.retry?.let {
-                            println("API retry $it")
-                        }
-
-                        event.data?.let { line ->
-                            if (line.startsWith("{")) {
-                                val data = json.decodeFromString<LlamaResponseDto>(line)
+                        event.data?.let { data ->
+                            if (data.startsWith("{")) {
+                                val content = json.decodeFromString<LlamaResponseDto>(data)
                                     .choices.getOrNull(0)?.delta?.content ?: return@let
-
+                                emitted = true
                                 trySend(
                                     Message(
-                                        content = data,
+                                        content = content,
                                         sender = EnumSender.AI,
                                         id = messages.last().id
                                     )
                                 )
-                            } else if (line == "[DONE]") {
-                                // Завершаем поток
-                                sseSession.call.response.cancel()
-//                                sseSession.cancel()
-                                close()
-                                job?.cancel()
+                            } else if (data == "[DONE]") {
+                                releaseResources()
                             }
                         }
                     }
                 } catch (e: Exception) {
+                    releaseResources(e)
                     println("[SSE] Error in SSE session: $e")
-                    sseSession.call.response.cancel()
-//                    sseSession.cancel()
-                    close(e)
-                    job?.cancel()
                 } finally {
-                    sseSession.call.response.cancel()
-//                    sseSession.cancel()
-                    close()
-                    job?.cancel()
-                    println("[SSE] Old SSE session closed")
+                    releaseResources()
+                    println("[SSE] Old SSE session finally closed")
                 }
             }
 
             awaitClose {
-                println("[SSE] Closing SSE session via awaitClose")
-//                sseSession.call.response.cancel()
-//                                sseSession.cancel()
+                println("[SSE] Closing SSE session by awaitClose")
                 close()
                 job.cancel()
             }

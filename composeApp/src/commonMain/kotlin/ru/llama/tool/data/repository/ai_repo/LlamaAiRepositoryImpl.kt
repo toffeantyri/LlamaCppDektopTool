@@ -13,7 +13,7 @@ class LlamaAiRepositoryImpl(private val llamaAiDataSource: LlamaAiDataSource) : 
             messages.map { message ->
                 MessageRequest(
                     content = message.content,
-                    role = message.sender.name.lowercase(),
+                    role = message.sender.toString().lowercase(),
                     id = message.id
                 )
             }
