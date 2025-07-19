@@ -16,6 +16,8 @@ interface ChatComponent {
 
     fun onChatListOpenClicked()
 
+    fun onChatSettingOpen()
+
 
     data class UiModel(
         val chatMessagesData: MutableStateFlow<SnapshotStateList<Message>> = MutableStateFlow(

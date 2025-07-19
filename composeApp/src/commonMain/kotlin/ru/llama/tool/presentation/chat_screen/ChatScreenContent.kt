@@ -45,7 +45,9 @@ fun ChatScreenContent(component: ChatComponent) {
         topBar = {
             ChatTopBar(
                 aiProps = uiModel.aiProps,
-                onChatListOpenClicked = component::onChatListOpenClicked
+                aiLoading = uiModel.isAiTyping,
+                onChatListOpenClicked = component::onChatListOpenClicked,
+                onChatSettingOpenClicked = component::onChatSettingOpen,
             )
         }
     ) { paddingValues ->

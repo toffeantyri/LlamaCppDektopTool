@@ -8,7 +8,7 @@ import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class ChatComponentImpl(
     componentContext: ComponentContext,
-    private val onChatListOpenAction: () -> Unit
+    private val onChatListOpenAction: () -> Unit,
 ) : ChatComponent, ComponentContext by componentContext, KoinComponent {
     private val coroutineScope = componentContext.componentCoroutineScope()
 
@@ -22,6 +22,10 @@ class ChatComponentImpl(
 
 
     override fun onChatListOpenClicked() = onChatListOpenAction()
+
+    override fun onChatSettingOpen() {
+        //todo - open dialog bottom sheet with settings
+    }
 
 
 } 
