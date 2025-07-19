@@ -5,6 +5,8 @@ import ru.llama.tool.domain.models.AiDialogProperties
 
 interface GetAiDialogRepository {
 
+    suspend fun saveToDb(aiDialogProps: AiDialogProperties)
+
     suspend fun getDialogProperties(chatId: Int): Flow<AiDialogProperties>
 
 }

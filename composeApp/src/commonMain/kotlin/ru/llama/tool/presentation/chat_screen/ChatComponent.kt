@@ -33,7 +33,7 @@ interface ChatComponent {
         val isAiTyping: MutableState<Boolean> = mutableStateOf(false),
 
         val modelName: MutableState<UiText> = mutableStateOf(UiText.Empty),
-        val aiProps: MutableState<AiDialogProperties> = mutableStateOf(AiDialogProperties(id = -1)),
+        val aiProps: MutableState<AiDialogProperties> = mutableStateOf(AiDialogProperties(id = AiDialogProperties.DEFAULT_ID)),
         val titleLoading: MutableState<Boolean> = mutableStateOf(false)
 
     )
