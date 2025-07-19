@@ -16,15 +16,19 @@ import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class ChatComponentImpl(
     componentContext: ComponentContext,
-    private val onChatListOpenAction: () -> Unit,
+    private val chatId: Int?,
+    private val changeCurrentChatId: (newChatId: Int) -> Unit,
 ) : ChatComponent, ComponentContext by componentContext, KoinComponent {
     private val coroutineScope = componentContext.componentCoroutineScope()
 
     override val viewModel: ChatViewModel = componentContext.instanceKeeper.getOrCreate {
         ChatViewModel(
+            chatId = chatId,
             coroutineScope = coroutineScope,
             sendChatRequestUseCase = get(),
-            getAiPropertiesUseCase = get()
+            getAiPropertiesUseCase = get(),
+            getAiDialogPropsUseCase = get(),
+            onChangeCurrentChatId = changeCurrentChatId
         )
     }
 
@@ -44,14 +48,18 @@ class ChatComponentImpl(
         return when (config) {
             is DialogConfig.AiSettingDialogConfig -> ChatComponent.DialogChild.AiSettingDialogChild(
                 component = AiChatSettingsComponentImpl(
-                    currentAiProperties = viewModel.uiModel.value.aiProps.value,
+                    currentAiDialogProperties = viewModel.uiModel.value.aiProps.value,
                     onCloseDialog = { slotNavigation.navigate { null } }
                 )
             )
+
+            DialogConfig.DialogListDialogConfig -> ChatComponent.DialogChild.DialogListDialogChild //todo
         }
     }
 
-    override fun onChatListOpenClicked() = onChatListOpenAction()
+    override fun onChatListOpenClicked() {
+        slotNavigation.navigate { DialogConfig.DialogListDialogConfig }
+    }
 
     override fun onChatSettingOpen() {
         slotNavigation.navigate { DialogConfig.AiSettingDialogConfig }
@@ -63,6 +71,8 @@ class ChatComponentImpl(
         @Serializable
         data object AiSettingDialogConfig : DialogConfig()
 
+        @Serializable
+        data object DialogListDialogConfig : DialogConfig()
     }
 
 } 

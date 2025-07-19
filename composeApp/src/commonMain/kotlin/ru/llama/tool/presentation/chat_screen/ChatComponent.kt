@@ -9,7 +9,7 @@ import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.value.Value
 import kotlinx.coroutines.flow.MutableStateFlow
 import ru.llama.tool.core.EMPTY
-import ru.llama.tool.domain.models.AiProperties
+import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.domain.models.Message
 import ru.llama.tool.domain.models.UiText
 import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsComponent
@@ -32,7 +32,8 @@ interface ChatComponent {
         val messageInput: MutableState<String> = mutableStateOf(EMPTY),
         val isAiTyping: MutableState<Boolean> = mutableStateOf(false),
 
-        val aiProps: MutableState<AiProperties> = mutableStateOf(AiProperties(UiText.Empty)),
+        val modelName: MutableState<UiText> = mutableStateOf(UiText.Empty),
+        val aiProps: MutableState<AiDialogProperties> = mutableStateOf(AiDialogProperties(id = -1)),
         val titleLoading: MutableState<Boolean> = mutableStateOf(false)
 
     )
@@ -40,5 +41,7 @@ interface ChatComponent {
     @Stable
     sealed interface DialogChild {
         data class AiSettingDialogChild(val component: AiChatSettingsComponent) : DialogChild
+
+        data object DialogListDialogChild : DialogChild
     }
 }

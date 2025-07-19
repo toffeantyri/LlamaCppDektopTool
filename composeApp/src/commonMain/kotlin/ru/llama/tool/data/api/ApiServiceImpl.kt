@@ -34,6 +34,7 @@ import ru.llama.tool.data.api.models.llama_props_dto.HealthAiDto
 import ru.llama.tool.data.api.models.llama_props_dto.LlamaProperties
 import ru.llama.tool.data.api.models.messages.MessageRequest
 import ru.llama.tool.data.api.setting_http_client_provider.ISettingHttpClientProvider
+import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
 import java.util.concurrent.CancellationException
@@ -68,12 +69,13 @@ class ApiServiceImpl(
         }.body()
     }
 
-    override suspend fun sseRequestAi(messages: List<MessageRequest>): Flow<Message> =
+    override suspend fun sseRequestAi(
+        messages: List<MessageRequest>,
+        aiProps: AiDialogProperties
+    ): Flow<Message> =
         callbackFlow {
             println("[SSE] Starting new SSE session")
             val path = "v1/chat/completions"
-            val properties = settingProvider.getRequestSetting()
-
             var job: Job? = null
 
             job = launch(Dispatchers.IO) {
@@ -94,9 +96,9 @@ class ApiServiceImpl(
                         LLamaMessageDto(
                             messages = messages,
                             stream = true,
-                            top_p = properties.topP,
-                            temperature = properties.temperature,
-                            max_tokens = properties.maxTokens,
+                            top_p = aiProps.topP,
+                            temperature = aiProps.temperature,
+                            max_tokens = aiProps.maxTokens,
                         )
                     )
                 }
@@ -176,9 +178,11 @@ class ApiServiceImpl(
             }
         }.flowOn(Dispatchers.IO)
 
-    override suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message> {
+    override suspend fun simpleRequestAi(
+        messages: List<MessageRequest>,
+        aiProps: AiDialogProperties
+    ): Flow<Message> {
         val path = "v1/chat/completions"
-        val properties = settingProvider.getRequestSetting()
 
         val response = client.post(baseUrl()) {
             url {
@@ -189,9 +193,9 @@ class ApiServiceImpl(
                 LLamaMessageDto(
                     messages = messages,
                     stream = true,
-                    top_p = properties.topP,
-                    temperature = properties.temperature,
-                    max_tokens = properties.maxTokens,
+                    top_p = aiProps.topP,
+                    temperature = aiProps.temperature,
+                    max_tokens = aiProps.maxTokens,
                 )
             )
         }

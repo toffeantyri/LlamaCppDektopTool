@@ -1,7 +1,7 @@
 package ru.llama.tool.domain.models
 
-data class AiProperties(
-    val modelName: UiText = UiText.StringValue("Unknown"),
+data class AiDialogProperties(
+    val id: Int,
     val systemPrompt: String = "Ты \"ИИ-инженер\", русскоязычный ассистент. В конце каждого ответа ты добавляешь \"Ура!\"." +
             " Отвечаешь точно. Если не знаешь ответа - пишешь - \"Я не знаю.\"",
     val temperature: Double = 1.0, //temp - детерменироватьность - 0.1, креативность - 1.0 (от 0.1 до 1.0)

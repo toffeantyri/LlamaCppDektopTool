@@ -11,17 +11,21 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import ru.llama.tool.core.io
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
 import ru.llama.tool.domain.models.UiText
 import ru.llama.tool.domain.use_cases.ai_props_use_case.GetAiPropertiesUseCase
+import ru.llama.tool.domain.use_cases.get_ai_dialog.GetAiDialogPropsUseCase
 import ru.llama.tool.domain.use_cases.messaging_use_case.SendChatRequestUseCase
 
 class ChatViewModel(
+    private val chatId: Int?,
     private val coroutineScope: CoroutineScope,
     private val sendChatRequestUseCase: SendChatRequestUseCase,
-    private val getAiPropertiesUseCase: GetAiPropertiesUseCase
-
+    private val getAiPropertiesUseCase: GetAiPropertiesUseCase,
+    private val getAiDialogPropsUseCase: GetAiDialogPropsUseCase,
+    private val onChangeCurrentChatId: (newChatId: Int) -> Unit,
 ) : InstanceKeeper.Instance, IChatViewModel {
 
     val uiModel: MutableStateFlow<ChatComponent.UiModel> = MutableStateFlow(ChatComponent.UiModel())
@@ -58,7 +62,10 @@ class ChatViewModel(
             messageJob = coroutineScope.launch {
                 runCatching {
                     uiModel.value.isAiTyping.value = true
-                    sendChatRequestUseCase(uiModel.value.chatMessagesData.value)
+                    sendChatRequestUseCase(
+                        uiModel.value.chatMessagesData.value,
+                        uiModel.value.aiProps.value
+                    )
                         .catch {
                             println("VM catch $it")
                             setErrorMessage(userMessageId, it)
@@ -126,21 +133,42 @@ class ChatViewModel(
 
 
     init {
-        updateAiModelName()
+        initChatDialog()
     }
 
-    private fun updateAiModelName() {
+
+    private suspend fun updateAiModelName() {
+        runCatching {
+            uiModel.value.titleLoading.value = true
+            getAiPropertiesUseCase.invoke()
+        }.onSuccess { aiProps ->
+            uiModel.value.modelName.value = aiProps.modelName
+            uiModel.value.titleLoading.value = false
+        }.onFailure {
+            uiModel.value.modelName.value = UiText.StringValue("Unknown")
+            uiModel.value.titleLoading.value = false
+        }
+    }
+
+    private suspend fun updateAiDialogProperties(toNextAction: suspend () -> Unit) {
+        if (chatId != null) {
+            getAiDialogPropsUseCase(chatId).collect { properties ->
+                uiModel.value.aiProps.value = properties
+                println("VM $properties")
+                toNextAction()
+            }
+        } else {
+            toNextAction()
+        }
+    }
+
+
+    private fun initChatDialog() {
         coroutineScope.launch {
-            runCatching {
-                uiModel.value.titleLoading.value = true
-                getAiPropertiesUseCase.invoke()
-            }.onSuccess { aiProps ->
-                uiModel.value.aiProps.value = aiProps
-                uiModel.value.titleLoading.value = false
-            }.onFailure {
-                uiModel.value.aiProps.value =
-                    uiModel.value.aiProps.value.copy(modelName = UiText.StringValue("Unknown"))
-                uiModel.value.titleLoading.value = false
+            launch(Dispatchers.io()) {
+                updateAiDialogProperties(
+                    toNextAction = { updateAiModelName() }
+                )
             }
         }
     }

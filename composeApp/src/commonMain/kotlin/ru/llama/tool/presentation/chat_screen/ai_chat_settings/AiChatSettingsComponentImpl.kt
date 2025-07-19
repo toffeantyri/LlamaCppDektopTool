@@ -2,16 +2,16 @@ package ru.llama.tool.presentation.chat_screen.ai_chat_settings
 
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
-import ru.llama.tool.domain.models.AiProperties
+import ru.llama.tool.domain.models.AiDialogProperties
 
 class AiChatSettingsComponentImpl(
-    private val currentAiProperties: AiProperties,
+    private val currentAiDialogProperties: AiDialogProperties,
     private val onCloseDialog: () -> Unit
 ) : AiChatSettingsComponent {
 
-    override val currentAiProp: Value<AiProperties> = MutableValue(currentAiProperties)
+    override val currentAiProp: Value<AiDialogProperties> = MutableValue(currentAiDialogProperties)
 
-    override fun onSaveClicked(newAiProps: AiProperties) {
+    override fun onSaveClicked(newAiProps: AiDialogProperties) {
         //todo
     }
 

@@ -3,12 +3,16 @@ package ru.llama.tool.data.repository.ai_repo
 import kotlinx.coroutines.flow.Flow
 import ru.llama.tool.data.api.models.messages.MessageRequest
 import ru.llama.tool.data.data_sources.messaging_data_source.LlamaAiDataSource
+import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.domain.models.Message
 
 
 class LlamaAiRepositoryImpl(private val llamaAiDataSource: LlamaAiDataSource) : LlamaAiRepository {
 
-    override suspend fun sendMessage(messages: List<Message>): Flow<Message> {
+    override suspend fun sendMessage(
+        messages: List<Message>,
+        aiProps: AiDialogProperties
+    ): Flow<Message> {
         val request = llamaAiDataSource.sendMessageToAi(
             messages.map { message ->
                 MessageRequest(
@@ -16,7 +20,7 @@ class LlamaAiRepositoryImpl(private val llamaAiDataSource: LlamaAiDataSource) : 
                     role = message.sender.toString().lowercase(),
                     id = message.id
                 )
-            }
+            }, aiProps
         )
         return request
 

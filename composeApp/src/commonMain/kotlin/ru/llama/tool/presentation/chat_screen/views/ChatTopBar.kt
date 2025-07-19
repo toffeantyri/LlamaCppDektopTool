@@ -19,13 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import ru.llama.tool.domain.models.AiProperties
+import ru.llama.tool.domain.models.UiText
 import ru.llama.tool.presentation.utils.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatTopBar(
-    aiProps: State<AiProperties>,
+    modelName: State<UiText>,
     aiLoading: State<Boolean>,
     onChatListOpenClicked: () -> Unit,
     onChatSettingOpenClicked: () -> Unit
@@ -38,7 +38,7 @@ fun ChatTopBar(
                 }
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    text = aiProps.value.modelName.asString(),
+                    text = modelName.value.asString(),
                     maxLines = 1,
                     overflow = TextOverflow.StartEllipsis
                 )
@@ -50,7 +50,7 @@ fun ChatTopBar(
             }
         },
         actions = {
-            if (aiProps.value.modelName.asString() != "Unknown") {
+            if (modelName.value.asString() != "Unknown") {
                 IconButton(onClick = onChatSettingOpenClicked, enabled = aiLoading.value.not()) {
                     Icon(Icons.Default.Settings, contentDescription = "Settings")
                 }

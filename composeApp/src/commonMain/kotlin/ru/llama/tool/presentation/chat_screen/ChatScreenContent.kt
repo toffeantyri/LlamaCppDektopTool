@@ -45,6 +45,8 @@ fun ChatScreenContent(component: ChatComponent) {
     dialogSlot.value.child?.also { child ->
         when (val item = child.instance) {
             is ChatComponent.DialogChild.AiSettingDialogChild -> AiChatSettingsScreen(item.component)
+            ChatComponent.DialogChild.DialogListDialogChild -> {/*todo*/
+            }
         }
     }
 
@@ -54,7 +56,7 @@ fun ChatScreenContent(component: ChatComponent) {
         }.imePadding(),
         topBar = {
             ChatTopBar(
-                aiProps = uiModel.aiProps,
+                modelName = uiModel.modelName,
                 aiLoading = uiModel.isAiTyping,
                 onChatListOpenClicked = component::onChatListOpenClicked,
                 onChatSettingOpenClicked = component::onChatSettingOpen,

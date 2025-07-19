@@ -41,18 +41,20 @@ class RootComponentImpl(
     override val selectedIndex: Value<Int> = _selectedIndex
     override val appSettingState: Value<SettingsState> = settingsComponent.state
 
+    private var currentChatId: Int? = null
+
     override val stack: Value<ChildStack<*, Child>> =
         childStack(
             source = navigation,
             serializer = Config.serializer(),
-            initialStack = { listOf(Config.ChatContentConfig) },
+            initialStack = { listOf(Config.ChatContentConfig(null)) },
             handleBackButton = true,
             childFactory = ::child,
         )
 
     override fun onChatTabClicked() {
         _selectedIndex.value = 0
-        navigation.bringToFront(Config.ChatContentConfig)
+        navigation.bringToFront(Config.ChatContentConfig(currentChatId))
     }
 
     override fun onSettingsTabClicked() {
@@ -63,10 +65,13 @@ class RootComponentImpl(
 
     private fun child(config: Config, componentContext: ComponentContext): Child =
         when (config) {
-            Config.ChatContentConfig -> Child.ChatContentChild(
+            is Config.ChatContentConfig -> Child.ChatContentChild(
                 ChatComponentImpl(
                     componentContext = componentContext,
-                    onChatListOpenAction = {/*TODO */ }
+                    chatId = config.chatId,
+                    changeCurrentChatId = { newChatId ->
+                        currentChatId = newChatId
+                    }
                 )
             )
 
@@ -76,7 +81,7 @@ class RootComponentImpl(
     @Serializable
     private sealed interface Config {
         @Serializable
-        data object ChatContentConfig : Config
+        data class ChatContentConfig(val chatId: Int? = null) : Config
 
         @Serializable
         data object SettingContentConfig : Config
