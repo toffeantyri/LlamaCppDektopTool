@@ -1,11 +1,19 @@
 package ru.llama.tool.data.api
 
 import kotlinx.coroutines.flow.Flow
-import ru.llama.tool.data.api.models.llama_models.LlamaResponseDto
-import ru.llama.tool.data.api.models.llama_models.MessageRequest
+import ru.llama.tool.data.api.models.llama_props_dto.HealthAiDto
+import ru.llama.tool.data.api.models.llama_props_dto.LlamaProperties
+import ru.llama.tool.data.api.models.messages.MessageRequest
+import ru.llama.tool.domain.models.Message
 
 interface ApiService {
 
-    suspend fun simpleRequestAi(message: MessageRequest): Flow<LlamaResponseDto>
+    suspend fun getModelProperties(): LlamaProperties
+
+    suspend fun simpleRequestAi(messages: List<MessageRequest>): Flow<Message>
+
+    suspend fun sseRequestAi(messages: List<MessageRequest>): Flow<Message>
+
+    suspend fun getHealthAi(): HealthAiDto
 
 }

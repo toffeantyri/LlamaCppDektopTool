@@ -6,7 +6,7 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import ru.llama.tool.core.data_store.preferances.IAppPreferences
+import ru.llama.tool.data.preferences.preferances.IAppPreferences
 
 class SettingsComponentImpl(
     componentContext: ComponentContext,

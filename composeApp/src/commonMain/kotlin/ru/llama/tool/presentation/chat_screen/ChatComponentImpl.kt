@@ -1,62 +1,31 @@
 package ru.llama.tool.presentation.chat_screen
 
 import com.arkivanov.decompose.ComponentContext
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
+import com.arkivanov.essenty.instancekeeper.getOrCreate
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import ru.llama.tool.domain.SendChatRequestUseCase
-import ru.llama.tool.domain.models.EnumSender
-import ru.llama.tool.domain.models.Message
+import org.koin.core.component.get
 import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class ChatComponentImpl(
     componentContext: ComponentContext,
-    private val onChatListOpenAction: () -> Unit
+    private val onChatListOpenAction: () -> Unit,
 ) : ChatComponent, ComponentContext by componentContext, KoinComponent {
-
     private val coroutineScope = componentContext.componentCoroutineScope()
 
-    private val sendChatRequestUseCase: SendChatRequestUseCase by inject()
+    override val viewModel: ChatViewModel = componentContext.instanceKeeper.getOrCreate {
+        ChatViewModel(
+            coroutineScope = coroutineScope,
+            sendChatRequestUseCase = get(),
+            getAiPropertiesUseCase = get()
+        )
+    }
 
-    private val _chatMessages = MutableStateFlow<List<Message>>(emptyList())
-    override val chatMessages: StateFlow<List<Message>> = _chatMessages.asStateFlow()
-
-    private val _messageInput = MutableStateFlow("")
-    override val messageInput: StateFlow<String> = _messageInput.asStateFlow()
-
-    private val _isAITyping = MutableStateFlow(false)
-    override val isAITyping: StateFlow<Boolean> = _isAITyping.asStateFlow()
 
     override fun onChatListOpenClicked() = onChatListOpenAction()
 
-    override fun onMessageSend(userMessage: String) {
-        val message = Message(
-            content = userMessage,
-            sender = EnumSender.User
-        )
-        if (message.content.isNotBlank()) {
-            _chatMessages.value += message
-            _messageInput.value = ""
-
-            coroutineScope.launch {
-                sendChatRequestUseCase(message)
-                    .onStart { _isAITyping.value = true }
-                    .onCompletion { _isAITyping.value = false }
-                    .collectLatest { aiResponse ->
-                        println(aiResponse)
-                        _chatMessages.value += aiResponse
-                    }
-            }
-        }
+    override fun onChatSettingOpen() {
+        //todo - open dialog bottom sheet with settings
     }
 
-    override fun onMessageInputChanged(input: String) {
-        _messageInput.value = input
-    }
+
 } 

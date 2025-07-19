@@ -1,45 +1,54 @@
 package ru.llama.tool.presentation.chat_screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
-import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
+import ru.llama.tool.presentation.chat_screen.views.MessageItem
+import ru.llama.tool.presentation.utils.onKeyEnter
 
 @Composable
 fun ChatScreenContent(component: ChatComponent) {
-    val chatMessages by component.chatMessages.collectAsState()
-    val messageInput by component.messageInput.collectAsState()
+
+    val uiModel by component.viewModel.uiModel.collectAsState()
+
+    val chatMessages = uiModel.chatMessagesData.collectAsState()
+
+    val focusRequester = remember { FocusRequester() }
+
+    val scrollState = rememberLazyListState()
 
     Scaffold(
+        modifier = Modifier.onKeyEnter(focusRequester) {
+            component.viewModel.onMessageSend()
+        }.imePadding(),
         topBar = {
-            ChatTopBar(onChatListOpenClicked = component::onChatListOpenClicked)
+            ChatTopBar(
+                aiProps = uiModel.aiProps,
+                aiLoading = uiModel.isAiTyping,
+                onChatListOpenClicked = component::onChatListOpenClicked,
+                onChatSettingOpenClicked = component::onChatSettingOpen,
+            )
         }
     ) { paddingValues ->
         Column(
@@ -54,67 +63,23 @@ fun ChatScreenContent(component: ChatComponent) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    state = scrollState,
+                    reverseLayout = true
                 ) {
-                    items(chatMessages) { message ->
-                        val isUserMessage = message.sender == EnumSender.User
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            horizontalArrangement = if (isUserMessage) Arrangement.End else Arrangement.Start,
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            if (!isUserMessage) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.primary)
-                                        .align(Alignment.Bottom),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = message.sender.name.first().toString(),
-                                        color = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                            }
+                    items(chatMessages.value.asReversed()) { message ->
 
-                            Surface(
-                                modifier = Modifier
-                                    .widthIn(max = maxMessageWidth)
-                                    .padding(horizontal = 4.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                color = if (isUserMessage) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
-                            ) {
-                                Text(
-                                    text = message.content,
-                                    modifier = Modifier.padding(12.dp)
-                                )
-                            }
+                        MessageItem(
+                            modifier = Modifier,
+                            message = message,
+                            maxMessageWidth = maxMessageWidth
+                        )
 
-                            if (isUserMessage) {
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.secondary)
-                                        .align(Alignment.Bottom),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = message.sender.name.first().toString(),
-                                        color = MaterialTheme.colorScheme.onSecondary
-                                    )
-                                }
-                            }
-                        }
+
                     }
                 }
             }
+
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -122,11 +87,18 @@ fun ChatScreenContent(component: ChatComponent) {
                 shadowElevation = 8.dp
             ) {
                 MessageInputPanel(
-                    messageInput = messageInput,
-                    onMessageInputChanged = component::onMessageInputChanged,
-                    onMessageSend = component::onMessageSend
+                    messageInput = uiModel.messageInput,
+                    onMessageInputChanged = component.viewModel::onMessageInputChanged,
+                    onMessageSend = component.viewModel::onMessageSend,
+                    isAiTyping = uiModel.isAiTyping,
+                    onMessageStopGen = component.viewModel::stopMessageGen
+
                 )
             }
         }
     }
-} 
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+}

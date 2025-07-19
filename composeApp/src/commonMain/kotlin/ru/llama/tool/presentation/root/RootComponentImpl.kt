@@ -12,7 +12,7 @@ import com.arkivanov.essenty.instancekeeper.getOrCreate
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import ru.llama.tool.core.data_store.preferances.IAppPreferences
+import ru.llama.tool.data.preferences.preferances.IAppPreferences
 import ru.llama.tool.presentation.chat_screen.ChatComponentImpl
 import ru.llama.tool.presentation.root.IRootComponent.Child
 import ru.llama.tool.presentation.setting_screen.SettingComponent

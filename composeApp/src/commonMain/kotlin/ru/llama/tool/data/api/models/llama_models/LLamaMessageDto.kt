@@ -1,6 +1,7 @@
 package ru.llama.tool.data.api.models.llama_models
 
 import kotlinx.serialization.Serializable
+import ru.llama.tool.data.api.models.messages.MessageRequest
 
 @Serializable
 data class LLamaMessageDto(
