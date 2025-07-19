@@ -27,18 +27,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ru.llama.tool.domain.models.AiProperties
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiChatSettingsScreen(
-    component: AiChatSettingsComponent,
-    currentProperties: AiProperties
+    component: AiChatSettingsComponent
 ) {
-    var systemPrompt by remember { mutableStateOf(currentProperties.systemPrompt) }
-    var temperature by remember { mutableStateOf(currentProperties.temperature) }
-    var maxTokens by remember { mutableStateOf(currentProperties.maxTokens.toFloat()) }
-    var topP by remember { mutableStateOf(currentProperties.topP.toFloat()) }
+    val currentProperties by component.currentAiProp.subscribeAsState()
+
+    var systemPrompt by remember(currentProperties) { mutableStateOf(currentProperties.systemPrompt) }
+    var temperature by remember(currentProperties) { mutableStateOf(currentProperties.temperature) }
+    var maxTokens by remember(currentProperties) { mutableStateOf(currentProperties.maxTokens.toFloat()) }
+    var topP by remember(currentProperties) { mutableStateOf(currentProperties.topP.toFloat()) }
 
     val windowInsetsBottom =
         WindowInsets.Companion.navigationBars.asPaddingValues().calculateBottomPadding()

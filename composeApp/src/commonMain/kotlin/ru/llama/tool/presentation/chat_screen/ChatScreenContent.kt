@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsScreen
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
 import ru.llama.tool.presentation.chat_screen.views.MessageItem
@@ -37,6 +39,14 @@ fun ChatScreenContent(component: ChatComponent) {
     val focusRequester = remember { FocusRequester() }
 
     val scrollState = rememberLazyListState()
+
+    val dialogSlot = component.dialog.subscribeAsState()
+
+    dialogSlot.value.child?.also { child ->
+        when (val item = child.instance) {
+            is ChatComponent.DialogChild.AiSettingDialogChild -> AiChatSettingsScreen(item.component)
+        }
+    }
 
     Scaffold(
         modifier = Modifier.onKeyEnter(focusRequester) {

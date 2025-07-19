@@ -1,9 +1,17 @@
 package ru.llama.tool.presentation.chat_screen
 
+import androidx.compose.runtime.Stable
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.router.slot.ChildSlot
+import com.arkivanov.decompose.router.slot.SlotNavigation
+import com.arkivanov.decompose.router.slot.childSlot
+import com.arkivanov.decompose.router.slot.navigate
+import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.instancekeeper.getOrCreate
+import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsComponentImpl
 import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class ChatComponentImpl(
@@ -20,12 +28,41 @@ class ChatComponentImpl(
         )
     }
 
+    private val slotNavigation = SlotNavigation<DialogConfig>()
+
+    override val dialog: Value<ChildSlot<*, ChatComponent.DialogChild>> = childSlot(
+        source = slotNavigation, serializer = DialogConfig.serializer(),
+        handleBackButton = true,
+        childFactory = ::createChildDialog,
+    )
+
+    @Stable
+    private fun createChildDialog(
+        config: DialogConfig,
+        childComponentContext: ComponentContext
+    ): ChatComponent.DialogChild {
+        return when (config) {
+            is DialogConfig.AiSettingDialogConfig -> ChatComponent.DialogChild.AiSettingDialogChild(
+                component = AiChatSettingsComponentImpl(
+                    currentAiProperties = viewModel.uiModel.value.aiProps.value,
+                    onCloseDialog = { slotNavigation.navigate { null } }
+                )
+            )
+        }
+    }
 
     override fun onChatListOpenClicked() = onChatListOpenAction()
 
     override fun onChatSettingOpen() {
-        //todo - open dialog bottom sheet with settings
+        slotNavigation.navigate { DialogConfig.AiSettingDialogConfig }
     }
 
+
+    @Serializable
+    private sealed class DialogConfig {
+        @Serializable
+        data object AiSettingDialogConfig : DialogConfig()
+
+    }
 
 } 
