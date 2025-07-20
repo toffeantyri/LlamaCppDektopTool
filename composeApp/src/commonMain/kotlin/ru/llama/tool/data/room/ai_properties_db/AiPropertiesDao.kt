@@ -12,6 +12,9 @@ interface AiPropertiesDao {
     @Upsert
     suspend fun insert(data: AiPropertiesEntity)
 
+    @Query("DELETE FROM ${DBConst.PROPERTIES_TABLE} WHERE id = :id")
+    suspend fun delete(id: Int)
+
     @Query("SELECT * FROM ${DBConst.PROPERTIES_TABLE} WHERE id = :id")
     fun getDataBy(id: Int): Flow<AiPropertiesEntity?>
 

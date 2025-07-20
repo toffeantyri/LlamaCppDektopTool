@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9b32b4236aa8dcf85f65561f41a252df",
+    "identityHash": "2897ddc34a44129d0e19f9a7853f4702",
     "entities": [
       {
         "tableName": "PROPERTIES_TABLE",
@@ -45,11 +45,41 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "CHAT_TABLE",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `message` TEXT NOT NULL, `chat_name` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "messages",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chatName",
+            "columnName": "chat_name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9b32b4236aa8dcf85f65561f41a252df')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2897ddc34a44129d0e19f9a7853f4702')"
     ]
   }
 }

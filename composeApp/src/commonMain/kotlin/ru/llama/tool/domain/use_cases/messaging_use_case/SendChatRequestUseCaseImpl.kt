@@ -1,7 +1,7 @@
 package ru.llama.tool.domain.use_cases.messaging_use_case
 
 import kotlinx.coroutines.flow.Flow
-import ru.llama.tool.data.repository.ai_repo.LlamaAiRepository
+import ru.llama.tool.data.repository.llama_repo.LlamaAiRepository
 import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.domain.models.Message
 

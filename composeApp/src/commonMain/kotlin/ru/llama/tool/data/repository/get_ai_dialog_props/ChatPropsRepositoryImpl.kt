@@ -1,16 +1,18 @@
-package ru.llama.tool.data.repository.get_ai_dialog
+package ru.llama.tool.data.repository.get_ai_dialog_props
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ru.llama.tool.data.room.ai_properties_db.AiPropertiesDao
+import ru.llama.tool.data.data_sources.local_ai_dialog_props_data_source.AiDialogPropsDataSource
 import ru.llama.tool.data.room.ai_properties_db.AiPropertiesEntity
 import ru.llama.tool.domain.models.AiDialogProperties
 
-class GetAiDialogRepositoryImpl(private val dao: AiPropertiesDao) : GetAiDialogRepository {
+class ChatPropsRepositoryImpl(
+    private val propsDataSource: AiDialogPropsDataSource,
+) : ChatPropsRepository {
 
-    override suspend fun saveToDb(aiDialogProps: AiDialogProperties) {
+    override suspend fun savePropsToDb(aiDialogProps: AiDialogProperties) {
         return if (aiDialogProps.id != AiDialogProperties.DEFAULT_ID) {
-            dao.insert(
+            propsDataSource.saveToDb(
                 AiPropertiesEntity(
                     id = aiDialogProps.id,
                     systemPrompt = aiDialogProps.systemPrompt,
@@ -22,9 +24,13 @@ class GetAiDialogRepositoryImpl(private val dao: AiPropertiesDao) : GetAiDialogR
         } else Unit
     }
 
+    override suspend fun deletePropsFromDb(chatId: Int) {
+        return propsDataSource.deleteFromDb(chatId)
+    }
+
 
     override suspend fun getDialogProperties(chatId: Int): Flow<AiDialogProperties> {
-        return dao.getDataBy(chatId).map { entity ->
+        return propsDataSource.getDialogProperties(chatId).map { entity ->
             if (entity != null) {
                 AiDialogProperties(
                     id = chatId,

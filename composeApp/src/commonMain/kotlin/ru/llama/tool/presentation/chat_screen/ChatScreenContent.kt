@@ -28,6 +28,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import kotlinx.coroutines.launch
+import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsScreen
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListScreen
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
@@ -47,6 +48,14 @@ fun ChatScreenContent(component: ChatComponent) {
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
 
+    dialogSlot.value.child?.also { child ->
+        when (val item = child.instance) {
+            is ChatComponent.DialogChild.AiSettingDialogChild -> AiChatSettingsScreen(item.component)
+            is ChatComponent.DialogChild.DialogListDialogChild -> {
+                /**look drawer content**/
+            }
+        }
+    }
 
     ModalNavigationDrawer(
         drawerContent = {

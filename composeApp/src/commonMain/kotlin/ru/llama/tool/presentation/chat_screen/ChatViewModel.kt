@@ -15,16 +15,18 @@ import ru.llama.tool.core.io
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
 import ru.llama.tool.domain.models.UiText
-import ru.llama.tool.domain.use_cases.ai_props_use_case.GetAiPropertiesUseCase
-import ru.llama.tool.domain.use_cases.get_ai_dialog.GetAiDialogPropsUseCase
+import ru.llama.tool.domain.use_cases.ChatInteractor
+import ru.llama.tool.domain.use_cases.chat_property_interactor.ChatPropsInteractor
+import ru.llama.tool.domain.use_cases.llama_props_use_case.GetLlamaPropertiesUseCase
 import ru.llama.tool.domain.use_cases.messaging_use_case.SendChatRequestUseCase
 
 class ChatViewModel(
     private val chatId: Int?,
     private val coroutineScope: CoroutineScope,
     private val sendChatRequestUseCase: SendChatRequestUseCase,
-    private val getAiPropertiesUseCase: GetAiPropertiesUseCase,
-    private val getAiDialogPropsUseCase: GetAiDialogPropsUseCase,
+    private val getLlamaPropertiesUseCase: GetLlamaPropertiesUseCase,
+    private val chatPropsInteractor: ChatPropsInteractor,
+    val chatInteractor: ChatInteractor,
     private val onChangeCurrentChatId: (newChatId: Int) -> Unit,
 ) : InstanceKeeper.Instance, IChatViewModel {
 
@@ -140,7 +142,7 @@ class ChatViewModel(
     private suspend fun updateAiModelName() {
         runCatching {
             uiModel.value.titleLoading.value = true
-            getAiPropertiesUseCase.invoke()
+            getLlamaPropertiesUseCase.invoke()
         }.onSuccess { aiProps ->
             uiModel.value.modelName.value = aiProps.modelName
             uiModel.value.titleLoading.value = false
@@ -152,7 +154,7 @@ class ChatViewModel(
 
     private suspend fun updateAiDialogProperties(toNextAction: suspend () -> Unit) {
         if (chatId != null) {
-            getAiDialogPropsUseCase(chatId).collect { properties ->
+            chatPropsInteractor.getChatProperty(chatId).collect { properties ->
                 uiModel.value.aiProps.value = properties
                 println("VM $properties")
                 toNextAction()

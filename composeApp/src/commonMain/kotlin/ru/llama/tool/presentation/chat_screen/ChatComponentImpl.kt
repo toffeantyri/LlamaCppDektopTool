@@ -27,8 +27,9 @@ class ChatComponentImpl(
             chatId = chatId,
             coroutineScope = coroutineScope,
             sendChatRequestUseCase = get(),
-            getAiPropertiesUseCase = get(),
-            getAiDialogPropsUseCase = get(),
+            getLlamaPropertiesUseCase = get(),
+            chatPropsInteractor = get(),
+            chatInteractor = get(),
             onChangeCurrentChatId = changeCurrentChatId
         )
     }
@@ -56,11 +57,11 @@ class ChatComponentImpl(
 
             is DialogConfig.DialogListDialogConfig -> ChatComponent.DialogChild.DialogListDialogChild(
                 AiDialogListComponentImpl(
+                    chatInteractor = viewModel.chatInteractor,
                     onDialogSelected = { /*todo*/ },
                     onCreateNewDialog = {/*todo*/ },
-                    onDismiss = {
-                        slotNavigation.navigate { null }
-                    }
+                    coroutineScope = coroutineScope,
+                    onDismiss = { slotNavigation.navigate { null } }
                 )
             )
         }
@@ -71,7 +72,6 @@ class ChatComponentImpl(
     }
 
     override fun onChatSettingOpen() {
-//        slotNavigation.navigate { null }
         slotNavigation.navigate { DialogConfig.AiSettingDialogConfig }
     }
 
