@@ -31,6 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import llamacppdektoptool.composeapp.generated.resources.Res
+import llamacppdektoptool.composeapp.generated.resources.actions
+import llamacppdektoptool.composeapp.generated.resources.create_new_dialog
+import llamacppdektoptool.composeapp.generated.resources.delete
+import llamacppdektoptool.composeapp.generated.resources.rename
+import llamacppdektoptool.composeapp.generated.resources.your_dialogs
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AiDialogListScreen(
@@ -48,7 +55,7 @@ fun AiDialogListScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Ваши диалоги",
+                text = stringResource(Res.string.your_dialogs),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -58,7 +65,7 @@ fun AiDialogListScreen(
                     onClick = component::onCreateNewDialogClicked,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Создать новый диалог")
+                    Text(stringResource(Res.string.create_new_dialog))
                 }
             }
 
@@ -89,21 +96,24 @@ fun AiDialogListScreen(
 
                             Box {
                                 IconButton(onClick = { expanded = true }) {
-                                    Icon(Icons.Default.MoreVert, contentDescription = "Действия")
+                                    Icon(
+                                        Icons.Default.MoreVert,
+                                        contentDescription = stringResource(Res.string.actions)
+                                    )
                                 }
                                 DropdownMenu(
                                     expanded = expanded,
                                     onDismissRequest = { expanded = false }
                                 ) {
                                     DropdownMenuItem(
-                                        text = { Text("Переименовать") },
+                                        text = { Text(stringResource(Res.string.rename)) },
                                         onClick = {
                                             expanded = false
                                             component.onRenameDialogClicked(dialog.chatId)
                                         }
                                     )
                                     DropdownMenuItem(
-                                        text = { Text("Удалить") },
+                                        text = { Text(stringResource(Res.string.delete)) },
                                         onClick = {
                                             expanded = false
                                             component.onDeleteDialogClicked(dialog.chatId)
