@@ -2,6 +2,7 @@ package ru.llama.tool.presentation.chat_screen.ai_dialog_list
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -86,27 +87,29 @@ fun AiDialogListScreen(
                                 style = MaterialTheme.typography.titleMedium
                             )
 
-                            IconButton(onClick = { expanded = true }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "Действия")
-                            }
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Переименовать") },
-                                    onClick = {
-                                        expanded = false
-                                        component.onRenameDialogClicked(dialog.chatId)
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Удалить") },
-                                    onClick = {
-                                        expanded = false
-                                        component.onDeleteDialogClicked(dialog.chatId)
-                                    }
-                                )
+                            Box {
+                                IconButton(onClick = { expanded = true }) {
+                                    Icon(Icons.Default.MoreVert, contentDescription = "Действия")
+                                }
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Переименовать") },
+                                        onClick = {
+                                            expanded = false
+                                            component.onRenameDialogClicked(dialog.chatId)
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Удалить") },
+                                        onClick = {
+                                            expanded = false
+                                            component.onDeleteDialogClicked(dialog.chatId)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
