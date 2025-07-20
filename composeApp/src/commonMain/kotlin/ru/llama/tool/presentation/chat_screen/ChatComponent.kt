@@ -13,6 +13,7 @@ import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.domain.models.Message
 import ru.llama.tool.domain.models.UiText
 import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsComponent
+import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponent
 
 interface ChatComponent {
 
@@ -23,6 +24,8 @@ interface ChatComponent {
     fun onChatListOpenClicked()
 
     fun onChatSettingOpen()
+
+    fun closeDialogSlot()
 
 
     data class UiModel(
@@ -42,6 +45,6 @@ interface ChatComponent {
     sealed interface DialogChild {
         data class AiSettingDialogChild(val component: AiChatSettingsComponent) : DialogChild
 
-        data object DialogListDialogChild : DialogChild
+        data class DialogListDialogChild(val component: AiDialogListComponent) : DialogChild
     }
 }

@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsComponentImpl
+import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponentImpl
 import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class ChatComponentImpl(
@@ -53,7 +54,15 @@ class ChatComponentImpl(
                 )
             )
 
-            DialogConfig.DialogListDialogConfig -> ChatComponent.DialogChild.DialogListDialogChild //todo
+            is DialogConfig.DialogListDialogConfig -> ChatComponent.DialogChild.DialogListDialogChild(
+                AiDialogListComponentImpl(
+                    onDialogSelected = { /*todo*/ },
+                    onCreateNewDialog = {/*todo*/ },
+                    onDismiss = {
+                        slotNavigation.navigate { null }
+                    }
+                )
+            )
         }
     }
 
@@ -62,7 +71,12 @@ class ChatComponentImpl(
     }
 
     override fun onChatSettingOpen() {
+//        slotNavigation.navigate { null }
         slotNavigation.navigate { DialogConfig.AiSettingDialogConfig }
+    }
+
+    override fun closeDialogSlot() {
+        slotNavigation.navigate { null }
     }
 
 
