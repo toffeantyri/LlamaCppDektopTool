@@ -92,6 +92,8 @@ class ApiServiceImpl(
                     contentType(ContentType.Application.Json)
                     header("Accept", "text/event-stream")
                     header("Cache-Control", "no-store")
+                    header("Connection", "keep-alive")
+                    header("Keep-Alive", "timeout=60, max=100")
                     setBody(
                         LLamaMessageDto(
                             messages = messages,

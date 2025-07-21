@@ -25,9 +25,9 @@ fun configureHttpClient(
         }
 
         install(HttpTimeout) {
-            requestTimeoutMillis = DEFAULT_REQUEST_TIMEOUT
+            requestTimeoutMillis = Long.MAX_VALUE
             connectTimeoutMillis = DEFAULT_TIMEOUT
-            socketTimeoutMillis = DEFAULT_TIMEOUT
+            socketTimeoutMillis = Long.MAX_VALUE
         }
 
         expectSuccess = true
