@@ -21,11 +21,13 @@ interface ChatComponent {
 
     val dialog: Value<ChildSlot<*, DialogChild>>
 
-    fun onChatListOpenClicked()
+    val drawerComponent: AiDialogListComponent
 
     fun onChatSettingOpen()
 
-    fun closeDialogSlot()
+    fun onDrawerOpened()
+
+    fun onDrawerClosed()
 
 
     data class UiModel(
@@ -45,6 +47,5 @@ interface ChatComponent {
     sealed interface DialogChild {
         data class AiSettingDialogChild(val component: AiChatSettingsComponent) : DialogChild
 
-        data class DialogListDialogChild(val component: AiDialogListComponent) : DialogChild
     }
 }

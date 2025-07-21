@@ -12,8 +12,6 @@ interface AiDialogListComponent {
 
     fun onCreateNewDialogClicked()
 
-    fun onDismissDialogList()
-
     fun onRenameDialogClicked(chatId: Int)
 
     fun onDeleteDialogClicked(chatId: Int)

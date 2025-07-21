@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,21 +49,24 @@ fun ChatScreenContent(component: ChatComponent) {
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
 
+    DisposableEffect(drawerState.isOpen) {
+        if (drawerState.isOpen) {
+            component.onDrawerOpened()
+        } else {
+            component.onDrawerClosed()
+        }
+        onDispose {}
+    }
+
     dialogSlot.value.child?.also { child ->
         when (val item = child.instance) {
             is ChatComponent.DialogChild.AiSettingDialogChild -> AiChatSettingsScreen(item.component)
-            is ChatComponent.DialogChild.DialogListDialogChild -> {
-                /**look drawer content**/
-            }
         }
     }
 
     ModalNavigationDrawer(
         drawerContent = {
-            val item = dialogSlot.value.child?.instance
-            if (item is ChatComponent.DialogChild.DialogListDialogChild) {
-                AiDialogListScreen(item.component)
-            }
+            AiDialogListScreen(component.drawerComponent)
         },
         drawerState = drawerState,
     ) {
@@ -76,7 +80,7 @@ fun ChatScreenContent(component: ChatComponent) {
                 ChatTopBar(
                     modelName = uiModel.modelName,
                     aiLoading = uiModel.isAiTyping,
-                    onChatListOpenClicked = component::onChatListOpenClicked,
+                    onChatListOpenClicked = { coroutineScope.launch { drawerState::open.invoke() } },
                     onChatSettingOpenClicked = component::onChatSettingOpen,
                 )
             }
@@ -120,34 +124,6 @@ fun ChatScreenContent(component: ChatComponent) {
                         onMessageStopGen = component.viewModel::stopMessageGen
                     )
                 }
-            }
-        }
-
-        // Синхронизация drawerState с dialogSlot
-        LaunchedEffect(dialogSlot.value) {
-            val isDialogListOpen =
-                dialogSlot.value.child?.instance is ChatComponent.DialogChild.DialogListDialogChild
-
-            if (isDialogListOpen) {
-                // Открытие drawer только если он ещё закрыт
-                if (drawerState.isClosed) {
-                    coroutineScope.launch {
-                        drawerState.open()
-                    }
-                }
-            } else {
-                if (drawerState.isOpen) {
-                    coroutineScope.launch {
-                        drawerState.close()
-                    }
-                }
-            }
-        }
-
-        // Обработка закрытия drawer (в т.ч. по scrim)
-        LaunchedEffect(drawerState.isClosed) {
-            if (drawerState.isClosed && dialogSlot.value.child != null) {
-                component.closeDialogSlot()
             }
         }
 
