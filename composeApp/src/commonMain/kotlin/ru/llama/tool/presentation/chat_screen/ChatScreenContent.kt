@@ -3,6 +3,7 @@ package ru.llama.tool.presentation.chat_screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -74,12 +75,13 @@ fun ChatScreenContent(component: ChatComponent) {
             modifier = Modifier
                 .onKeyEnter(focusRequester) {
                     component.viewModel.onMessageSend()
-                }
-                .imePadding(),
+                },
+            contentWindowInsets = WindowInsets(0.dp),
             topBar = {
                 ChatTopBar(
                     modelName = uiModel.modelName,
-                    aiLoading = uiModel.isAiTyping,
+                    aiTyping = uiModel.isAiTyping,
+                    aiLoading = uiModel.titleLoading,
                     onChatListOpenClicked = { coroutineScope.launch { drawerState::open.invoke() } },
                     onChatSettingOpenClicked = component::onChatSettingOpen,
                 )
@@ -88,7 +90,8 @@ fun ChatScreenContent(component: ChatComponent) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = paddingValues.calculateTopPadding()),
+                    .padding(paddingValues)
+                    .imePadding(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 BoxWithConstraints(modifier = Modifier.weight(1f)) {

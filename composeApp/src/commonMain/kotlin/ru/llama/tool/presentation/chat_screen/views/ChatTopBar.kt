@@ -1,13 +1,15 @@
 package ru.llama.tool.presentation.chat_screen.views
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ru.llama.tool.domain.models.UiText
@@ -26,6 +29,7 @@ import ru.llama.tool.presentation.utils.asString
 @Composable
 fun ChatTopBar(
     modelName: State<UiText>,
+    aiTyping: State<Boolean>,
     aiLoading: State<Boolean>,
     onChatListOpenClicked: () -> Unit,
     onChatSettingOpenClicked: () -> Unit
@@ -33,9 +37,22 @@ fun ChatTopBar(
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                AnimatedVisibility(aiLoading.value) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                }
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .background(
+                            color = when {
+                                modelName.value.asString() == "Unknown" -> Color.Red
+                                aiLoading.value -> Color.Yellow
+                                aiTyping.value -> Color.Cyan
+                                else -> Color.Green
+                            },
+                            shape = CircleShape
+                        )
+                        .border(1.dp, Color.Gray, CircleShape)
+                        .padding(horizontal = 4.dp)
+                )
+
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     text = modelName.value.asString(),
@@ -51,7 +68,7 @@ fun ChatTopBar(
         },
         actions = {
             if (modelName.value.asString() != "Unknown") {
-                IconButton(onClick = onChatSettingOpenClicked, enabled = aiLoading.value.not()) {
+                IconButton(onClick = onChatSettingOpenClicked, enabled = aiTyping.value.not()) {
                     Icon(Icons.Default.Settings, contentDescription = "Settings")
                 }
             }

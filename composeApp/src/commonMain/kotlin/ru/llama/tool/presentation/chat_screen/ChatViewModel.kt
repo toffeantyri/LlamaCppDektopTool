@@ -1,9 +1,11 @@
 package ru.llama.tool.presentation.chat_screen
 
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import io.ktor.client.plugins.ServerResponseException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -19,6 +21,8 @@ import ru.llama.tool.domain.use_cases.ChatInteractor
 import ru.llama.tool.domain.use_cases.chat_property_interactor.ChatPropsInteractor
 import ru.llama.tool.domain.use_cases.llama_props_use_case.GetLlamaPropertiesUseCase
 import ru.llama.tool.domain.use_cases.messaging_use_case.SendChatRequestUseCase
+import ru.llama.tool.presentation.chat_screen.utils.extractErrorMessage503LoadingModel
+import kotlin.time.Duration.Companion.seconds
 
 class ChatViewModel(
     private val chatId: Int?,
@@ -136,31 +140,40 @@ class ChatViewModel(
 
     init {
         initChatDialog()
+        updateAiModelName()
     }
 
 
-    private suspend fun updateAiModelName() {
-        runCatching {
-            uiModel.value.titleLoading.value = true
-            getLlamaPropertiesUseCase.invoke()
-        }.onSuccess { aiProps ->
-            uiModel.value.modelName.value = aiProps.modelName
-            uiModel.value.titleLoading.value = false
-        }.onFailure {
-            uiModel.value.modelName.value = UiText.StringValue("Unknown")
-            uiModel.value.titleLoading.value = false
+    private fun updateAiModelName() {
+        coroutineScope.launch {
+            runCatching {
+                uiModel.value.titleLoading.value = true
+                getLlamaPropertiesUseCase.invoke()
+            }.onSuccess { aiProps ->
+                println("AiModelName onSuccess ${aiProps.modelName}")
+                uiModel.value.modelName.value = aiProps.modelName
+                uiModel.value.titleLoading.value = false
+                delay(30.seconds)
+                updateAiModelName()
+            }.onFailure { error ->
+                if (error is ServerResponseException) {
+                    val message = extractErrorMessage503LoadingModel(error.message)
+                    uiModel.value.modelName.value = UiText.StringValue(message ?: "Unknown")
+                } else {
+                    uiModel.value.modelName.value = UiText.StringValue("Unknown")
+                    uiModel.value.titleLoading.value = false
+                }
+                delay(5.seconds)
+                updateAiModelName()
+            }
         }
     }
 
-    private suspend fun updateAiDialogProperties(toNextAction: suspend () -> Unit) {
+    private suspend fun updateAiDialogProperties() {
         if (chatId != null) {
             chatPropsInteractor.getChatProperty(chatId).collect { properties ->
                 uiModel.value.aiProps.value = properties
-                println("VM $properties")
-                toNextAction()
             }
-        } else {
-            toNextAction()
         }
     }
 
@@ -168,9 +181,7 @@ class ChatViewModel(
     private fun initChatDialog() {
         coroutineScope.launch {
             launch(Dispatchers.io()) {
-                updateAiDialogProperties(
-                    toNextAction = { updateAiModelName() }
-                )
+                updateAiDialogProperties()
             }
         }
     }

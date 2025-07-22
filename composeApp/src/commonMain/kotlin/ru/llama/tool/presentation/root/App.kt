@@ -58,22 +58,24 @@ fun App(root: IRootComponent) {
         val childStack by root.stack.subscribeAsState()
         val selectedIndex by root.selectedIndex.subscribeAsState()
 
-        Scaffold(bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = selectedIndex == 0,
-                    onClick = root::onChatTabClicked,
-                    icon = { Icon(Icons.Filled.Home, contentDescription = "Чат") },
-                    label = { Text("Чат") }
-                )
-                NavigationBarItem(
-                    selected = selectedIndex == 1,
-                    onClick = root::onSettingsTabClicked,
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = "Настройки") },
-                    label = { Text("Настройки") }
-                )
-            }
-        }) { innerPadding ->
+        Scaffold(
+            modifier = Modifier/*.navigationBarsPadding()*/,
+            bottomBar = {
+                NavigationBar(modifier = Modifier) {
+                    NavigationBarItem(
+                        selected = selectedIndex == 0,
+                        onClick = root::onChatTabClicked,
+                        icon = { Icon(Icons.Filled.Home, contentDescription = "Чат") },
+                        label = { Text("Чат") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedIndex == 1,
+                        onClick = root::onSettingsTabClicked,
+                        icon = { Icon(Icons.Filled.Settings, contentDescription = "Настройки") },
+                        label = { Text("Настройки") }
+                    )
+                }
+            }) { innerPadding ->
             Children(
                 stack = childStack,
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
