@@ -150,7 +150,14 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "LlamaTool"
             packageVersion = "1.0.0"
+
+            windows {
+                iconFile.set(File("src/commonMain/composeResources/drawable/app_icon.ico"))
+            }
+
         }
+
+
     }
 }
 

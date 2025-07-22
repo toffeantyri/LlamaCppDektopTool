@@ -8,7 +8,7 @@ import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import llamacppdektoptool.composeapp.generated.resources.Res
-import llamacppdektoptool.composeapp.generated.resources.compose_multiplatform
+import llamacppdektoptool.composeapp.generated.resources.app_icon
 import org.jetbrains.compose.resources.painterResource
 import ru.delivery.client.utils.runOnUiThread
 import ru.llama.tool.data.preferences.initializeDataStore
@@ -34,7 +34,7 @@ fun main() = application {
     }
     val windowState = rememberWindowState(width = 500.dp, height = 700.dp)
     Window(
-        icon = painterResource(Res.drawable.compose_multiplatform),
+        icon = painterResource(Res.drawable.app_icon),
         onCloseRequest = ::exitApplication,
         state = windowState,
         title = "Local AI Tool"
