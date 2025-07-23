@@ -75,9 +75,8 @@ class RootComponentImpl(
                         currentChatId = newChatId
                     },
                     createNewChat = {
-                        println("createNewChat")
                         currentChatId =
-                            if (currentChatId == AiDialogProperties.DEFAULT_ID) (AiDialogProperties.DEFAULT_ID - 1)
+                            if (currentChatId == AiDialogProperties.DEFAULT_ID) null
                             else AiDialogProperties.DEFAULT_ID
 
                         navigation.replaceCurrent(Config.ChatContentConfig(currentChatId))
