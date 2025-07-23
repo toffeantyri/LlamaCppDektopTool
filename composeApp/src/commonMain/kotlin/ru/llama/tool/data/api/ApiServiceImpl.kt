@@ -128,7 +128,7 @@ class ApiServiceImpl(
                                 Message(
                                     content = EMPTY,
                                     sender = EnumSender.Error(
-                                        t ?: Throwable("Server is busy. Try again later.")
+                                        t?.message ?: "Server is busy. Try again later."
                                     ),
                                     id = messages.last().id,
                                 )

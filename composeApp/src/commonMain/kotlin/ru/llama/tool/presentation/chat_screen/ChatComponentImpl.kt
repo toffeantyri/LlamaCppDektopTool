@@ -11,12 +11,6 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.instancekeeper.getOrCreate
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
-import com.arkivanov.essenty.lifecycle.doOnCreate
-import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.arkivanov.essenty.lifecycle.doOnPause
-import com.arkivanov.essenty.lifecycle.doOnResume
-import com.arkivanov.essenty.lifecycle.doOnStart
-import com.arkivanov.essenty.lifecycle.doOnStop
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.lifecycle.stop
 import kotlinx.serialization.Serializable
@@ -110,12 +104,12 @@ class ChatComponentImpl(
 
     init {
         componentContext.lifecycle.apply {
-            doOnPause { println("Lifecycle doOnPause") }
-            doOnStop { println("Lifecycle doOnStop") }
-            doOnStart { println("Lifecycle doOnStart") }
-            doOnCreate { println("Lifecycle doOnCreate") }
-            doOnDestroy { println("Lifecycle doOnDestroy") }
-            doOnResume { println("Lifecycle doOnResume") }
+//            doOnPause { println("Lifecycle doOnPause") }
+//            doOnStop { println("Lifecycle doOnStop") }
+//            doOnStart { println("Lifecycle doOnStart") }
+//            doOnCreate { println("Lifecycle doOnCreate") }
+//            doOnDestroy { println("Lifecycle doOnDestroy") }
+//            doOnResume { println("Lifecycle doOnResume") }
         }
     }
 

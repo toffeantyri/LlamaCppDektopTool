@@ -4,16 +4,21 @@ import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import io.ktor.client.plugins.ServerResponseException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.llama.tool.core.io
+import ru.llama.tool.domain.models.AIDialogChatDto
+import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
 import ru.llama.tool.domain.models.UiText
@@ -30,15 +35,18 @@ class ChatViewModel(
     private val sendChatRequestUseCase: SendChatRequestUseCase,
     private val getLlamaPropertiesUseCase: GetLlamaPropertiesUseCase,
     private val chatPropsInteractor: ChatPropsInteractor,
-    val chatInteractor: ChatInteractor,
     private val onChangeCurrentChatId: (newChatId: Int) -> Unit,
+    val chatInteractor: ChatInteractor,
 ) : InstanceKeeper.Instance, IChatViewModel {
 
     val uiModel: MutableStateFlow<ChatComponent.UiModel> = MutableStateFlow(ChatComponent.UiModel())
 
+    private val saveDialogTrigger = MutableSharedFlow<Unit>()
+
     private var messageJob: Job? = null
 
     private var idCounter = 0
+
 
     override fun onMessageSend() {
         // Добавляем системный промпт если это первое сообщение
@@ -80,6 +88,7 @@ class ChatViewModel(
                         .onCompletion {
                             println("VM onCompletion $it")
                             uiModel.value.isAiTyping.value = false
+                            saveDialogTrigger.emit(Unit) //save dialog trigger
                         }
                         .flowOn(Dispatchers.IO)
                 }.onSuccess { flowResult ->
@@ -138,9 +147,33 @@ class ChatViewModel(
     }
 
 
+    private fun saveCurrentDialog() {
+        coroutineScope.launch {
+            val currentChat = AIDialogChatDto(
+                chatId = chatId ?: AiDialogProperties.DEFAULT_ID,
+                chatName = "",
+                messages = uiModel.value.chatMessagesData.value
+            )
+            chatInteractor.saveChatToDb(currentChat)
+        }
+    }
+
+
     init {
         initChatDialog()
         updateAiModelName()
+        saveDialogTriggerCollector()
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun saveDialogTriggerCollector() {
+        coroutineScope.launch {
+            saveDialogTrigger
+                .debounce(10.seconds)
+                .collect {
+                    saveCurrentDialog()
+                }
+        }
     }
 
 

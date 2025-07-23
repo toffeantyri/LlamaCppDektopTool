@@ -68,7 +68,7 @@ fun MessageItem(modifier: Modifier, message: Message, maxMessageWidth: Dp) {
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
                         shape = RoundedCornerShape(10.dp)
                     ),
-                    text = message.sender.throwable.message ?: "Unknown error",
+                    text = message.sender.throwable ?: "Unknown error",
                     maxLines = 1,
                     fontSize = 12.sp,
                     textAlign = TextAlign.Center
