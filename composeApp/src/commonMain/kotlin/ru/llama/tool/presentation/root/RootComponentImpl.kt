@@ -6,6 +6,7 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.bringToFront
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.instancekeeper.getOrCreate
@@ -13,6 +14,7 @@ import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import ru.llama.tool.data.preferences.preferances.IAppPreferences
+import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.presentation.chat_screen.ChatComponentImpl
 import ru.llama.tool.presentation.root.IRootComponent.Child
 import ru.llama.tool.presentation.setting_screen.SettingComponent
@@ -71,6 +73,14 @@ class RootComponentImpl(
                     chatId = config.chatId,
                     changeCurrentChatId = { newChatId ->
                         currentChatId = newChatId
+                    },
+                    createNewChat = {
+                        println("createNewChat")
+                        currentChatId =
+                            if (currentChatId == AiDialogProperties.DEFAULT_ID) (AiDialogProperties.DEFAULT_ID - 1)
+                            else AiDialogProperties.DEFAULT_ID
+
+                        navigation.replaceCurrent(Config.ChatContentConfig(currentChatId))
                     }
                 )
             )

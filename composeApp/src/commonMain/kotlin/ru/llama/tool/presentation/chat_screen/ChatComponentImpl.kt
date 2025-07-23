@@ -25,6 +25,7 @@ class ChatComponentImpl(
     componentContext: ComponentContext,
     private val chatId: Int?,
     private val changeCurrentChatId: (newChatId: Int) -> Unit,
+    createNewChat: () -> Unit
 ) : ChatComponent, ComponentContext by componentContext, KoinComponent {
     private val coroutineScope = componentContext.componentCoroutineScope()
 
@@ -58,7 +59,7 @@ class ChatComponentImpl(
             ),
             chatInteractor = viewModel.chatInteractor,
             onDialogSelected = { /*todo*/ },
-            onCreateNewDialog = {/*todo*/ },
+            onCreateNewDialog = createNewChat,
             coroutineScope = coroutineScope,
         )
 

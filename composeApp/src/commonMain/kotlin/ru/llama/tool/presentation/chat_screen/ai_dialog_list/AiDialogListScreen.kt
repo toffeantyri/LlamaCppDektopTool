@@ -35,7 +35,6 @@ import llamacppdektoptool.composeapp.generated.resources.Res
 import llamacppdektoptool.composeapp.generated.resources.actions
 import llamacppdektoptool.composeapp.generated.resources.create_new_dialog
 import llamacppdektoptool.composeapp.generated.resources.delete
-import llamacppdektoptool.composeapp.generated.resources.rename
 import llamacppdektoptool.composeapp.generated.resources.your_dialogs
 import org.jetbrains.compose.resources.stringResource
 
@@ -105,13 +104,13 @@ fun AiDialogListScreen(
                                     expanded = expanded,
                                     onDismissRequest = { expanded = false }
                                 ) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(Res.string.rename)) },
-                                        onClick = {
-                                            expanded = false
-                                            component.onRenameDialogClicked(dialog.chatId)
-                                        }
-                                    )
+//                                    DropdownMenuItem(
+//                                        text = { Text(stringResource(Res.string.rename)) },
+//                                        onClick = {
+//                                            expanded = false
+//                                            component.onRenameDialogClicked(dialog.chatId)
+//                                        }
+//                                    )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(Res.string.delete)) },
                                         onClick = {

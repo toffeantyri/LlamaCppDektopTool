@@ -29,11 +29,6 @@ class AiDialogListComponentImpl(
         onCreateNewDialog.invoke()
     }
 
-    override fun onRenameDialogClicked(chatId: Int) {
-        println("Переименовать диалог с ID: $chatId")
-        // TODO: Implement rename dialog logic
-    }
-
     override fun onDeleteDialogClicked(chatId: Int) {
         coroutineScope.launch {
             runCatching {
