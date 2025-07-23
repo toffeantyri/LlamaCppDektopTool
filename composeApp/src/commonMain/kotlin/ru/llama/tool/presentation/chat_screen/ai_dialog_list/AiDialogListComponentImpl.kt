@@ -5,6 +5,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.lifecycle.doOnStart
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.llama.tool.domain.models.AIDialogChatDto
@@ -43,14 +44,19 @@ class AiDialogListComponentImpl(
     }
 
     init {
-        loadChatList()
+        lifecycle.doOnStart {
+            println("drawer onStart")
+            coroutineScope.launch {
+                loadChatList()
+            }
+
+        }
     }
 
-    private fun loadChatList() {
-        coroutineScope.launch {
-            val chatList = chatInteractor.getAllChatsList()
-            dialogs.value.clear()
-            dialogs.value.addAll(chatList)
-        }
+    private suspend fun loadChatList() {
+        val chatList = chatInteractor.getAllChatsList()
+        println("ChatList loaded $chatList")
+        dialogs.value.clear()
+        dialogs.value.addAll(chatList)
     }
 } 
