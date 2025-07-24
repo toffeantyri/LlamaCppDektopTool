@@ -5,7 +5,7 @@ import ru.llama.tool.domain.models.AIDialogChatDto
 
 class ChatInteractorImpl(private val repo: ChatsRepository) : ChatInteractor {
 
-    override suspend fun saveChatToDb(chat: AIDialogChatDto) {
+    override suspend fun saveChatToDb(chat: AIDialogChatDto): Long {
         return repo.saveChatToDb(chat)
     }
 

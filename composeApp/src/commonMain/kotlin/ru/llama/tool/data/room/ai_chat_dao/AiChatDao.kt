@@ -9,7 +9,7 @@ import ru.llama.tool.data.room.DBConst
 interface AiChatDao {
 
     @Upsert
-    suspend fun insert(data: AiChatEntity)
+    suspend fun insert(data: AiChatEntity): Long
 
     @Query("DELETE FROM ${DBConst.CHAT_TABLE} WHERE id = :id")
     suspend fun delete(id: Long)

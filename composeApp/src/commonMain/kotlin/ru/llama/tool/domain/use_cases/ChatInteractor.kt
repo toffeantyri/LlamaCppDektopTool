@@ -4,7 +4,7 @@ import ru.llama.tool.domain.models.AIDialogChatDto
 
 interface ChatInteractor {
 
-    suspend fun saveChatToDb(chat: AIDialogChatDto)
+    suspend fun saveChatToDb(chat: AIDialogChatDto): Long
 
     suspend fun deleteChatFromDb(chatId: Long)
 

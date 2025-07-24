@@ -14,6 +14,7 @@ data class AiChatEntity(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Long = 0,
     @ColumnInfo(name = "message") val messages: List<Message>,
     @ColumnInfo(name = "chat_name") val chatName: String,
+    @ColumnInfo(name = "date") val date: String
 )
 
 

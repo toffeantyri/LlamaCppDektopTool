@@ -89,7 +89,11 @@ fun AiDialogListScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = dialog.chatName,
+                                text = dialog.chatName.takeIf { it.isNotBlank() } ?: buildString {
+                                    append(dialog.chatId)
+                                    append(" / ")
+                                    append(dialog.date)
+                                },
                                 style = MaterialTheme.typography.titleMedium
                             )
 

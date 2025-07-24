@@ -24,6 +24,7 @@ import ru.llama.tool.presentation.utils.componentCoroutineScope
 class ChatComponentImpl(
     componentContext: ComponentContext,
     private val chatId: Long?,
+    private val chatName: String,
     private val changeCurrentChatId: (newChatId: Long) -> Unit,
     createNewChat: () -> Unit
 ) : ChatComponent, ComponentContext by componentContext, KoinComponent {
@@ -32,6 +33,7 @@ class ChatComponentImpl(
     override val viewModel: ChatViewModel = componentContext.instanceKeeper.getOrCreate {
         ChatViewModel(
             chatId = chatId,
+            chatName = chatName,
             coroutineScope = coroutineScope,
             sendChatRequestUseCase = get(),
             getLlamaPropertiesUseCase = get(),

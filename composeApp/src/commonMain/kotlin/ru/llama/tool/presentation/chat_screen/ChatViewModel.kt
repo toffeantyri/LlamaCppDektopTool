@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import ru.llama.tool.core.EMPTY
 import ru.llama.tool.core.io
 import ru.llama.tool.domain.models.AIDialogChatDto
 import ru.llama.tool.domain.models.AiDialogProperties
@@ -31,6 +32,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class ChatViewModel(
     private val chatId: Long?,
+    private val chatName: String,
     private val coroutineScope: CoroutineScope,
     private val sendChatRequestUseCase: SendChatRequestUseCase,
     private val getLlamaPropertiesUseCase: GetLlamaPropertiesUseCase,
@@ -151,10 +153,12 @@ class ChatViewModel(
         coroutineScope.launch {
             val currentChat = AIDialogChatDto(
                 chatId = chatId ?: AiDialogProperties.DEFAULT_ID,
-                chatName = "",
-                messages = uiModel.value.chatMessagesData.value
+                chatName = chatName,
+                messages = uiModel.value.chatMessagesData.value,
+                date = EMPTY
             )
-            chatInteractor.saveChatToDb(currentChat)
+            val savedChatId = chatInteractor.saveChatToDb(currentChat)
+            onChangeCurrentChatId(savedChatId)
         }
     }
 

@@ -4,7 +4,7 @@ import ru.llama.tool.data.room.ai_chat_dao.AiChatEntity
 
 interface AiDialogChatDataSource {
 
-    suspend fun saveToDb(data: AiChatEntity)
+    suspend fun saveToDb(data: AiChatEntity): Long
 
     suspend fun deleteFromDb(id: Long)
 
