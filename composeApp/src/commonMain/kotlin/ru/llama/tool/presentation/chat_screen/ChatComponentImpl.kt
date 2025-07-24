@@ -56,7 +56,7 @@ class ChatComponentImpl(
     override val drawerComponent: AiDialogListComponent =
         AiDialogListComponentImpl(
             componentContext = childContext(
-                key = "chatListDrawer",
+                key = "chatListDrawer $chatId",
                 lifecycle = drawerLifecycle
             ),
             chatInteractor = viewModel.chatInteractor,

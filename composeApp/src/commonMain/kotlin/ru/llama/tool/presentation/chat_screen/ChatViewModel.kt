@@ -173,7 +173,7 @@ class ChatViewModel(
     private fun saveDialogTriggerCollector() {
         coroutineScope.launch {
             saveDialogTrigger
-                .debounce(10.seconds)
+                .debounce(3.seconds)
                 .collect {
                     saveCurrentDialog()
                 }

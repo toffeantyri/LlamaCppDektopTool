@@ -6,7 +6,8 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.bringToFront
 import com.arkivanov.decompose.router.stack.childStack
-import com.arkivanov.decompose.router.stack.replaceCurrent
+import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.pushNew
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.instancekeeper.getOrCreate
@@ -23,7 +24,6 @@ import ru.llama.tool.presentation.setting_screen.SettingsComponentImpl
 import ru.llama.tool.presentation.setting_screen.SettingsState
 import ru.llama.tool.presentation.utils.componentCoroutineScope
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class RootComponentImpl(
@@ -58,7 +58,6 @@ class RootComponentImpl(
                 listOf(
                     Config.ChatContentConfig(
                         null,
-                        configUuid = Uuid.random().toString()
                     )
                 )
             },
@@ -70,7 +69,6 @@ class RootComponentImpl(
         navigation.bringToFront(
             Config.ChatContentConfig(
                 chatId = currentChatId,
-                configUuid = Uuid.random().toString()
             )
         )
     }
@@ -100,10 +98,10 @@ class RootComponentImpl(
                         }
                         println("NEW value $currentChatId")
 
-                        navigation.replaceCurrent(
+                        navigation.pop()
+                        navigation.pushNew(
                             Config.ChatContentConfig(
-                                chatId = currentChatId,
-                                configUuid = Uuid.random().toString()
+                                chatId = currentChatId
                             )
                         )
                     }
@@ -118,8 +116,7 @@ class RootComponentImpl(
         @Serializable
         data class ChatContentConfig(
             val chatId: Long? = null,
-            val chatName: String = EMPTY,
-            val configUuid: String
+            val chatName: String = EMPTY
         ) :
             Config
 
