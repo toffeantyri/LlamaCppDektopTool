@@ -8,11 +8,11 @@ interface AiDialogListComponent {
 
     val dialogs: Value<SnapshotStateList<AIDialogChatDto>>
 
-    fun onDialogSelected(chatId: Int)
+    fun onDialogSelected(chatId: Long)
 
     fun onCreateNewDialogClicked()
 
 
-    fun onDeleteDialogClicked(chatId: Int)
+    fun onDeleteDialogClicked(chatId: Long)
 
 } 

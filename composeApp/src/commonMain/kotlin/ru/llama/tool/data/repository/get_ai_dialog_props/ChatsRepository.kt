@@ -6,9 +6,9 @@ interface ChatsRepository {
 
     suspend fun saveChatToDb(chat: AIDialogChatDto)
 
-    suspend fun deleteChatFromDb(chatId: Int)
+    suspend fun deleteChatFromDb(chatId: Long)
 
-    suspend fun getDialogChat(chatId: Int): AIDialogChatDto
+    suspend fun getDialogChat(chatId: Long): AIDialogChatDto
 
     suspend fun getAllChatsList(): List<AIDialogChatDto>
 

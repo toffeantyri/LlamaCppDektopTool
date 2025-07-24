@@ -10,11 +10,11 @@ class AiDialogChatDataSourceImpl(private val dao: AiChatDao) : AiDialogChatDataS
         return dao.insert(data)
     }
 
-    override suspend fun deleteFromDb(id: Int) {
+    override suspend fun deleteFromDb(id: Long) {
         return dao.delete(id)
     }
 
-    override suspend fun getDataBy(id: Int): AiChatEntity? {
+    override suspend fun getDataBy(id: Long): AiChatEntity? {
         return dao.getDataBy(id)
     }
 

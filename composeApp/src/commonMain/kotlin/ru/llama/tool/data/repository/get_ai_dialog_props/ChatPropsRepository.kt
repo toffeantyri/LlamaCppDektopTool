@@ -7,9 +7,9 @@ interface ChatPropsRepository {
 
     suspend fun savePropsToDb(aiDialogProps: AiDialogProperties)
 
-    suspend fun deletePropsFromDb(chatId: Int)
+    suspend fun deletePropsFromDb(chatId: Long)
 
-    suspend fun getDialogProperties(chatId: Int): Flow<AiDialogProperties>
+    suspend fun getDialogProperties(chatId: Long): Flow<AiDialogProperties>
 
 
 }

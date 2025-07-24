@@ -23,8 +23,8 @@ import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class ChatComponentImpl(
     componentContext: ComponentContext,
-    private val chatId: Int?,
-    private val changeCurrentChatId: (newChatId: Int) -> Unit,
+    private val chatId: Long?,
+    private val changeCurrentChatId: (newChatId: Long) -> Unit,
     createNewChat: () -> Unit
 ) : ChatComponent, ComponentContext by componentContext, KoinComponent {
     private val coroutineScope = componentContext.componentCoroutineScope()

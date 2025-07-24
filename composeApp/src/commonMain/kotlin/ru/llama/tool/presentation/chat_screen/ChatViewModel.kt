@@ -30,12 +30,12 @@ import ru.llama.tool.presentation.chat_screen.utils.extractErrorMessage503Loadin
 import kotlin.time.Duration.Companion.seconds
 
 class ChatViewModel(
-    private val chatId: Int?,
+    private val chatId: Long?,
     private val coroutineScope: CoroutineScope,
     private val sendChatRequestUseCase: SendChatRequestUseCase,
     private val getLlamaPropertiesUseCase: GetLlamaPropertiesUseCase,
     private val chatPropsInteractor: ChatPropsInteractor,
-    private val onChangeCurrentChatId: (newChatId: Int) -> Unit,
+    private val onChangeCurrentChatId: (newChatId: Long) -> Unit,
     val chatInteractor: ChatInteractor,
 ) : InstanceKeeper.Instance, IChatViewModel {
 

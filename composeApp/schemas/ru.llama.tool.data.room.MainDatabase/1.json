@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2897ddc34a44129d0e19f9a7853f4702",
+    "identityHash": "14cc2fba7bdbfa4471f2fd0751d23a9b",
     "entities": [
       {
         "tableName": "PROPERTIES_TABLE",
@@ -48,7 +48,7 @@
       },
       {
         "tableName": "CHAT_TABLE",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `message` TEXT NOT NULL, `chat_name` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `message` TEXT NOT NULL, `chat_name` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -70,7 +70,7 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": false,
+          "autoGenerate": true,
           "columnNames": [
             "id"
           ]
@@ -79,7 +79,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2897ddc34a44129d0e19f9a7853f4702')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '14cc2fba7bdbfa4471f2fd0751d23a9b')"
     ]
   }
 }

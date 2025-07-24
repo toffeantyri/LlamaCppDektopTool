@@ -43,7 +43,7 @@ class RootComponentImpl(
     override val selectedIndex: Value<Int> = _selectedIndex
     override val appSettingState: Value<SettingsState> = settingsComponent.state
 
-    private var currentChatId: Int? = null
+    private var currentChatId: Long? = null
 
     override val stack: Value<ChildStack<*, Child>> =
         childStack(
@@ -90,7 +90,7 @@ class RootComponentImpl(
     @Serializable
     private sealed interface Config {
         @Serializable
-        data class ChatContentConfig(val chatId: Int? = null) : Config
+        data class ChatContentConfig(val chatId: Long? = null) : Config
 
         @Serializable
         data object SettingContentConfig : Config

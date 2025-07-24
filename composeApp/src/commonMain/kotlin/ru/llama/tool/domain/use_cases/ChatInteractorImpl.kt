@@ -9,11 +9,11 @@ class ChatInteractorImpl(private val repo: ChatsRepository) : ChatInteractor {
         return repo.saveChatToDb(chat)
     }
 
-    override suspend fun deleteChatFromDb(chatId: Int) {
+    override suspend fun deleteChatFromDb(chatId: Long) {
         return repo.deleteChatFromDb(chatId)
     }
 
-    override suspend fun getDialogChat(chatId: Int): AIDialogChatDto {
+    override suspend fun getDialogChat(chatId: Long): AIDialogChatDto {
         return repo.getDialogChat(chatId)
     }
 

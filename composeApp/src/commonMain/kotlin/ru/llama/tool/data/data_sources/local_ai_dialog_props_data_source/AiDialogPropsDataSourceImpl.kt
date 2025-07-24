@@ -9,11 +9,11 @@ class AiDialogPropsDataSourceImpl(private val dao: AiPropertiesDao) : AiDialogPr
         return dao.insert(data)
     }
 
-    override suspend fun deleteFromDb(id: Int) {
+    override suspend fun deleteFromDb(id: Long) {
         return dao.delete(id)
     }
 
-    override suspend fun getDialogProperties(id: Int): Flow<AiPropertiesEntity?> {
+    override suspend fun getDialogProperties(id: Long): Flow<AiPropertiesEntity?> {
         return dao.getDataBy(id)
     }
 }

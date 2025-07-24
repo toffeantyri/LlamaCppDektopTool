@@ -13,9 +13,9 @@ interface AiPropertiesDao {
     suspend fun insert(data: AiPropertiesEntity)
 
     @Query("DELETE FROM ${DBConst.PROPERTIES_TABLE} WHERE id = :id")
-    suspend fun delete(id: Int)
+    suspend fun delete(id: Long)
 
     @Query("SELECT * FROM ${DBConst.PROPERTIES_TABLE} WHERE id = :id")
-    fun getDataBy(id: Int): Flow<AiPropertiesEntity?>
+    fun getDataBy(id: Long): Flow<AiPropertiesEntity?>
 
 }

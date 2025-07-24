@@ -11,7 +11,7 @@ import ru.llama.tool.domain.models.Message
 
 @Entity(tableName = DBConst.CHAT_TABLE)
 data class AiChatEntity(
-    @PrimaryKey(autoGenerate = false) @ColumnInfo(name = "id") val id: Int,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Long = 0,
     @ColumnInfo(name = "message") val messages: List<Message>,
     @ColumnInfo(name = "chat_name") val chatName: String,
 )

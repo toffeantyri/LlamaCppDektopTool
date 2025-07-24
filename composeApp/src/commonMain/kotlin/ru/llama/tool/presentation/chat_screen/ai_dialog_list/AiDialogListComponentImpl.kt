@@ -15,14 +15,14 @@ class AiDialogListComponentImpl(
     componentContext: ComponentContext,
     private val coroutineScope: CoroutineScope,
     private val chatInteractor: ChatInteractor,
-    private val onDialogSelected: (chatId: Int) -> Unit,
+    private val onDialogSelected: (chatId: Long) -> Unit,
     private val onCreateNewDialog: () -> Unit,
 ) : AiDialogListComponent, ComponentContext by componentContext {
 
     override val dialogs: Value<SnapshotStateList<AIDialogChatDto>> =
         MutableValue(mutableStateListOf())
 
-    override fun onDialogSelected(chatId: Int) {
+    override fun onDialogSelected(chatId: Long) {
         onDialogSelected.invoke(chatId)
     }
 
@@ -30,7 +30,7 @@ class AiDialogListComponentImpl(
         onCreateNewDialog.invoke()
     }
 
-    override fun onDeleteDialogClicked(chatId: Int) {
+    override fun onDeleteDialogClicked(chatId: Long) {
         coroutineScope.launch {
             runCatching {
                 chatInteractor.deleteChatFromDb(chatId)

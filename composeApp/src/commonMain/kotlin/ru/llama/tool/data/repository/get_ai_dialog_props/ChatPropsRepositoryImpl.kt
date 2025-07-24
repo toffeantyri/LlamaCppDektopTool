@@ -24,12 +24,12 @@ class ChatPropsRepositoryImpl(
         } else Unit
     }
 
-    override suspend fun deletePropsFromDb(chatId: Int) {
+    override suspend fun deletePropsFromDb(chatId: Long) {
         return propsDataSource.deleteFromDb(chatId)
     }
 
 
-    override suspend fun getDialogProperties(chatId: Int): Flow<AiDialogProperties> {
+    override suspend fun getDialogProperties(chatId: Long): Flow<AiDialogProperties> {
         return propsDataSource.getDialogProperties(chatId).map { entity ->
             if (entity != null) {
                 AiDialogProperties(

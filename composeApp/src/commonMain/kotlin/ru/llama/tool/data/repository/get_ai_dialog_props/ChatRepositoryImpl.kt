@@ -20,11 +20,11 @@ class ChatRepositoryImpl(
         )
     }
 
-    override suspend fun deleteChatFromDb(chatId: Int) {
+    override suspend fun deleteChatFromDb(chatId: Long) {
         return chatsDataSource.deleteFromDb(chatId)
     }
 
-    override suspend fun getDialogChat(chatId: Int): AIDialogChatDto {
+    override suspend fun getDialogChat(chatId: Long): AIDialogChatDto {
         val result = chatsDataSource.getDataBy(chatId)
         return AIDialogChatDto(
             chatId = result?.id ?: AiDialogProperties.DEFAULT_ID,

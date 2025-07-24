@@ -7,11 +7,11 @@ import ru.llama.tool.domain.models.AiDialogProperties
 class ChatPropsInteractorImpl(private val repo: ChatPropsRepository) :
     ChatPropsInteractor {
 
-    override suspend fun getChatProperty(id: Int): Flow<AiDialogProperties> {
+    override suspend fun getChatProperty(id: Long): Flow<AiDialogProperties> {
         return repo.getDialogProperties(id)
     }
 
-    override suspend fun deleteChatProperty(id: Int) {
+    override suspend fun deleteChatProperty(id: Long) {
         return repo.deletePropsFromDb(id)
     }
 

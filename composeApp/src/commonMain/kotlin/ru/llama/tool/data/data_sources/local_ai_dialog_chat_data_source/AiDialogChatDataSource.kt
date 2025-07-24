@@ -6,9 +6,9 @@ interface AiDialogChatDataSource {
 
     suspend fun saveToDb(data: AiChatEntity)
 
-    suspend fun deleteFromDb(id: Int)
+    suspend fun deleteFromDb(id: Long)
 
-    suspend fun getDataBy(id: Int): AiChatEntity?
+    suspend fun getDataBy(id: Long): AiChatEntity?
 
     suspend fun getAllChats(): List<AiChatEntity>
 

@@ -12,10 +12,10 @@ interface AiChatDao {
     suspend fun insert(data: AiChatEntity)
 
     @Query("DELETE FROM ${DBConst.CHAT_TABLE} WHERE id = :id")
-    suspend fun delete(id: Int)
+    suspend fun delete(id: Long)
 
     @Query("SELECT * FROM ${DBConst.CHAT_TABLE} WHERE id = :id")
-    suspend fun getDataBy(id: Int): AiChatEntity?
+    suspend fun getDataBy(id: Long): AiChatEntity?
 
     @Query("SELECT * FROM ${DBConst.CHAT_TABLE}")
     suspend fun getAllChats(): List<AiChatEntity>

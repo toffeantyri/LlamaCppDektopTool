@@ -7,9 +7,9 @@ interface AiDialogPropsDataSource {
 
     suspend fun saveToDb(data: AiPropertiesEntity)
 
-    suspend fun deleteFromDb(id: Int)
+    suspend fun deleteFromDb(id: Long)
 
-    suspend fun getDialogProperties(id: Int): Flow<AiPropertiesEntity?>
+    suspend fun getDialogProperties(id: Long): Flow<AiPropertiesEntity?>
 
 
 }
