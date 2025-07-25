@@ -27,7 +27,7 @@ class AiDialogListComponentImpl(
     }
 
     override fun onCreateNewDialogClicked() {
-        onCreateNewDialog.invoke()
+        onCreateNewDialog()
     }
 
     override fun onDeleteDialogClicked(chatId: Long) {

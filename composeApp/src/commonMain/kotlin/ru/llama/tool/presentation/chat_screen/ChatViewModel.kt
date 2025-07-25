@@ -9,6 +9,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
@@ -31,8 +32,7 @@ import ru.llama.tool.presentation.chat_screen.utils.extractErrorMessage503Loadin
 import kotlin.time.Duration.Companion.seconds
 
 class ChatViewModel(
-    private val chatId: Long?,
-    private val chatName: String,
+    private val chatId: StateFlow<Long?>,
     private val coroutineScope: CoroutineScope,
     private val sendChatRequestUseCase: SendChatRequestUseCase,
     private val getLlamaPropertiesUseCase: GetLlamaPropertiesUseCase,
@@ -152,8 +152,8 @@ class ChatViewModel(
     private fun saveCurrentDialog() {
         coroutineScope.launch {
             val currentChat = AIDialogChatDto(
-                chatId = chatId ?: AiDialogProperties.DEFAULT_ID,
-                chatName = chatName,
+                chatId = chatId.value ?: AiDialogProperties.DEFAULT_ID,
+                chatName = uiModel.value.chatName.value,
                 messages = uiModel.value.chatMessagesData.value,
                 date = EMPTY
             )
@@ -206,11 +206,26 @@ class ChatViewModel(
         }
     }
 
-    private suspend fun updateAiDialogProperties() {
-        if (chatId != null) {
-            chatPropsInteractor.getChatProperty(chatId).collect { properties ->
-                uiModel.value.aiProps.value = properties
-            }
+    private fun updateAiDialogProperties() {
+        coroutineScope.launch {
+            chatPropsInteractor.getChatProperty(chatId.value ?: AiDialogProperties.DEFAULT_ID)
+                .collect { properties ->
+                    uiModel.value.aiProps.value = properties
+                }
+        }
+    }
+
+    private fun loadChatDialogFromDb() {
+        coroutineScope.launch {
+            chatInteractor.getDialogChat(chatId.value ?: AiDialogProperties.DEFAULT_ID)
+                .collect { chat ->
+                    with(uiModel.value) {
+                        println("CHAT VM: collect chat $chat")
+                        chatName.value = chat.chatName
+                        chatMessagesData.value.clear()
+                        chatMessagesData.value.addAll(chat.messages)
+                    }
+                }
         }
     }
 
@@ -218,7 +233,11 @@ class ChatViewModel(
     private fun initChatDialog() {
         coroutineScope.launch {
             launch(Dispatchers.io()) {
-                updateAiDialogProperties()
+                chatId.collect { chatId ->
+                    println("CHAT VM: coolect chatId $chatId")
+                    updateAiDialogProperties()
+                    loadChatDialogFromDb()
+                }
             }
         }
     }

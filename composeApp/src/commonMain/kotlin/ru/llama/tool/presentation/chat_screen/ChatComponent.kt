@@ -31,6 +31,8 @@ interface ChatComponent {
 
 
     data class UiModel(
+
+        val chatName: MutableState<String> = mutableStateOf(EMPTY),
         val chatMessagesData: MutableStateFlow<SnapshotStateList<Message>> = MutableStateFlow(
             mutableStateListOf()
         ),

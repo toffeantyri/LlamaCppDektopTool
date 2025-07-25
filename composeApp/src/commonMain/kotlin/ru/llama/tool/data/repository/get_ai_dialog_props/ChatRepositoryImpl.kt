@@ -1,5 +1,7 @@
 package ru.llama.tool.data.repository.get_ai_dialog_props
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -40,14 +42,16 @@ class ChatRepositoryImpl(
         return chatsDataSource.deleteFromDb(chatId)
     }
 
-    override suspend fun getDialogChat(chatId: Long): AIDialogChatDto {
+    override suspend fun getDialogChat(chatId: Long): Flow<AIDialogChatDto> {
         val result = chatsDataSource.getDataBy(chatId)
-        return AIDialogChatDto(
-            chatId = result?.id ?: AiDialogProperties.DEFAULT_ID,
-            chatName = result?.chatName ?: EMPTY,
-            messages = result?.messages ?: emptyList(),
-            date = result?.date ?: ""
-        )
+        return result.map {
+            AIDialogChatDto(
+                chatId = it?.id ?: AiDialogProperties.DEFAULT_ID,
+                chatName = it?.chatName ?: EMPTY,
+                messages = it?.messages ?: emptyList(),
+                date = it?.date ?: ""
+            )
+        }
     }
 
     override suspend fun getAllChatsList(): List<AIDialogChatDto> {

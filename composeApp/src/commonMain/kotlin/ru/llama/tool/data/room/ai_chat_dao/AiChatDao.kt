@@ -3,6 +3,7 @@ package ru.llama.tool.data.room.ai_chat_dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 import ru.llama.tool.data.room.DBConst
 
 @Dao
@@ -15,7 +16,7 @@ interface AiChatDao {
     suspend fun delete(id: Long)
 
     @Query("SELECT * FROM ${DBConst.CHAT_TABLE} WHERE id = :id")
-    suspend fun getDataBy(id: Long): AiChatEntity?
+    fun getDataBy(id: Long): Flow<AiChatEntity?>
 
     @Query("SELECT * FROM ${DBConst.CHAT_TABLE}")
     suspend fun getAllChats(): List<AiChatEntity>

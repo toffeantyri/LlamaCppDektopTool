@@ -13,33 +13,40 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.lifecycle.stop
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import ru.llama.tool.domain.models.AiDialogProperties
+import ru.llama.tool.domain.use_cases.ChatInteractor
 import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsComponentImpl
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponent
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponentImpl
 import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class ChatComponentImpl(
-    componentContext: ComponentContext,
-    private val chatId: Long?,
-    private val chatName: String,
-    private val changeCurrentChatId: (newChatId: Long) -> Unit,
-    createNewChat: () -> Unit
+    componentContext: ComponentContext
 ) : ChatComponent, ComponentContext by componentContext, KoinComponent {
+
     private val coroutineScope = componentContext.componentCoroutineScope()
+    private val chatInteractor: ChatInteractor = get()
+
+    private val _chatIDState = MutableStateFlow<Long?>(0L)
+    private val chatIDState: StateFlow<Long?> get() = _chatIDState
+
 
     override val viewModel: ChatViewModel = componentContext.instanceKeeper.getOrCreate {
         ChatViewModel(
-            chatId = chatId,
-            chatName = chatName,
+            chatId = chatIDState,
             coroutineScope = coroutineScope,
             sendChatRequestUseCase = get(),
             getLlamaPropertiesUseCase = get(),
             chatPropsInteractor = get(),
-            chatInteractor = get(),
-            onChangeCurrentChatId = changeCurrentChatId
+            chatInteractor = chatInteractor,
+            onChangeCurrentChatId = { newChatId ->
+                _chatIDState.value = newChatId
+            }
         )
     }
 
@@ -56,14 +63,20 @@ class ChatComponentImpl(
     override val drawerComponent: AiDialogListComponent =
         AiDialogListComponentImpl(
             componentContext = childContext(
-                key = "chatListDrawer $chatId",
+                key = "chatListDrawer",
                 lifecycle = drawerLifecycle
             ),
             chatInteractor = viewModel.chatInteractor,
-            onDialogSelected = { /*todo*/ },
-            onCreateNewDialog = createNewChat,
+            onDialogSelected = { selectedChatID ->
+                _chatIDState.value = selectedChatID
+            },
+            onCreateNewDialog = ::onCreateNewEmptyDialog,
             coroutineScope = coroutineScope,
         )
+
+    private fun onCreateNewEmptyDialog() {
+        _chatIDState.value = if (_chatIDState.value == null) AiDialogProperties.DEFAULT_ID else null
+    }
 
 
     @Stable
@@ -105,6 +118,7 @@ class ChatComponentImpl(
 
 
     init {
+
         componentContext.lifecycle.apply {
 //            doOnPause { println("Lifecycle doOnPause") }
 //            doOnStop { println("Lifecycle doOnStop") }
