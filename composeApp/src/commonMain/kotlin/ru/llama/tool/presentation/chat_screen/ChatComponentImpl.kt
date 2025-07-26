@@ -13,16 +13,17 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.lifecycle.stop
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.domain.use_cases.ChatInteractor
 import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsComponentImpl
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponent
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponentImpl
+import ru.llama.tool.presentation.events.UpEventChat
 import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class ChatComponentImpl(
@@ -31,22 +32,18 @@ class ChatComponentImpl(
 
     private val coroutineScope = componentContext.componentCoroutineScope()
     private val chatInteractor: ChatInteractor = get()
-
-    private val _chatIDState = MutableStateFlow<Long?>(0L)
-    private val chatIDState: StateFlow<Long?> get() = _chatIDState
+    private val _chatEventState = MutableSharedFlow<UpEventChat>(replay = 0)
+    private val chatEventState: SharedFlow<UpEventChat> get() = _chatEventState
 
 
     override val viewModel: ChatViewModel = componentContext.instanceKeeper.getOrCreate {
         ChatViewModel(
-            chatId = chatIDState,
+            inChatEvent = chatEventState,
             coroutineScope = coroutineScope,
             sendChatRequestUseCase = get(),
             getLlamaPropertiesUseCase = get(),
             chatPropsInteractor = get(),
-            chatInteractor = chatInteractor,
-            onChangeCurrentChatId = { newChatId ->
-                _chatIDState.value = newChatId
-            }
+            chatInteractor = chatInteractor
         )
     }
 
@@ -68,14 +65,19 @@ class ChatComponentImpl(
             ),
             chatInteractor = viewModel.chatInteractor,
             onDialogSelected = { selectedChatID ->
-                _chatIDState.value = selectedChatID
+                coroutineScope.launch {
+                    _chatEventState.emit(UpEventChat.SelectDialogBy(selectedChatID))
+                }
             },
             onCreateNewDialog = ::onCreateNewEmptyDialog,
             coroutineScope = coroutineScope,
         )
 
     private fun onCreateNewEmptyDialog() {
-        _chatIDState.value = if (_chatIDState.value == null) AiDialogProperties.DEFAULT_ID else null
+        coroutineScope.launch {
+            _chatEventState.emit(UpEventChat.CreateNewDialog)
+        }
+
     }
 
 

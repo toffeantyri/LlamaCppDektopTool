@@ -37,13 +37,13 @@ import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
 import ru.llama.tool.presentation.chat_screen.views.MessageItem
 import ru.llama.tool.presentation.utils.onKeyEnter
 
+@Suppress("UnusedBoxWithConstraintsScope")
 @Composable
 fun ChatScreenContent(component: ChatComponent) {
 
     val coroutineScope = rememberCoroutineScope()
 
     val uiModel by component.viewModel.uiModel.collectAsState()
-    val chatMessages = uiModel.chatMessagesData.collectAsState()
     val focusRequester = remember { FocusRequester() }
     val scrollState = rememberLazyListState()
     val dialogSlot = component.dialog.subscribeAsState()
@@ -104,7 +104,7 @@ fun ChatScreenContent(component: ChatComponent) {
                         state = scrollState,
                         reverseLayout = true
                     ) {
-                        items(chatMessages.value.asReversed()) { message ->
+                        items(uiModel.chatMessagesData.asReversed()) { message ->
                             MessageItem(
                                 modifier = Modifier,
                                 message = message,
