@@ -251,6 +251,7 @@ class ChatViewModel(
                             updateAiDialogProperties(event.chatId)
                             updateChatDialogBy(event.chatId)
                         }
+                        else -> Unit
                     }
                 }
             }

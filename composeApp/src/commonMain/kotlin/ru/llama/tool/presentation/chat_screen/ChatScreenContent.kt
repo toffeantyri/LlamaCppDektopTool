@@ -35,6 +35,7 @@ import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListScreen
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
 import ru.llama.tool.presentation.chat_screen.views.MessageItem
+import ru.llama.tool.presentation.events.UiEvent
 import ru.llama.tool.presentation.utils.onKeyEnter
 
 @Suppress("UnusedBoxWithConstraintsScope")
@@ -44,11 +45,27 @@ fun ChatScreenContent(component: ChatComponent) {
     val coroutineScope = rememberCoroutineScope()
 
     val uiModel by component.viewModel.uiModel.collectAsState()
+
+
     val focusRequester = remember { FocusRequester() }
     val scrollState = rememberLazyListState()
     val dialogSlot = component.dialog.subscribeAsState()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
+
+    val uiEvent = component.uiEvent.collectAsState()
+
+    LaunchedEffect(uiEvent.value) {
+        println("VIEW ${uiEvent.value}")
+        when (uiEvent.value) {
+            is UiEvent.CloseDrawer -> {
+                drawerState.close()
+                component.clearUiEvent()
+            }
+
+            else -> Unit
+        }
+    }
 
     DisposableEffect(drawerState.isOpen) {
         if (drawerState.isOpen) {

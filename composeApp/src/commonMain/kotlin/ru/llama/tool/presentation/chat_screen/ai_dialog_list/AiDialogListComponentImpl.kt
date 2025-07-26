@@ -17,7 +17,7 @@ class AiDialogListComponentImpl(
     private val chatInteractor: ChatInteractor,
     private val onDialogSelected: (chatId: Long) -> Unit,
     private val onCreateNewDialog: () -> Unit,
-) : AiDialogListComponent/*, ComponentContext by componentContext*/ {
+) : AiDialogListComponent, ComponentContext by componentContext {
 
     override val dialogs: Value<SnapshotStateList<AIDialogChatDto>> =
         MutableValue(mutableStateListOf())
@@ -49,7 +49,6 @@ class AiDialogListComponentImpl(
             coroutineScope.launch {
                 loadChatList()
             }
-
         }
     }
 
