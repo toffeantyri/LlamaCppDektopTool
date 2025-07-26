@@ -48,10 +48,13 @@ class ChatViewModel(
     private var messageJob: Job? = null
 
     override fun onRepeatMessageSend() {
+        val lastIndex = uiModel.value.chatMessagesData.lastIndex
+        val lastMessage = uiModel.value.chatMessagesData[lastIndex]
+        if (lastMessage.sender != EnumSender.User) return
 
-        //todo fix id initial value
-        val userMessageId = uiModel.value.messageId++
-        val aiResponseId = uiModel.value.messageId++ // Заранее резервируем ID для ответа
+        uiModel.value.chatMessagesData[lastIndex] = lastMessage.copy(error = null)
+        val lastUserID = lastMessage.id
+        val aiResponseId = (lastUserID + 1)// Заранее резервируем ID для ответа
 
 
         messageJob?.cancel()
@@ -65,7 +68,7 @@ class ChatViewModel(
                 )
                     .catch {
                         println("VM catch $it")
-                        setErrorMessage(userMessageId, it)
+                        setErrorMessage(lastUserID, it)
                         uiModel.value.isAiTyping.value = false
                     }
                     .onCompletion {
@@ -98,7 +101,7 @@ class ChatViewModel(
                 }.launchIn(this)
             }.onFailure { error ->
                 println("onFailure $error")
-                setErrorMessage(userMessageId, error)
+                setErrorMessage(lastUserID, error)
             }
 
         }
@@ -190,7 +193,7 @@ class ChatViewModel(
 
     private fun setErrorMessage(userMessageId: Int, error: Throwable) {
         uiModel.value.isAiTyping.value = false
-        val lastUserMessageIndex = uiModel.value.chatMessagesData.indexOfFirst {
+        val lastUserMessageIndex = uiModel.value.chatMessagesData.indexOfLast {
             it.id == userMessageId
         }
         val userMessage =
