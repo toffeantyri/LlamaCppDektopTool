@@ -70,7 +70,7 @@ class ChatComponentImpl(
                 lifecycle = drawerLifecycle
             ),
             chatInteractor = viewModel.chatInteractor,
-            onDialogSelected = { selectedChatID ->
+            onDialogSelectedAction = { selectedChatID ->
                 coroutineScope.launch {
                     _uiEvent.emit(UiEvent.CloseDrawer)
                     _chatEventState.emit(UpEventChat.SelectDialogBy(selectedChatID))

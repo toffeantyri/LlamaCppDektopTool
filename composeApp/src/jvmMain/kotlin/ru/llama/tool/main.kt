@@ -25,7 +25,7 @@ fun main() = application {
     val lifecycleManager = DesktopLifecycleManager(stateKeeper)
 
 
-    initKoin(enableNetworkLogs = true)
+    initKoin(enableNetworkLogs = false)
     initializeDataStore()
 
     val rootComponent = runOnUiThread {

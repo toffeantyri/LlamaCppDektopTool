@@ -44,6 +44,8 @@ interface ChatComponent {
         val aiProps: MutableState<AiDialogProperties> =
             mutableStateOf(AiDialogProperties(id = AiDialogProperties.DEFAULT_ID)),
 
+        var messageId: Int = 0, //message id counter
+
         val isAiTyping: MutableState<Boolean> = mutableStateOf(false),
         val modelName: MutableState<UiText> = mutableStateOf(UiText.Empty),
         val titleLoading: MutableState<Boolean> = mutableStateOf(false)

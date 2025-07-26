@@ -56,7 +56,6 @@ fun ChatScreenContent(component: ChatComponent) {
     val uiEvent = component.uiEvent.collectAsState()
 
     LaunchedEffect(uiEvent.value) {
-        println("VIEW ${uiEvent.value}")
         when (uiEvent.value) {
             is UiEvent.CloseDrawer -> {
                 drawerState.close()

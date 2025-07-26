@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
@@ -46,9 +47,6 @@ class ChatViewModel(
 
     private var messageJob: Job? = null
 
-    private var idCounter = 0
-
-
     override fun onMessageSend() {
         // Добавляем системный промпт если это первое сообщение
         if (uiModel.value.chatMessagesData.isEmpty()) {
@@ -59,8 +57,8 @@ class ChatViewModel(
             )
         }
 
-        val userMessageId = idCounter++
-        val aiResponseId = idCounter++ // Заранее резервируем ID для ответа
+        val userMessageId = uiModel.value.messageId++
+        val aiResponseId = uiModel.value.messageId++ // Заранее резервируем ID для ответа
 
         val message = Message(
             content = uiModel.value.messageInput.value.trim(),
@@ -124,7 +122,6 @@ class ChatViewModel(
     }
 
     private fun setErrorMessage(userMessageId: Int, error: Throwable) {
-
         uiModel.value.isAiTyping.value = false
         val lastUserMessageIndex = uiModel.value.chatMessagesData.indexOfFirst {
             it.id == userMessageId
@@ -147,7 +144,6 @@ class ChatViewModel(
         uiModel.value.messageInput.value = input
     }
 
-
     private fun saveCurrentDialog() {
         coroutineScope.launch {
             val currentChat = AIDialogChatDto(
@@ -162,13 +158,71 @@ class ChatViewModel(
     }
 
 
+    private fun updateAiDialogProperties(newChatId: Long) {
+        coroutineScope.launch {
+            chatPropsInteractor.getChatProperty(newChatId)
+                .collect { properties ->
+                    uiModel.value.aiProps.value = properties
+                }
+        }
+    }
 
+    private fun updateChatDialogBy(newChatId: Long) {
+        if (newChatId == AiDialogProperties.DEFAULT_ID) {
+            with(uiModel.value) {
+                chatId.value = AiDialogProperties.DEFAULT_ID
+                chatName.value = EMPTY
+                messageInput.value = EMPTY
+                chatMessagesData.clear()
+                messageId = 0
+            }
+        } else {
+            coroutineScope.launch {
+                chatInteractor.getDialogChat(newChatId).first().let { chat ->
+                    chat.messages.forEach {
+                        println("message : ${it.sender}  id : ${it.id}")
+                    }
+                    val oldId: Int = (chat.messages.findLast {
+                        it.sender == EnumSender.AI
+                    }?.id?.plus(1) ?: 0)
+
+                    with(uiModel.value) {
+                        chatId.value = chat.chatId
+                        chatName.value = chat.chatName
+                        chatMessagesData.clear()
+                        chatMessagesData.addAll(chat.messages)
+                        uiModel.value.messageId = oldId
+                    }
+                }
+            }
+        }
+    }
+
+    private fun chatEventCollector() {
+        coroutineScope.launch {
+            inChatEvent.collect { event ->
+                with(uiModel.value) {
+                    when (event) {
+                        is UpEventChat.CreateNewDialog -> {
+                            updateAiDialogProperties(AiDialogProperties.DEFAULT_ID)
+                            updateChatDialogBy(AiDialogProperties.DEFAULT_ID)
+                        }
+
+                        is UpEventChat.SelectDialogBy -> {
+                            updateAiDialogProperties(event.chatId)
+                            updateChatDialogBy(event.chatId)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @OptIn(FlowPreview::class)
     private fun saveDialogTriggerCollector() {
         coroutineScope.launch {
             saveDialogTrigger
-                .debounce(3.seconds)
+                .debounce(0.seconds)
                 .collect {
                     saveCurrentDialog()
                 }
@@ -196,58 +250,6 @@ class ChatViewModel(
                 }
                 delay(5.seconds)
                 updateAiModelNameWorker()
-            }
-        }
-    }
-
-    private fun updateAiDialogProperties(newChatId: Long) {
-        coroutineScope.launch {
-            chatPropsInteractor.getChatProperty(newChatId)
-                .collect { properties ->
-                    uiModel.value.aiProps.value = properties
-                }
-        }
-    }
-
-    private fun updateChatDialogBy(newChatId: Long) {
-        if (newChatId == AiDialogProperties.DEFAULT_ID) {
-            with(uiModel.value) {
-                chatId.value = AiDialogProperties.DEFAULT_ID
-                chatName.value = EMPTY
-                messageInput.value = EMPTY
-                chatMessagesData.clear()
-            }
-        } else {
-            coroutineScope.launch {
-                chatInteractor.getDialogChat(newChatId)
-                    .collect { chat ->
-                        with(uiModel.value) {
-                            chatId.value = chat.chatId
-                            chatName.value = chat.chatName
-                            chatMessagesData.clear()
-                            chatMessagesData.addAll(chat.messages)
-                        }
-                    }
-            }
-        }
-    }
-
-    private fun chatEventCollector() {
-        coroutineScope.launch {
-            inChatEvent.collect { event ->
-                with(uiModel.value) {
-                    when (event) {
-                        is UpEventChat.CreateNewDialog -> {
-                            updateAiDialogProperties(AiDialogProperties.DEFAULT_ID)
-                            updateChatDialogBy(AiDialogProperties.DEFAULT_ID)
-                        }
-
-                        is UpEventChat.SelectDialogBy -> {
-                            updateAiDialogProperties(event.chatId)
-                            updateChatDialogBy(event.chatId)
-                        }
-                    }
-                }
             }
         }
     }
