@@ -121,6 +121,14 @@ class ChatViewModel(
         }
     }
 
+    override fun saveProperties(newProp: AiDialogProperties) {
+        coroutineScope.launch {
+            val currentChatId = uiModel.value.chatId.value
+            uiModel.value.aiProps.value = newProp.copy(id = currentChatId)
+            chatPropsInteractor.saveChatProperty(uiModel.value.aiProps.value)
+        }
+    }
+
     private fun setErrorMessage(userMessageId: Int, error: Throwable) {
         uiModel.value.isAiTyping.value = false
         val lastUserMessageIndex = uiModel.value.chatMessagesData.indexOfFirst {
@@ -144,8 +152,9 @@ class ChatViewModel(
         uiModel.value.messageInput.value = input
     }
 
-    private fun saveCurrentDialog() {
+    private fun saveCurrentDialog(onSuccess: () -> Unit) {
         coroutineScope.launch {
+            if (uiModel.value.chatMessagesData.last().sender != EnumSender.AI) return@launch
             val currentChat = AIDialogChatDto(
                 chatId = uiModel.value.chatId.value,
                 chatName = uiModel.value.chatName.value,
@@ -154,9 +163,9 @@ class ChatViewModel(
             )
             val savedChatId = chatInteractor.saveChatToDb(currentChat)
             uiModel.value.chatId.value = savedChatId
+            onSuccess()
         }
     }
-
 
     private fun updateAiDialogProperties(newChatId: Long) {
         coroutineScope.launch {
@@ -179,9 +188,6 @@ class ChatViewModel(
         } else {
             coroutineScope.launch {
                 chatInteractor.getDialogChat(newChatId).first().let { chat ->
-                    chat.messages.forEach {
-                        println("message : ${it.sender}  id : ${it.id}")
-                    }
                     val oldId: Int = (chat.messages.findLast {
                         it.sender == EnumSender.AI
                     }?.id?.plus(1) ?: 0)
@@ -224,7 +230,10 @@ class ChatViewModel(
             saveDialogTrigger
                 .debounce(0.seconds)
                 .collect {
-                    saveCurrentDialog()
+                    saveCurrentDialog {
+                        saveProperties(uiModel.value.aiProps.value)
+                    }
+
                 }
         }
     }

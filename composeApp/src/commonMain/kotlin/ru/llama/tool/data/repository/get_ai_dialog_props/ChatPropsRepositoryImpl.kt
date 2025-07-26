@@ -11,18 +11,17 @@ class ChatPropsRepositoryImpl(
 ) : ChatPropsRepository {
 
     override suspend fun savePropsToDb(aiDialogProps: AiDialogProperties) {
-        return if (aiDialogProps.id != AiDialogProperties.DEFAULT_ID) {
-            propsDataSource.saveToDb(
-                AiPropertiesEntity(
-                    id = aiDialogProps.id,
-                    systemPrompt = aiDialogProps.systemPrompt,
-                    temperature = aiDialogProps.temperature,
-                    topP = aiDialogProps.topP,
-                    maxTokens = aiDialogProps.maxTokens
-                )
+        return propsDataSource.saveToDb(
+            AiPropertiesEntity(
+                id = aiDialogProps.id,
+                systemPrompt = aiDialogProps.systemPrompt,
+                temperature = aiDialogProps.temperature,
+                topP = aiDialogProps.topP,
+                maxTokens = aiDialogProps.maxTokens
             )
-        } else Unit
+        )
     }
+
 
     override suspend fun deletePropsFromDb(chatId: Long) {
         return propsDataSource.deleteFromDb(chatId)

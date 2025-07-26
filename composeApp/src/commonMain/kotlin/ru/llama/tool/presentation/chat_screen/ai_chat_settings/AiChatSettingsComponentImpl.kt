@@ -6,13 +6,15 @@ import ru.llama.tool.domain.models.AiDialogProperties
 
 class AiChatSettingsComponentImpl(
     private val currentAiDialogProperties: AiDialogProperties,
+    private val savePropertiesAction: (newAiChatProp: AiDialogProperties) -> Unit,
     private val onCloseDialog: () -> Unit
 ) : AiChatSettingsComponent {
 
     override val currentAiProp: Value<AiDialogProperties> = MutableValue(currentAiDialogProperties)
 
     override fun onSaveClicked(newAiProps: AiDialogProperties) {
-        //todo
+        savePropertiesAction(newAiProps)
+        onCloseDialog()
     }
 
     override fun onCancelClicked() = onCloseDialog()

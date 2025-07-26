@@ -21,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,9 +39,9 @@ fun AiChatSettingsScreen(
     val currentProperties by component.currentAiProp.subscribeAsState()
 
     var systemPrompt by remember(currentProperties) { mutableStateOf(currentProperties.systemPrompt) }
-    var temperature by remember(currentProperties) { mutableStateOf(currentProperties.temperature) }
-    var maxTokens by remember(currentProperties) { mutableStateOf(currentProperties.maxTokens.toFloat()) }
-    var topP by remember(currentProperties) { mutableStateOf(currentProperties.topP.toFloat()) }
+    var temperature by remember(currentProperties) { mutableDoubleStateOf(currentProperties.temperature) }
+    var maxTokens by remember(currentProperties) { mutableFloatStateOf(currentProperties.maxTokens.toFloat()) }
+    var topP by remember(currentProperties) { mutableFloatStateOf(currentProperties.topP.toFloat()) }
 
     val windowInsetsBottom =
         WindowInsets.Companion.navigationBars.asPaddingValues().calculateBottomPadding()
