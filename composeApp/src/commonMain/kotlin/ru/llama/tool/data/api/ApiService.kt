@@ -9,6 +9,11 @@ import ru.llama.tool.domain.models.Message
 
 interface ApiService {
 
+    companion object {
+        const val DISABLE_LOG = "DISABLE_LOG"
+
+    }
+
     suspend fun getModelProperties(): LlamaProperties
 
     suspend fun simpleRequestAi(

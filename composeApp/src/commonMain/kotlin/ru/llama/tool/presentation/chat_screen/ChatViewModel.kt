@@ -48,14 +48,14 @@ class ChatViewModel(
     private var messageJob: Job? = null
 
     override fun onMessageSend() {
-        // Добавляем системный промпт если это первое сообщение
-        if (uiModel.value.chatMessagesData.isEmpty()) {
-            uiModel.value.chatMessagesData += Message(
-                sender = EnumSender.System,
-                id = -1,
-                content = uiModel.value.aiProps.value.systemPrompt
-            )
-        }
+
+        //перед каждым запросом - системный промпт
+        uiModel.value.chatMessagesData.removeIf { it.sender == EnumSender.System }
+        uiModel.value.chatMessagesData += Message(
+            sender = EnumSender.System,
+            id = -1,
+            content = uiModel.value.aiProps.value.systemPrompt
+        )
 
         val userMessageId = uiModel.value.messageId++
         val aiResponseId = uiModel.value.messageId++ // Заранее резервируем ID для ответа
@@ -65,6 +65,7 @@ class ChatViewModel(
             sender = EnumSender.User,
             id = userMessageId
         )
+
 
 
         if (message.content.isNotBlank()) {

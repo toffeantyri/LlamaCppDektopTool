@@ -9,6 +9,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.AttributeKey
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.seconds
 
@@ -42,6 +43,10 @@ fun configureHttpClient(
             install(Logging) {
                 logger = Logger.SIMPLE
                 level = LogLevel.ALL
+
+                filter {
+                    !it.attributes.contains(AttributeKey<Boolean>(ApiService.DISABLE_LOG))
+                }
             }
         }
 

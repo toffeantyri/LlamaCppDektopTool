@@ -13,6 +13,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.sse.ServerSentEvent
+import io.ktor.util.AttributeKey
 import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -62,6 +63,7 @@ class ApiServiceImpl(
 
     override suspend fun getModelProperties(): LlamaProperties {
         return client.get(baseUrl()) {
+            attributes.put(AttributeKey<Boolean>(ApiService.DISABLE_LOG), true)
             url {
                 appendPathSegments("props")
             }
