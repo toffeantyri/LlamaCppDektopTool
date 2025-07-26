@@ -7,4 +7,6 @@
     <string name="rename">Переименовать</string>
     <string name="delete">Удалить</string>
 
+    <string name="repeat_send">Повторить отправку</string>
+
 </resources>

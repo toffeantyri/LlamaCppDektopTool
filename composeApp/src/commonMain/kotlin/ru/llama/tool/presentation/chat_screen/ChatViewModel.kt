@@ -47,6 +47,63 @@ class ChatViewModel(
 
     private var messageJob: Job? = null
 
+    override fun onRepeatMessageSend() {
+
+        //todo fix id initial value
+        val userMessageId = uiModel.value.messageId++
+        val aiResponseId = uiModel.value.messageId++ // Заранее резервируем ID для ответа
+
+
+        messageJob?.cancel()
+        messageJob = null
+        messageJob = coroutineScope.launch {
+            runCatching {
+                uiModel.value.isAiTyping.value = true
+                sendChatRequestUseCase(
+                    uiModel.value.chatMessagesData,
+                    uiModel.value.aiProps.value
+                )
+                    .catch {
+                        println("VM catch $it")
+                        setErrorMessage(userMessageId, it)
+                        uiModel.value.isAiTyping.value = false
+                    }
+                    .onCompletion {
+                        println("VM onCompletion $it")
+                        uiModel.value.isAiTyping.value = false
+                        saveDialogTrigger.emit(Unit) //save dialog trigger
+                    }
+                    .flowOn(Dispatchers.IO)
+            }.onSuccess { flowResult ->
+                flowResult.onEach { aiResponse ->
+                    // Обновляем ID ответа, чтобы он соответствовал зарезервированному
+                    val updatedResponse = aiResponse.copy(id = aiResponseId)
+
+                    if (uiModel.value.chatMessagesData.none { it.id == updatedResponse.id }) {
+                        uiModel.value.chatMessagesData += updatedResponse
+                    } else {
+                        uiModel.value.chatMessagesData.firstOrNull {
+                            it.id == updatedResponse.id
+                        }?.let { oldMessage ->
+                            val oldIndex =
+                                uiModel.value.chatMessagesData.indexOf(oldMessage)
+                            val newMessage = Message(
+                                id = updatedResponse.id,
+                                sender = updatedResponse.sender,
+                                content = oldMessage.content + updatedResponse.content
+                            )
+                            uiModel.value.chatMessagesData[oldIndex] = newMessage
+                        }
+                    }
+                }.launchIn(this)
+            }.onFailure { error ->
+                println("onFailure $error")
+                setErrorMessage(userMessageId, error)
+            }
+
+        }
+    }
+
     override fun onMessageSend() {
 
         //перед каждым запросом - системный промпт
@@ -71,6 +128,7 @@ class ChatViewModel(
         if (message.content.isNotBlank()) {
             uiModel.value.chatMessagesData += message
             uiModel.value.messageInput.value = ""
+
             messageJob?.cancel()
             messageJob = null
             messageJob = coroutineScope.launch {
@@ -189,6 +247,11 @@ class ChatViewModel(
         } else {
             coroutineScope.launch {
                 chatInteractor.getDialogChat(newChatId).first().let { chat ->
+
+                    chat.messages.forEach {
+                        println("Message ${it.sender} ${it.id}")
+                    }
+
                     val oldId: Int = (chat.messages.findLast {
                         it.sender == EnumSender.AI
                     }?.id?.plus(1) ?: 0)

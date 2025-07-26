@@ -124,7 +124,8 @@ fun ChatScreenContent(component: ChatComponent) {
                             MessageItem(
                                 modifier = Modifier,
                                 message = message,
-                                maxMessageWidth = maxMessageWidth
+                                maxMessageWidth = maxMessageWidth,
+                                onResendClicked = component.viewModel::onRepeatMessageSend
                             )
                         }
                     }
