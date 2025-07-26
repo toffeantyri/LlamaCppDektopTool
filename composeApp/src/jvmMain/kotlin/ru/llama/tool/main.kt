@@ -45,44 +45,49 @@ fun main() = application {
     ) {
 
         LaunchedEffect(window, lifecycleManager) {
-            if (window != null) {
-                val focusListener = object : WindowFocusListener {
-                    override fun windowGainedFocus(p0: WindowEvent?) {
-                        lifecycleManager.handleWindowState(isVisible = true, isFocused = true)
-                    }
-
-                    override fun windowLostFocus(p0: WindowEvent?) {
-                        lifecycleManager.handleWindowState(isVisible = true, isFocused = false)
-                    }
+            if (window == null) return@LaunchedEffect
+            val focusListener = object : WindowFocusListener {
+                override fun windowGainedFocus(p0: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = true, isFocused = true)
                 }
 
-                val windowListener = object : WindowAdapter() {
-                    override fun windowIconified(e: WindowEvent?) {
-                        lifecycleManager.handleWindowState(isVisible = false, isFocused = false)
-                    }
-
-                    override fun windowDeiconified(e: WindowEvent?) {
-                        lifecycleManager.handleWindowState(
-                            isVisible = true,
-                            isFocused = window.isFocused
-                        )
-                    }
-
-                    override fun windowActivated(e: WindowEvent?) {
-                        lifecycleManager.handleWindowState(isVisible = true, isFocused = true)
-                    }
-
-                    override fun windowDeactivated(e: WindowEvent?) {
-                        lifecycleManager.handleWindowState(isVisible = true, isFocused = false)
-                    }
+                override fun windowLostFocus(p0: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = true, isFocused = false)
                 }
-
-                window.addWindowFocusListener(focusListener)
-                window.addWindowListener(windowListener)
-
-                lifecycleManager.handleWindowState(isVisible = true, isFocused = window.isFocused)
-
             }
+
+            val windowListener = object : WindowAdapter() {
+                override fun windowIconified(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = false, isFocused = false)
+                }
+
+                override fun windowDeiconified(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(
+                        isVisible = true,
+                        isFocused = window.isFocused
+                    )
+                }
+
+                override fun windowActivated(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = true, isFocused = true)
+                }
+
+                override fun windowDeactivated(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = true, isFocused = false)
+                }
+
+                override fun windowOpened(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(
+                        isVisible = true,
+                        isFocused = window.isFocused
+                    )
+                }
+            }
+
+            window.addWindowFocusListener(focusListener)
+            window.addWindowListener(windowListener)
+
+            lifecycleManager.handleWindowState(isVisible = true, isFocused = window.isFocused)
 
 
         }

@@ -35,7 +35,6 @@ class AiDialogListComponentImpl(
             runCatching {
                 chatInteractor.deleteChatFromDb(chatId)
             }.onSuccess {
-                println("Успешно Удалить диалог с ID: $chatId")
                 dialogs.value.removeIf { it.chatId == chatId }
             }.onFailure {
                 println("Ошибка Удалить диалог с ID: $chatId")
@@ -45,7 +44,6 @@ class AiDialogListComponentImpl(
 
     init {
         componentContext.lifecycle.doOnStart {
-            println("drawer onStart")
             coroutineScope.launch {
                 loadChatList()
             }
@@ -54,7 +52,6 @@ class AiDialogListComponentImpl(
 
     private suspend fun loadChatList() {
         val chatList = chatInteractor.getAllChatsList()
-        println("ChatList loaded $chatList")
         dialogs.value.clear()
         dialogs.value.addAll(chatList)
     }

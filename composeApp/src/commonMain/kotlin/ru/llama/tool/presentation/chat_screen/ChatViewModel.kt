@@ -182,7 +182,6 @@ class ChatViewModel(
                 uiModel.value.titleLoading.value = true
                 getLlamaPropertiesUseCase.invoke()
             }.onSuccess { aiProps ->
-                println("D/AiModelName onSuccess ${aiProps.modelName}")
                 uiModel.value.modelName.value = aiProps.modelName
                 uiModel.value.titleLoading.value = false
                 delay(30.seconds)
@@ -212,7 +211,6 @@ class ChatViewModel(
 
     private fun updateChatDialogBy(newChatId: Long) {
         if (newChatId == AiDialogProperties.DEFAULT_ID) {
-            println("D/CHAT VM: createNewDialog")
             with(uiModel.value) {
                 chatId.value = AiDialogProperties.DEFAULT_ID
                 chatName.value = EMPTY
@@ -223,7 +221,6 @@ class ChatViewModel(
             coroutineScope.launch {
                 chatInteractor.getDialogChat(newChatId)
                     .collect { chat ->
-                        println("D/CHAT VM: collect chat $chat")
                         with(uiModel.value) {
                             chatId.value = chat.chatId
                             chatName.value = chat.chatName
@@ -237,9 +234,7 @@ class ChatViewModel(
 
     private fun chatEventCollector() {
         coroutineScope.launch {
-            println("D/CHAT VM: init Event collector")
             inChatEvent.collect { event ->
-                println("D/CHAT VM: EVENT $event")
                 with(uiModel.value) {
                     when (event) {
                         is UpEventChat.CreateNewDialog -> {
@@ -251,7 +246,6 @@ class ChatViewModel(
                             updateAiDialogProperties(event.chatId)
                             updateChatDialogBy(event.chatId)
                         }
-                        else -> Unit
                     }
                 }
             }

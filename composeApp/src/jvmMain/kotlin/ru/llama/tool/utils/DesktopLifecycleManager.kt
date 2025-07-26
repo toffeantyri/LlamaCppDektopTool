@@ -23,8 +23,11 @@ class DesktopLifecycleManager(stateKeeper: StateKeeper) {
             isVisible && isFocused -> WindowState.FOCUSED
             else -> WindowState.VISIBLE
         }
-
-        transitionTo(newState)
+        try {
+            transitionTo(newState)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
 

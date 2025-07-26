@@ -7,7 +7,6 @@ import ru.llama.tool.data.room.ai_chat_dao.AiChatEntity
 class AiDialogChatDataSourceImpl(private val dao: AiChatDao) : AiDialogChatDataSource {
 
     override suspend fun saveToDb(data: AiChatEntity): Long {
-        println("saveToDb called with $data")
         return dao.insert(data)
     }
 
