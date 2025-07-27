@@ -6,18 +6,22 @@ import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.arkivanov.essenty.instancekeeper.getOrCreate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import ru.llama.tool.data.preferences.preferances.IAppPreferences
 import ru.llama.tool.presentation.setting_screen.models.SettingsState
+import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class SettingsComponentImpl(
     componentContext: ComponentContext,
     private val parentCoroutineScope: CoroutineScope,
     private val preferences: IAppPreferences,
-) : SettingComponent, ComponentContext by componentContext, InstanceKeeper.Instance {
+) : SettingComponent, ComponentContext by componentContext, InstanceKeeper.Instance, KoinComponent {
 
+    private val coroutineScope = componentContext.componentCoroutineScope()
 
     override val viewModel: ISettingViewModel = instanceKeeper.getOrCreate {
-        SettingViewModelImpl()
+        SettingViewModelImpl(coroutineScope = coroutineScope, preferences = get())
     }
 
     override fun getAppSettingState(): Value<SettingsState> =

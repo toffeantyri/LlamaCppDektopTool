@@ -18,7 +18,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -33,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import ru.llama.tool.presentation.generals_view.input.SystemPromptField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +41,8 @@ fun AiChatSettingsScreen(
 ) {
     val currentProperties by component.currentAiProp.subscribeAsState()
 
-    var systemPrompt by remember(currentProperties) { mutableStateOf(currentProperties.systemPrompt) }
+    val systemPrompt =
+        remember(currentProperties) { mutableStateOf(currentProperties.systemPrompt) }
     var temperature by remember(currentProperties) { mutableDoubleStateOf(currentProperties.temperature) }
     var maxTokens by remember(currentProperties) { mutableFloatStateOf(currentProperties.maxTokens.toFloat()) }
     var topP by remember(currentProperties) { mutableFloatStateOf(currentProperties.topP.toFloat()) }
@@ -63,10 +64,11 @@ fun AiChatSettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            OutlinedTextField(
-                value = systemPrompt,
-                onValueChange = { systemPrompt = it },
-                label = { Text("Системный промпт") },
+
+            SystemPromptField(
+                value = systemPrompt.value,
+                onValueChanged = { systemPrompt.value = it },
+                labelText = "Системный промпт",
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -130,7 +132,7 @@ fun AiChatSettingsScreen(
                 }
                 Button(onClick = {
                     val updatedProperties = currentProperties.copy(
-                        systemPrompt = systemPrompt,
+                        systemPrompt = systemPrompt.value,
                         temperature = temperature,
                         maxTokens = maxTokens.toInt(),
                         topP = topP.toDouble(),

@@ -9,7 +9,7 @@ interface ISettingViewModel {
 
     val uiModel: Value<UiModel>
 
-    fun onChangeSystemPrompt(value: String)
+    fun saveDefaultSystemPrompt(data: AiDefaultSetting)
 
     data class UiModel(
         val appSettingState: MutableValue<SettingsState> = MutableValue(SettingsState()),
