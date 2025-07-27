@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -42,6 +45,7 @@ fun AiChatSettingsScreen(
     var temperature by remember(currentProperties) { mutableDoubleStateOf(currentProperties.temperature) }
     var maxTokens by remember(currentProperties) { mutableFloatStateOf(currentProperties.maxTokens.toFloat()) }
     var topP by remember(currentProperties) { mutableFloatStateOf(currentProperties.topP.toFloat()) }
+    var thinkingEnabled by remember(currentProperties) { mutableStateOf(currentProperties.thinkingEnabled) }
 
     val windowInsetsBottom =
         WindowInsets.Companion.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -95,6 +99,26 @@ fun AiChatSettingsScreen(
                 steps = 9, // 0.1, 0.2, ..., 1.0
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = thinkingEnabled,
+                    onCheckedChange = { thinkingEnabled = it },
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Глубокие размышления",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
 
             Row(
@@ -109,7 +133,8 @@ fun AiChatSettingsScreen(
                         systemPrompt = systemPrompt,
                         temperature = temperature,
                         maxTokens = maxTokens.toInt(),
-                        topP = topP.toDouble()
+                        topP = topP.toDouble(),
+                        thinkingEnabled = thinkingEnabled
                     )
                     component.onSaveClicked(updatedProperties)
                 }) {
