@@ -7,6 +7,7 @@ import com.arkivanov.essenty.instancekeeper.getOrCreate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.llama.tool.data.preferences.preferances.IAppPreferences
+import ru.llama.tool.presentation.setting_screen.models.SettingsState
 
 class SettingsComponentImpl(
     componentContext: ComponentContext,
@@ -14,17 +15,19 @@ class SettingsComponentImpl(
     private val preferences: IAppPreferences,
 ) : SettingComponent, ComponentContext by componentContext, InstanceKeeper.Instance {
 
+
     override val viewModel: ISettingViewModel = instanceKeeper.getOrCreate {
         SettingViewModelImpl()
     }
 
-    override fun getAppSettingState(): Value<SettingsState> = viewModel.uiModel.value.darkModeState
+    override fun getAppSettingState(): Value<SettingsState> =
+        viewModel.uiModel.value.appSettingState
 
     init {
         parentCoroutineScope.launch {
             preferences.getAppThemeIsDarkMode().collect {
-                viewModel.uiModel.value.darkModeState.value =
-                    viewModel.uiModel.value.darkModeState.value.copy(isDarkMode = it)
+                viewModel.uiModel.value.appSettingState.value =
+                    viewModel.uiModel.value.appSettingState.value.copy(isDarkMode = it)
             }
         }
     }

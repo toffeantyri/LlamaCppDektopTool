@@ -8,21 +8,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import ru.llama.tool.core.EMPTY
 
-
-data class SettingsState(
-    val isDarkMode: Boolean = false,
-)
 
 sealed interface SettingsEvent {
     data class ToggleDarkMode(val isDarkMode: Boolean) : SettingsEvent
@@ -31,7 +26,8 @@ sealed interface SettingsEvent {
 @Composable
 fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) {
 
-    val state by component.viewModel.uiModel.value.darkModeState.subscribeAsState()
+    val uiModel by component.viewModel.uiModel.subscribeAsState()
+    val aiSettings by uiModel.aiSettings.subscribeAsState()
 
     Column(
         modifier = modifier
@@ -60,7 +56,7 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
         ) {
             Text("Темная тема", color = MaterialTheme.colorScheme.onBackground)
             Switch(
-                checked = state.isDarkMode,
+                checked = uiModel.appSettingState.value.isDarkMode,
                 onCheckedChange = { newValue ->
                     component.onEvent(
                         SettingsEvent.ToggleDarkMode(newValue)
@@ -88,17 +84,11 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Text(
-            "Дефолтный системный промпт",
-            modifier = Modifier.padding(horizontal = 8.dp),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        TextField(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            value = EMPTY,
-            onValueChange = {
-//todo
-            }
+        OutlinedTextField(
+            value = aiSettings.defSystemPrompt,
+            onValueChange = component.viewModel::onChangeSystemPrompt,
+            label = { Text("Дефолтный системный промпт") },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
         )
 
         // Раздел About

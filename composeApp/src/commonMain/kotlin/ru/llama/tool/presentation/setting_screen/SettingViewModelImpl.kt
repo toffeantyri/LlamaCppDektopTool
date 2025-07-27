@@ -9,8 +9,10 @@ class SettingViewModelImpl : ISettingViewModel, InstanceKeeper.Instance {
     override val uiModel: Value<ISettingViewModel.UiModel> =
         MutableValue(ISettingViewModel.UiModel())
 
-    override fun onChangeSystemPrompt() {
-        //todo
+    override fun onChangeSystemPrompt(value: String) {
+        uiModel.value.aiSettings.value =
+            uiModel.value.aiSettings.value.copy(defSystemPrompt = value)
     }
+
 
 }

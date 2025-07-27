@@ -17,7 +17,7 @@ import ru.llama.tool.presentation.root.IRootComponent.Child
 import ru.llama.tool.presentation.root.first_tab_root.FirstTabComponentImpl
 import ru.llama.tool.presentation.setting_screen.SettingComponent
 import ru.llama.tool.presentation.setting_screen.SettingsComponentImpl
-import ru.llama.tool.presentation.setting_screen.SettingsState
+import ru.llama.tool.presentation.setting_screen.models.SettingsState
 import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class RootComponentImpl(

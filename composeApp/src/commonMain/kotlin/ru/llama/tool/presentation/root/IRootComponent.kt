@@ -4,7 +4,7 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
 import ru.llama.tool.presentation.root.first_tab_root.FirstTabComponent
 import ru.llama.tool.presentation.setting_screen.SettingComponent
-import ru.llama.tool.presentation.setting_screen.SettingsState
+import ru.llama.tool.presentation.setting_screen.models.SettingsState
 
 interface IRootComponent {
 
