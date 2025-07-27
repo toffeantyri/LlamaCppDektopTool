@@ -274,17 +274,15 @@ class ChatViewModel(
     private fun chatEventCollector() {
         coroutineScope.launch {
             inChatEvent.collect { event ->
-                with(uiModel.value) {
-                    when (event) {
-                        is UpEventChat.CreateNewDialog -> {
-                            updateAiDialogProperties(AiDialogProperties.DEFAULT_ID)
-                            updateChatDialogBy(AiDialogProperties.DEFAULT_ID)
-                        }
+                when (event) {
+                    is UpEventChat.CreateNewDialog -> {
+                        updateAiDialogProperties(AiDialogProperties.DEFAULT_ID)
+                        updateChatDialogBy(AiDialogProperties.DEFAULT_ID)
+                    }
 
-                        is UpEventChat.SelectDialogBy -> {
-                            updateAiDialogProperties(event.chatId)
-                            updateChatDialogBy(event.chatId)
-                        }
+                    is UpEventChat.SelectDialogBy -> {
+                        updateAiDialogProperties(event.chatId)
+                        updateChatDialogBy(event.chatId)
                     }
                 }
             }
@@ -330,10 +328,11 @@ class ChatViewModel(
         }
     }
 
-
     init {
         chatEventCollector()
         updateAiModelNameWorker()
         saveDialogTriggerCollector()
     }
+
+
 }

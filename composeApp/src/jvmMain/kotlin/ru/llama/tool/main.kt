@@ -9,6 +9,7 @@ import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import llamacppdektoptool.composeapp.generated.resources.Res
 import llamacppdektoptool.composeapp.generated.resources.app_icon
 import org.jetbrains.compose.resources.painterResource
+import org.koin.core.context.GlobalContext
 import ru.delivery.client.utils.runOnUiThread
 import ru.llama.tool.data.preferences.initializeDataStore
 import ru.llama.tool.di.initKoin
@@ -25,7 +26,9 @@ fun main() = application {
     val lifecycleManager = DesktopLifecycleManager(stateKeeper)
 
 
-    initKoin(enableNetworkLogs = true)
+    if (GlobalContext.getOrNull() == null) {
+        initKoin(enableNetworkLogs = true)
+    }
     initializeDataStore()
 
     val rootComponent = runOnUiThread {

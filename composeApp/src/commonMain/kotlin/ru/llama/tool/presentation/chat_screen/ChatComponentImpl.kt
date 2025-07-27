@@ -134,6 +134,9 @@ class ChatComponentImpl(
 
 
     init {
+        coroutineScope.launch {
+            _chatEventState.emit(UpEventChat.CreateNewDialog)
+        }
 
         componentContext.lifecycle.apply {
 //            doOnPause { println("Lifecycle doOnPause") }
