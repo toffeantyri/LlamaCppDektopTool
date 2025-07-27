@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -93,6 +94,15 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
+
+        OutlinedTextField(
+            value = "127.0.0.1:8080",
+            onValueChange = { },
+            label = { Text("test base url") },
+            modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            maxLines = 1
+        )
+
 
         SystemPromptField(
             value = defaultSystemPrompt.value,
