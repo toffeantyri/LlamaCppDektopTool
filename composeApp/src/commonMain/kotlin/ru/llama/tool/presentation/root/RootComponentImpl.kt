@@ -39,7 +39,7 @@ class RootComponentImpl(
         )
     }
     override val selectedIndex: Value<Int> = _selectedIndex
-    override val appSettingState: Value<SettingsState> = settingsComponent.state
+    override val appSettingState: Value<SettingsState> = settingsComponent.getAppSettingState()
 
 
     override val stack: Value<ChildStack<*, Child>> =

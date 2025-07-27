@@ -21,7 +21,7 @@ val repositoryModule = module {
     }
 
     factory<ChatPropsRepository> {
-        ChatPropsRepositoryImpl(propsDataSource = get())
+        ChatPropsRepositoryImpl(propsDataSource = get(), pref = get())
     }
 
     factory<ChatsRepository> {

@@ -1,9 +1,9 @@
 package ru.llama.tool.presentation.setting_screen
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.arkivanov.essenty.instancekeeper.getOrCreate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.llama.tool.data.preferences.preferances.IAppPreferences
@@ -14,18 +14,20 @@ class SettingsComponentImpl(
     private val preferences: IAppPreferences,
 ) : SettingComponent, ComponentContext by componentContext, InstanceKeeper.Instance {
 
+    override val viewModel: ISettingViewModel = instanceKeeper.getOrCreate {
+        SettingViewModelImpl()
+    }
 
-    private val _state = MutableValue(SettingsState(isDarkMode = preferences.getThemeIsDarkMode()))
+    override fun getAppSettingState(): Value<SettingsState> = viewModel.uiModel.value.darkModeState
 
     init {
         parentCoroutineScope.launch {
             preferences.getAppThemeIsDarkMode().collect {
-                _state.value = _state.value.copy(isDarkMode = it)
+                viewModel.uiModel.value.darkModeState.value =
+                    viewModel.uiModel.value.darkModeState.value.copy(isDarkMode = it)
             }
         }
     }
-
-    override val state: Value<SettingsState> = _state
 
     override fun onEvent(event: SettingsEvent) {
         when (event) {

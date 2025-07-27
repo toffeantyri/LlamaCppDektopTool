@@ -10,4 +10,8 @@ interface IAppPreferences {
 
     suspend fun setThemeIsDarkMode(isDarkMode: Boolean)
 
+    suspend fun getSystemPrompt(defaultValue: String): String
+
+    suspend fun setSystemPrompt(prompt: String)
+
 }

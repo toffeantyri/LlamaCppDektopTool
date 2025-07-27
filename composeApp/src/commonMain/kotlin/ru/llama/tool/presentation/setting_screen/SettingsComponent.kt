@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import ru.llama.tool.core.EMPTY
 
 
 data class SettingsState(
@@ -28,7 +30,9 @@ sealed interface SettingsEvent {
 
 @Composable
 fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) {
-    val state by component.state.subscribeAsState()
+
+    val state by component.viewModel.uiModel.value.darkModeState.subscribeAsState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -83,10 +87,18 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
+
         Text(
-            "Опции для настройки ИИ",
+            "Дефолтный системный промпт",
             modifier = Modifier.padding(horizontal = 8.dp),
             color = MaterialTheme.colorScheme.onBackground
+        )
+        TextField(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            value = EMPTY,
+            onValueChange = {
+//todo
+            }
         )
 
         // Раздел About

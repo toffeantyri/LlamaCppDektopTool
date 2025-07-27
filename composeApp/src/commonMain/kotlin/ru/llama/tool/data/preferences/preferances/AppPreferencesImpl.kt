@@ -3,6 +3,7 @@ package ru.llama.tool.data.preferences.preferances
 import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import ru.llama.tool.core.io
@@ -32,6 +33,15 @@ class AppPreferencesImpl(
 
     override suspend fun setThemeIsDarkMode(isDarkMode: Boolean) {
         preferences.save(PreferencesConstants.PREF_KEY_IS_DARK_MODEL, isDarkMode)
+    }
+
+    override suspend fun getSystemPrompt(defaultValue: String): String {
+        return preferences.load(PreferencesConstants.PREF_KEY_DEFAULT_SYSTEM_PROMPT, defaultValue)
+            .first()
+    }
+
+    override suspend fun setSystemPrompt(prompt: String) {
+        preferences.save(PreferencesConstants.PREF_KEY_DEFAULT_SYSTEM_PROMPT, prompt)
     }
 
 
