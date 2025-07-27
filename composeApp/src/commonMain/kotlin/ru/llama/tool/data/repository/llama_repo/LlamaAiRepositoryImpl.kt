@@ -14,26 +14,16 @@ class LlamaAiRepositoryImpl(private val llamaAiDataSource: LlamaAiDataSource) : 
         aiProps: AiDialogProperties
     ): Flow<Message> {
         val request = llamaAiDataSource.sendMessageToAi(
-            messages.map { message ->
+            messages.mapIndexed { index, message ->
+                val content = if (index != messages.lastIndex) message.content
+                else message.content + if (aiProps.thinkingEnabled) "/think" else "/no_think"
                 MessageRequest(
-                    content = message.content,
+                    content = content,
                     role = message.sender.toString().lowercase(),
                     id = message.id
                 )
             }, aiProps
         )
         return request
-
-//        delay(2000)
-//        return flow {
-//            repeat(20){
-//                delay(30)
-//                emit(Message(
-//                    sender = EnumSender.AI,
-//                    id = message.id,
-//                    content = "Кто нибудь помогите мне выбраться из локального окружения"
-//                ))
-//            }
-//        }
     }
 } 
