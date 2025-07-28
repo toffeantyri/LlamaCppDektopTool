@@ -13,11 +13,11 @@ import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import ru.llama.tool.data.preferences.preferances.IAppPreferences
-import ru.llama.tool.presentation.chat_screen.ChatComponentImpl
 import ru.llama.tool.presentation.root.IRootComponent.Child
+import ru.llama.tool.presentation.root.first_tab_root.FirstTabComponentImpl
 import ru.llama.tool.presentation.setting_screen.SettingComponent
 import ru.llama.tool.presentation.setting_screen.SettingsComponentImpl
-import ru.llama.tool.presentation.setting_screen.SettingsState
+import ru.llama.tool.presentation.setting_screen.models.SettingsState
 import ru.llama.tool.presentation.utils.componentCoroutineScope
 
 class RootComponentImpl(
@@ -39,20 +39,25 @@ class RootComponentImpl(
         )
     }
     override val selectedIndex: Value<Int> = _selectedIndex
-    override val appSettingState: Value<SettingsState> = settingsComponent.state
+    override val appSettingState: Value<SettingsState> = settingsComponent.getAppSettingState()
+
 
     override val stack: Value<ChildStack<*, Child>> =
         childStack(
             source = navigation,
             serializer = Config.serializer(),
-            initialStack = { listOf(Config.ChatContentConfig) },
+            initialStack = {
+                listOf(Config.FirstTabConfig)
+            },
             handleBackButton = true,
             childFactory = ::child,
         )
 
     override fun onChatTabClicked() {
         _selectedIndex.value = 0
-        navigation.bringToFront(Config.ChatContentConfig)
+        navigation.bringToFront(
+            Config.FirstTabConfig
+        )
     }
 
     override fun onSettingsTabClicked() {
@@ -63,10 +68,9 @@ class RootComponentImpl(
 
     private fun child(config: Config, componentContext: ComponentContext): Child =
         when (config) {
-            Config.ChatContentConfig -> Child.ChatContentChild(
-                ChatComponentImpl(
-                    componentContext = componentContext,
-                    onChatListOpenAction = {/*TODO */ }
+            is Config.FirstTabConfig -> Child.ChatContentChild(
+                FirstTabComponentImpl(
+                    componentContext = componentContext
                 )
             )
 
@@ -76,7 +80,7 @@ class RootComponentImpl(
     @Serializable
     private sealed interface Config {
         @Serializable
-        data object ChatContentConfig : Config
+        data object FirstTabConfig : Config
 
         @Serializable
         data object SettingContentConfig : Config

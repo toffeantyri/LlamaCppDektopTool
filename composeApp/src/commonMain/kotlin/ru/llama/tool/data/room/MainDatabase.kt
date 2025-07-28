@@ -4,29 +4,25 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import androidx.room.TypeConverters
+import ru.llama.tool.data.room.ai_chat_dao.AiChatDao
+import ru.llama.tool.data.room.ai_chat_dao.AiChatEntity
+import ru.llama.tool.data.room.ai_chat_dao.ConverterMessage
 import ru.llama.tool.data.room.ai_properties_db.AiPropertiesDao
 import ru.llama.tool.data.room.ai_properties_db.AiPropertiesEntity
 
 const val MAIN_DB_NAME_FILE = "MainDatabase.db"
 
-@Database(entities = [AiPropertiesEntity::class], version = 1)
+@Database(entities = [AiPropertiesEntity::class, AiChatEntity::class], version = 1)
+@TypeConverters(ConverterMessage::class)
 @ConstructedBy(MainDatabaseConstructor::class)
-abstract class MainDatabase : RoomDatabase() /*DB*/ {
+abstract class MainDatabase : RoomDatabase() {
 
     abstract fun getAiPropertiesDao(): AiPropertiesDao
 
-//    override fun clearAllTables() {
-//        super.clearAllTables()
-//    }
-
+    abstract fun getAiChatDao(): AiChatDao
 
 }
-//
-//// FIXME: Added a hack to resolve below issue:
-//// Class 'MainDatabase_Impl' is not abstract and does not implement abstract base class member 'clearAllTables'.
-//interface DB {
-//    fun clearAllTables() {}
-//}
 
 // The Room compiler generates the `actual` implementations.
 @Suppress("NO_ACTUAL_FOR_EXPECT")

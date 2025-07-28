@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.module
 import ru.llama.tool.core.io
 import ru.llama.tool.data.room.MainDatabase
+import ru.llama.tool.data.room.ai_chat_dao.AiChatDao
 import ru.llama.tool.data.room.ai_properties_db.AiPropertiesDao
 import ru.llama.tool.data.room.getDataBaseBuilder
 
@@ -22,6 +23,11 @@ val databaseModule = module {
     single<AiPropertiesDao> {
         val db = get<MainDatabase>()
         db.getAiPropertiesDao()
+    }
+
+    single<AiChatDao> {
+        val db = get<MainDatabase>()
+        db.getAiChatDao()
     }
 
 }

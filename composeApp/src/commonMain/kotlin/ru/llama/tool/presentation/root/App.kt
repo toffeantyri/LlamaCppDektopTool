@@ -21,7 +21,7 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import ru.llama.tool.presentation.chat_screen.ChatScreenContent
+import ru.llama.tool.presentation.root.first_tab_root.FirstTabContent
 import ru.llama.tool.presentation.setting_screen.SettingsContent
 
 private val DarkColorScheme = darkColorScheme(
@@ -58,29 +58,31 @@ fun App(root: IRootComponent) {
         val childStack by root.stack.subscribeAsState()
         val selectedIndex by root.selectedIndex.subscribeAsState()
 
-        Scaffold(bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = selectedIndex == 0,
-                    onClick = root::onChatTabClicked,
-                    icon = { Icon(Icons.Filled.Home, contentDescription = "Чат") },
-                    label = { Text("Чат") }
-                )
-                NavigationBarItem(
-                    selected = selectedIndex == 1,
-                    onClick = root::onSettingsTabClicked,
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = "Настройки") },
-                    label = { Text("Настройки") }
-                )
-            }
-        }) { innerPadding ->
+        Scaffold(
+            modifier = Modifier/*.navigationBarsPadding()*/,
+            bottomBar = {
+                NavigationBar(modifier = Modifier) {
+                    NavigationBarItem(
+                        selected = selectedIndex == 0,
+                        onClick = root::onChatTabClicked,
+                        icon = { Icon(Icons.Filled.Home, contentDescription = "Чат") },
+                        label = { Text("Чат") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedIndex == 1,
+                        onClick = root::onSettingsTabClicked,
+                        icon = { Icon(Icons.Filled.Settings, contentDescription = "Настройки") },
+                        label = { Text("Настройки") }
+                    )
+                }
+            }) { innerPadding ->
             Children(
                 stack = childStack,
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
                 animation = stackAnimation(animator = slide())
             ) {
                 when (val child = it.instance) {
-                    is IRootComponent.Child.ChatContentChild -> ChatScreenContent(child.component)
+                    is IRootComponent.Child.ChatContentChild -> FirstTabContent(child.component)
                     is IRootComponent.Child.SettingContentChild -> SettingsContent(child.component)
                 }
             }

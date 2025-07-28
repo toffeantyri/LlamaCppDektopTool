@@ -7,7 +7,7 @@ import ru.llama.tool.data.room.DBConst
 
 @Entity(tableName = DBConst.PROPERTIES_TABLE)
 data class AiPropertiesEntity(
-    @PrimaryKey(autoGenerate = false) @ColumnInfo(name = "id") val id: Int,
+    @PrimaryKey(autoGenerate = false) @ColumnInfo(name = "id") val id: Long,
     @ColumnInfo(name = "system_prompt") val systemPrompt: String,
     @ColumnInfo(name = "temperature") val temperature: Double,
     @ColumnInfo(name = "max_tokens") val maxTokens: Int,
