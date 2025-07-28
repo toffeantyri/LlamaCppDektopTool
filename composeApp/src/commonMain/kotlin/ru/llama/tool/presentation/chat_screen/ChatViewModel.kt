@@ -186,8 +186,8 @@ class ChatViewModel(
     override fun saveProperties(newProp: AiDialogProperties) {
         coroutineScope.launch {
             val currentChatId = uiModel.value.chatId.value
-            uiModel.value.aiProps.value = newProp.copy(id = currentChatId)
-            chatPropsInteractor.saveChatProperty(uiModel.value.aiProps.value)
+val updatedNewProps = newProp.copy(id = currentChatId)
+            chatPropsInteractor.saveChatProperty(updatedNewProps)
         }
     }
 
