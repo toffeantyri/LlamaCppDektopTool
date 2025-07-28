@@ -30,8 +30,83 @@ class DesktopLifecycleManager(stateKeeper: StateKeeper) {
         }
     }
 
-
     private fun transitionTo(newState: WindowState) {
+        if (newState == currentState) return
+
+        when (currentState) {
+            WindowState.CREATED -> {
+                when (newState) {
+                    WindowState.VISIBLE -> {
+                        lifecycle.onStart()
+                        currentState = newState
+                    }
+
+                    WindowState.FOCUSED -> {
+                        lifecycle.onStart()
+                        lifecycle.onResume()
+                        currentState = newState
+                    }
+
+                    else -> currentState = newState
+                }
+            }
+
+            WindowState.HIDDEN -> {
+                when (newState) {
+                    WindowState.VISIBLE -> {
+                        lifecycle.onStart()
+                        currentState = newState
+                    }
+
+                    WindowState.FOCUSED -> {
+                        lifecycle.onStart()
+                        lifecycle.onResume()
+                        currentState = newState
+                    }
+
+                    else -> currentState = newState
+                }
+            }
+
+            WindowState.VISIBLE -> {
+                when (newState) {
+                    WindowState.HIDDEN -> {
+                        lifecycle.onStop()
+                        currentState = newState
+                    }
+
+                    WindowState.FOCUSED -> {
+                        lifecycle.onResume()
+                        currentState = newState
+                    }
+
+                    else -> currentState = newState
+                }
+            }
+
+            WindowState.FOCUSED -> {
+                when (newState) {
+                    WindowState.HIDDEN -> {
+                        lifecycle.onPause()
+                        lifecycle.onStop()
+                        currentState = newState
+                    }
+
+                    WindowState.VISIBLE -> {
+                        lifecycle.onPause()
+                        currentState = newState
+                    }
+
+                    else -> currentState = newState
+                }
+            }
+
+            else -> currentState = newState
+        }
+    }
+
+
+    private fun transitionToOld(newState: WindowState) {
 
         if (newState == currentState) return
 

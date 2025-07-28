@@ -1,5 +1,6 @@
 package ru.llama.tool.presentation.chat_screen.ai_dialog_list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,7 @@ fun AiDialogListScreen(
     Surface(
         modifier = Modifier
             .fillMaxWidth(0.9f)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
         Column(
             modifier = Modifier

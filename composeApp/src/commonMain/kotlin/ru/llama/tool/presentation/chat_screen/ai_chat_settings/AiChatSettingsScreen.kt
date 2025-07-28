@@ -54,7 +54,7 @@ fun AiChatSettingsScreen(
     ModalBottomSheet(
         onDismissRequest = component::onDismissDialog,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentWindowInsets = { WindowInsets(bottom = windowInsetsBottom /*+ 80.dp*/) }
     ) {
         Column(
