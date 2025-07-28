@@ -42,7 +42,7 @@ interface ChatComponent {
         val chatMessagesData: SnapshotStateList<Message> = mutableStateListOf(),
         val messageInput: MutableState<String> = mutableStateOf(EMPTY),
         val aiProps: MutableState<AiDialogProperties> =
-            mutableStateOf(AiDialogProperties(id = AiDialogProperties.DEFAULT_ID)),
+            mutableStateOf(AiDialogProperties()),
 
         var messageId: Int = 0, //message id counter
 

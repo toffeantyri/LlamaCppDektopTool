@@ -15,7 +15,10 @@ class ChatPropsInteractorImpl(private val repo: ChatPropsRepository) :
         return repo.deletePropsFromDb(id)
     }
 
-    override suspend fun saveChatProperty(data: AiDialogProperties) {
-        return if (data.id != AiDialogProperties.DEFAULT_ID) repo.savePropsToDb(data) else Unit
+    override suspend fun saveChatProperty(chatId: Long, data: AiDialogProperties) {
+        return if (chatId != AiDialogProperties.DEFAULT_ID) repo.savePropsToDb(
+            chatId,
+            data
+        ) else Unit
     }
 }

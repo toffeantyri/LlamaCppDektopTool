@@ -1,7 +1,6 @@
 package ru.llama.tool.domain.models
 
 data class AiDialogProperties(
-    val id: Long, //идентификатор корому принадлежат эти настройки
     val systemPrompt: String = INITIAL_SYSTEM_PROMPT, //системный промпт для задания правил и самоидентификации
     val temperature: Double = 1.0, //temp - детерменироватьность - 0.1, креативность - 1.0 (от 0.1 до 1.0)
     val maxTokens: Int = 1000,     //максимум токенов в ответе 100-1500

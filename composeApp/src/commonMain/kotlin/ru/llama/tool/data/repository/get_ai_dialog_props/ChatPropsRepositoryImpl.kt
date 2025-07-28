@@ -12,10 +12,10 @@ class ChatPropsRepositoryImpl(
     private val pref: IAppPreferences
 ) : ChatPropsRepository {
 
-    override suspend fun savePropsToDb(aiDialogProps: AiDialogProperties) {
+    override suspend fun savePropsToDb(chatId: Long, aiDialogProps: AiDialogProperties) {
         return propsDataSource.saveToDb(
             AiPropertiesEntity(
-                id = aiDialogProps.id,
+                id = chatId,
                 systemPrompt = aiDialogProps.systemPrompt,
                 temperature = aiDialogProps.temperature,
                 topP = aiDialogProps.topP,
@@ -34,7 +34,6 @@ class ChatPropsRepositoryImpl(
         return propsDataSource.getDialogProperties(chatId).map { entity ->
             if (entity != null) {
                 AiDialogProperties(
-                    id = chatId,
                     systemPrompt = entity.systemPrompt,
                     temperature = entity.temperature,
                     topP = entity.topP,
@@ -42,7 +41,6 @@ class ChatPropsRepositoryImpl(
                 )
             } else {
                 AiDialogProperties(
-                    chatId,
                     systemPrompt = pref.getSystemPrompt(AiDialogProperties.INITIAL_SYSTEM_PROMPT)
                 )
             }

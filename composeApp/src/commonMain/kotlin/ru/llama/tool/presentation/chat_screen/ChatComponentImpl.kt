@@ -102,6 +102,7 @@ class ChatComponentImpl(
         return when (config) {
             is DialogConfig.AiSettingDialogConfig -> ChatComponent.DialogChild.AiSettingDialogChild(
                 component = AiChatSettingsComponentImpl(
+                    componentContext = childComponentContext,
                     currentAiDialogProperties = viewModel.uiModel.value.aiProps.value,
                     onCloseDialog = { slotNavigation.navigate { null } },
                     savePropertiesAction = viewModel::saveProperties

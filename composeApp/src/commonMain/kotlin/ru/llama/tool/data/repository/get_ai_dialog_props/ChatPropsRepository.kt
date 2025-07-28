@@ -5,7 +5,7 @@ import ru.llama.tool.domain.models.AiDialogProperties
 
 interface ChatPropsRepository {
 
-    suspend fun savePropsToDb(aiDialogProps: AiDialogProperties)
+    suspend fun savePropsToDb(chatId: Long, aiDialogProps: AiDialogProperties)
 
     suspend fun deletePropsFromDb(chatId: Long)
 

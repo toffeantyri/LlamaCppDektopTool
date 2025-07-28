@@ -186,8 +186,8 @@ class ChatViewModel(
     override fun saveProperties(newProp: AiDialogProperties) {
         coroutineScope.launch {
             val currentChatId = uiModel.value.chatId.value
-val updatedNewProps = newProp.copy(id = currentChatId)
-            chatPropsInteractor.saveChatProperty(updatedNewProps)
+            chatPropsInteractor.saveChatProperty(currentChatId, newProp)
+            uiModel.value.aiProps.value = newProp
         }
     }
 
@@ -231,10 +231,12 @@ val updatedNewProps = newProp.copy(id = currentChatId)
 
     private fun updateAiDialogProperties(newChatId: Long) {
         coroutineScope.launch {
-            chatPropsInteractor.getChatProperty(newChatId)
-                .collect { properties ->
-                    uiModel.value.aiProps.value = properties
-                }
+            val props = chatPropsInteractor.getChatProperty(newChatId).first()
+            uiModel.value.aiProps.value = props
+//            chatPropsInteractor.getChatProperty(newChatId)
+//                .collect { properties ->
+//                    uiModel.value.aiProps.value = properties
+//                }
         }
     }
 
@@ -250,10 +252,6 @@ val updatedNewProps = newProp.copy(id = currentChatId)
         } else {
             coroutineScope.launch {
                 chatInteractor.getDialogChat(newChatId).first().let { chat ->
-
-                    chat.messages.forEach {
-                        println("Message ${it.sender} ${it.id}")
-                    }
 
                     val oldId: Int = (chat.messages.findLast {
                         it.sender == EnumSender.AI

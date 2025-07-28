@@ -9,6 +9,6 @@ interface ChatPropsInteractor {
 
     suspend fun deleteChatProperty(id: Long)
 
-    suspend fun saveChatProperty(data: AiDialogProperties)
+    suspend fun saveChatProperty(chatId: Long, data: AiDialogProperties)
 
 }
