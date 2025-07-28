@@ -175,13 +175,15 @@ fun MessageItem(
                 DpOffset(menuOffset.x.toDp(), menuOffset.y.toDp())
             }
         ) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(Res.string.repeat_send)) },
-                onClick = {
-                    onResendClicked()
-                    menuExpanded = false
-                }
-            )
+            if (message.error != null && message.sender == EnumSender.User) {
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(Res.string.repeat_send)) },
+                    onClick = {
+                        onResendClicked()
+                        menuExpanded = false
+                    }
+                )
+            }
         }
 
     }

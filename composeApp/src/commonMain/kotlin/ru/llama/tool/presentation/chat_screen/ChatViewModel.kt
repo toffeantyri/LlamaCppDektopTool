@@ -56,7 +56,43 @@ class ChatViewModel(
         val lastUserID = lastMessage.id
         val aiResponseId = (lastUserID + 1)// Заранее резервируем ID для ответа
 
+        handleMessage(userMessageId = lastUserID, aiResponseId = aiResponseId)
+    }
 
+    override fun onMessageSend() {
+        //перед каждым запросом - системный промпт
+        uiModel.value.chatMessagesData.removeIf { it.sender == EnumSender.System }
+        uiModel.value.chatMessagesData += Message(
+            sender = EnumSender.System,
+            id = -1,
+            content = uiModel.value.aiProps.value.systemPrompt
+        )
+
+        val userMessageId = uiModel.value.messageId++
+        val aiResponseId = uiModel.value.messageId++ // Заранее резервируем ID для ответа
+
+        val message = Message(
+            content = uiModel.value.messageInput.value.trim(),
+            sender = EnumSender.User,
+            id = userMessageId
+        )
+
+        if (message.content.isNotBlank()) {
+            uiModel.value.chatMessagesData += message
+            uiModel.value.messageInput.value = ""
+
+            handleMessage(
+                userMessageId = userMessageId,
+                aiResponseId = aiResponseId
+            )
+
+        }
+
+
+    }
+
+
+    private fun handleMessage(userMessageId: Int, aiResponseId: Int) {
         messageJob?.cancel()
         messageJob = null
         messageJob = coroutineScope.launch {
@@ -68,7 +104,7 @@ class ChatViewModel(
                 )
                     .catch {
                         println("VM catch $it")
-                        setErrorMessage(lastUserID, it)
+                        setErrorMessage(userMessageId, it)
                         uiModel.value.isAiTyping.value = false
                     }
                     .onCompletion {
@@ -101,86 +137,12 @@ class ChatViewModel(
                 }.launchIn(this)
             }.onFailure { error ->
                 println("onFailure $error")
-                setErrorMessage(lastUserID, error)
+                setErrorMessage(userMessageId, error)
             }
 
         }
-    }
-
-    override fun onMessageSend() {
-
-        //перед каждым запросом - системный промпт
-        uiModel.value.chatMessagesData.removeIf { it.sender == EnumSender.System }
-        uiModel.value.chatMessagesData += Message(
-            sender = EnumSender.System,
-            id = -1,
-            content = uiModel.value.aiProps.value.systemPrompt
-        )
-
-        val userMessageId = uiModel.value.messageId++
-        val aiResponseId = uiModel.value.messageId++ // Заранее резервируем ID для ответа
-
-        val message = Message(
-            content = uiModel.value.messageInput.value.trim(),
-            sender = EnumSender.User,
-            id = userMessageId
-        )
 
 
-
-        if (message.content.isNotBlank()) {
-            uiModel.value.chatMessagesData += message
-            uiModel.value.messageInput.value = ""
-
-            messageJob?.cancel()
-            messageJob = null
-            messageJob = coroutineScope.launch {
-                runCatching {
-                    uiModel.value.isAiTyping.value = true
-                    sendChatRequestUseCase(
-                        uiModel.value.chatMessagesData,
-                        uiModel.value.aiProps.value
-                    )
-                        .catch {
-                            println("VM catch $it")
-                            setErrorMessage(userMessageId, it)
-                            uiModel.value.isAiTyping.value = false
-                        }
-                        .onCompletion {
-                            println("VM onCompletion $it")
-                            uiModel.value.isAiTyping.value = false
-                            saveDialogTrigger.emit(Unit) //save dialog trigger
-                        }
-                        .flowOn(Dispatchers.IO)
-                }.onSuccess { flowResult ->
-                    flowResult.onEach { aiResponse ->
-                        // Обновляем ID ответа, чтобы он соответствовал зарезервированному
-                        val updatedResponse = aiResponse.copy(id = aiResponseId)
-
-                        if (uiModel.value.chatMessagesData.none { it.id == updatedResponse.id }) {
-                            uiModel.value.chatMessagesData += updatedResponse
-                        } else {
-                            uiModel.value.chatMessagesData.firstOrNull {
-                                it.id == updatedResponse.id
-                            }?.let { oldMessage ->
-                                val oldIndex =
-                                    uiModel.value.chatMessagesData.indexOf(oldMessage)
-                                val newMessage = Message(
-                                    id = updatedResponse.id,
-                                    sender = updatedResponse.sender,
-                                    content = oldMessage.content + updatedResponse.content
-                                )
-                                uiModel.value.chatMessagesData[oldIndex] = newMessage
-                            }
-                        }
-                    }.launchIn(this)
-                }.onFailure { error ->
-                    println("onFailure $error")
-                    setErrorMessage(userMessageId, error)
-                }
-
-            }
-        }
     }
 
     override fun saveProperties(newProp: AiDialogProperties) {
@@ -233,10 +195,6 @@ class ChatViewModel(
         coroutineScope.launch {
             val props = chatPropsInteractor.getChatProperty(newChatId).first()
             uiModel.value.aiProps.value = props
-//            chatPropsInteractor.getChatProperty(newChatId)
-//                .collect { properties ->
-//                    uiModel.value.aiProps.value = properties
-//                }
         }
     }
 
