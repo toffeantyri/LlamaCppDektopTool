@@ -106,8 +106,9 @@ android {
     compileSdk = 35
 
     defaultConfig {
-
         minSdk = 26
+        versionCode = 1
+        versionName = "v0.11-alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     sourceSets["main"].apply {
