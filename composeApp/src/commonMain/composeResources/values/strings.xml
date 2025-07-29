@@ -1,0 +1,12 @@
+<resources>
+
+    <string name="model_is_not_exist_name">Модель не определена</string>
+    <string name="your_dialogs">Ваши диалоги</string>
+    <string name="create_new_dialog">Создать новый диалог</string>
+    <string name="actions">Действия</string>
+    <string name="rename">Переименовать</string>
+    <string name="delete">Удалить</string>
+
+    <string name="repeat_send">Повторить отправку</string>
+
+</resources>

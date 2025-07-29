@@ -1,40 +1,101 @@
 package ru.llama.tool
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.arkivanov.decompose.DefaultComponentContext
-import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import llamacppdektoptool.composeapp.generated.resources.Res
-import llamacppdektoptool.composeapp.generated.resources.compose_multiplatform
+import llamacppdektoptool.composeapp.generated.resources.app_icon
 import org.jetbrains.compose.resources.painterResource
+import org.koin.core.context.GlobalContext
 import ru.delivery.client.utils.runOnUiThread
+import ru.llama.tool.data.preferences.initializeDataStore
+import ru.llama.tool.di.initKoin
 import ru.llama.tool.presentation.root.App
 import ru.llama.tool.presentation.root.RootComponentImpl
+import ru.llama.tool.utils.DesktopLifecycleManager
 import java.awt.Dimension
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
+import java.awt.event.WindowFocusListener
 
 fun main() = application {
-    val lifecycle = LifecycleRegistry()
     val stateKeeper = StateKeeperDispatcher()
+    val lifecycleManager = DesktopLifecycleManager(stateKeeper)
+
+
+    if (GlobalContext.getOrNull() == null) {
+        initKoin(enableNetworkLogs = true)
+    }
+    initializeDataStore()
 
     val rootComponent = runOnUiThread {
         RootComponentImpl(
-            componentContext =
-                DefaultComponentContext(
-                    lifecycle,
-                    stateKeeper
-                ), onExitAction = ::exitApplication
+            componentContext = lifecycleManager.componentContext
         )
     }
     val windowState = rememberWindowState(width = 500.dp, height = 700.dp)
     Window(
-        icon = painterResource(Res.drawable.compose_multiplatform),
-        onCloseRequest = ::exitApplication,
+        icon = painterResource(Res.drawable.app_icon),
+        onCloseRequest = {
+            lifecycleManager.onDestroy()
+            exitApplication()
+        },
         state = windowState,
         title = "Local AI Tool"
     ) {
+
+        LaunchedEffect(window, lifecycleManager) {
+            if (window == null) return@LaunchedEffect
+            val focusListener = object : WindowFocusListener {
+                override fun windowGainedFocus(p0: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = true, isFocused = true)
+                }
+
+                override fun windowLostFocus(p0: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = true, isFocused = false)
+                }
+            }
+
+            val windowListener = object : WindowAdapter() {
+                override fun windowIconified(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = false, isFocused = false)
+                }
+
+                override fun windowDeiconified(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(
+                        isVisible = true,
+                        isFocused = window.isFocused
+                    )
+                }
+
+                override fun windowActivated(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = true, isFocused = true)
+                }
+
+                override fun windowDeactivated(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(isVisible = true, isFocused = false)
+                }
+
+                override fun windowOpened(e: WindowEvent?) {
+                    lifecycleManager.handleWindowState(
+                        isVisible = true,
+                        isFocused = window.isFocused
+                    )
+                }
+            }
+
+            window.addWindowFocusListener(focusListener)
+            window.addWindowListener(windowListener)
+
+            lifecycleManager.handleWindowState(isVisible = true, isFocused = window.isFocused)
+
+
+        }
+
+
         window.minimumSize = Dimension(400, 600)
         App(root = rootComponent)
     }
