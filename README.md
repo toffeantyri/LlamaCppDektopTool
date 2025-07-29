@@ -1,19 +1,88 @@
-This is a Kotlin Multiplatform project targeting Android & Desktop.
+# 🧠 LlamaTool — Local LLM Client for Android & Desktop
 
-### 📝 Description for dev
+A Kotlin Multiplatform desktop and mobile application for interacting with **locally running LLMs** via `llama-server` from [`llama.cpp`](https://github.com/ggerganov/llama.cpp).  
+Run large language models **completely offline** on your device — no internet, no cloud, no privacy concerns.
 
-Connection with llama-server using Ktor SSE.
-Saving dialogs using Room.
-Saving application settings and dialog settings using DataStore.
+Perfect for developers, researchers, and privacy-focused users who want full control over their AI experience.
 
-desktop: open terminal/command line and run llama-server from llama.cpp as rest api (127.0.0.1:8080 by default)
+> 🔒 Fully offline. Your data never leaves your device.
 
-android: open termux and run llama-server from llama.cpp as rest api (127.0.0.1:8080 by default)
+---
 
+## 🚀 Features
+
+- ✅ **Cross-platform**: Runs on **Android** and **Desktop** (JVM) from a single codebase
+- 💬 **Chat interface**: Save and manage conversations with persistent dialogs
+- 🔄 **SSE Streaming**: Real-time token streaming via Server-Sent Events (Ktor + SSE)
+- 🗂️ **Local Storage**:
+  - Dialogs saved with **Room Database** (Android)
+  - App & dialog settings stored in **DataStore** (Android) and **Preferences** (Desktop)
+- 🌐 **Local API Only**: Connects to `llama-server` running on `127.0.0.1:8080`
+- 🛠️ **No backend required**: Works entirely offline after setup
+
+---
+
+## 📱 Use Cases
+
+- Run private, secure AI assistants on your phone or laptop
+- Experiment with open-source LLMs (e.g. LLaMA, Qwen, Mistral, Phi)
+- Learn how LLMs work without relying on cloud APIs
+- Develop custom prompts, fine-tuned workflows, or role-playing bots
+- Ideal for environments with no internet or high privacy requirements
+
+---
+
+## 🖥️ Supported Platforms
+
+| Platform  | Supported | Notes |
+|---------|-----------|-------|
+| Android | ✅ Yes    | Requires Termux to run `llama-server` |
+| Desktop (JVM) | ✅ Yes | Runs on Windows, macOS, Linux |
+
+Built with **Kotlin Multiplatform**, **Jetpack Compose**, and **Ktor**.
+
+---
+
+## ⚙️ How It Works
+
+The app **does not run the model itself**. Instead, it acts as a lightweight client that:
+
+1. Connects to `llama-server` (from `llama.cpp`) via HTTP
+2. Sends prompts and receives responses using **Server-Sent Events (SSE)** for smooth streaming
+3. Saves chat history and settings locally
+4. Provides a clean, responsive UI on both mobile and desktop
+
+You must run `llama-server` separately on your device.
+
+---
+
+## 📦 Requirements
+
+### For Android:
+- Android device (7.0+)
+- [Termux](https://f-droid.org/packages/com.termux/) (from F-Droid)
+- At least 4–6 GB RAM (depending on model)
+- Sufficient storage (5–10 GB)
+
+### For Desktop:
+- Java 17+ installed
+- tested OS (Windows, Linux)
+- `llama-server` running locally (can be built on the same machine or WSL)
+
+---
+
+## 🛠️ Setup `llama-server` (Prerequisite)
+
+> The app requires `llama-server` to be running at `http://127.0.0.1:8080`.
+
+
+
+## 💬 For dev
 Gradle run configuration : "composeApp:jvmRun -DmainClass=ru/llama/tool/MainKt --quiet"
 
 if need desktop exe file: 
 android studio: terminal: ./gradlew composeApp:runDistributable (looks logs see path)
+
 
 ### 🌐 USING 
 
