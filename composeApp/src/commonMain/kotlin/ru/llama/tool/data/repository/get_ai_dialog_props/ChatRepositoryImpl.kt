@@ -2,32 +2,19 @@ package ru.llama.tool.data.repository.get_ai_dialog_props
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format
-import kotlinx.datetime.format.char
-import kotlinx.datetime.toLocalDateTime
 import ru.llama.tool.core.EMPTY
 import ru.llama.tool.data.data_sources.local_ai_dialog_chat_data_source.AiDialogChatDataSource
 import ru.llama.tool.data.room.ai_chat_dao.AiChatEntity
 import ru.llama.tool.domain.models.AIDialogChatDto
 import ru.llama.tool.domain.models.AiDialogProperties
+import ru.llama.tool.presentation.utils.getFormattedNowDate
 
 class ChatRepositoryImpl(
     private val chatsDataSource: AiDialogChatDataSource,
 ) : ChatsRepository {
 
     override suspend fun saveChatToDb(chat: AIDialogChatDto): Long {
-        val now = Clock.System.now()
-        val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
-        val formattedDate = localDateTime.date.format(LocalDate.Format {
-            dayOfMonth()
-            char('.')
-            monthNumber()
-            char('.')
-            year()
-        })
+        val formattedDate = getFormattedNowDate()
         return chatsDataSource.saveToDb(
             AiChatEntity(
                 id = chat.chatId,

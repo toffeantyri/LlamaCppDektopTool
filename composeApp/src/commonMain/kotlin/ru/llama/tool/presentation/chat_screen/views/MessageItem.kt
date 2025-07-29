@@ -117,19 +117,10 @@ fun MessageItem(
             }
 
             if (isAiMessage) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .align(Alignment.Bottom),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = message.sender.toString().first().toString(),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
+                SenderNameBox(
+                    sender = message.sender,
+                    dateTime = message.dateTime
+                )
                 Spacer(modifier = Modifier.width(8.dp))
 
 
@@ -152,19 +143,11 @@ fun MessageItem(
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary)
-                        .align(Alignment.Bottom),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = message.sender.toString().first().toString(),
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
+
+                SenderNameBox(
+                    sender = message.sender,
+                    dateTime = message.dateTime
+                )
             }
         }
 
@@ -186,5 +169,37 @@ fun MessageItem(
             }
         }
 
+    }
+}
+
+@Composable
+private fun SenderNameBox(
+    sender: EnumSender,
+    dateTime: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.secondary),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = sender.toString().first().toString(),
+                color = MaterialTheme.colorScheme.onSecondary,
+                fontSize = 12.sp
+            )
+        }
+
+        // Отображение времени для пользовательского сообщения
+        Text(
+            text = dateTime,
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 2.dp)
+        )
     }
 }

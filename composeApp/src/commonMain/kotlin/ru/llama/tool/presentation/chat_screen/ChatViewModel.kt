@@ -30,6 +30,7 @@ import ru.llama.tool.domain.use_cases.llama_props_use_case.GetLlamaPropertiesUse
 import ru.llama.tool.domain.use_cases.messaging_use_case.SendChatRequestUseCase
 import ru.llama.tool.presentation.chat_screen.utils.extractErrorMessage503LoadingModel
 import ru.llama.tool.presentation.events.UpEventChat
+import ru.llama.tool.presentation.utils.getFormattedNowTime
 import kotlin.time.Duration.Companion.seconds
 
 class ChatViewModel(
@@ -60,12 +61,16 @@ class ChatViewModel(
     }
 
     override fun onMessageSend() {
+
+        val formattedDateTime = getFormattedNowTime()
+
         //перед каждым запросом - системный промпт
         uiModel.value.chatMessagesData.removeIf { it.sender == EnumSender.System }
         uiModel.value.chatMessagesData += Message(
             sender = EnumSender.System,
             id = -1,
-            content = uiModel.value.aiProps.value.systemPrompt
+            content = uiModel.value.aiProps.value.systemPrompt,
+            dateTime = EMPTY
         )
 
         val userMessageId = uiModel.value.messageId++
@@ -74,7 +79,8 @@ class ChatViewModel(
         val message = Message(
             content = uiModel.value.messageInput.value.trim(),
             sender = EnumSender.User,
-            id = userMessageId
+            id = userMessageId,
+            dateTime = formattedDateTime
         )
 
         if (message.content.isNotBlank()) {
@@ -85,10 +91,7 @@ class ChatViewModel(
                 userMessageId = userMessageId,
                 aiResponseId = aiResponseId
             )
-
         }
-
-
     }
 
 
@@ -118,6 +121,8 @@ class ChatViewModel(
                     // Обновляем ID ответа, чтобы он соответствовал зарезервированному
                     val updatedResponse = aiResponse.copy(id = aiResponseId)
 
+                    val formattedDateTime = getFormattedNowTime()
+
                     if (uiModel.value.chatMessagesData.none { it.id == updatedResponse.id }) {
                         uiModel.value.chatMessagesData += updatedResponse
                     } else {
@@ -129,7 +134,8 @@ class ChatViewModel(
                             val newMessage = Message(
                                 id = updatedResponse.id,
                                 sender = updatedResponse.sender,
-                                content = oldMessage.content + updatedResponse.content
+                                content = oldMessage.content + updatedResponse.content,
+                                dateTime = formattedDateTime
                             )
                             uiModel.value.chatMessagesData[oldIndex] = newMessage
                         }

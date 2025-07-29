@@ -126,6 +126,7 @@ class ApiServiceImpl(
 
                     fun sendNotEmittedError(t: Throwable? = null) {
                         if (emitted.not()) {
+
                             trySend(
                                 Message(
                                     content = EMPTY,
@@ -133,6 +134,7 @@ class ApiServiceImpl(
                                         t?.message ?: "Server is busy. Try again later."
                                     ),
                                     id = messages.last().id,
+                                    dateTime = EMPTY
                                 )
                             )
                         }
@@ -158,7 +160,8 @@ class ApiServiceImpl(
                                     Message(
                                         content = content,
                                         sender = EnumSender.AI,
-                                        id = messages.last().id
+                                        id = messages.last().id,
+                                        dateTime = EMPTY
                                     )
                                 )
                             } else if (data == "[DONE]") {
@@ -222,7 +225,8 @@ class ApiServiceImpl(
                             Message(
                                 content = "",
                                 sender = EnumSender.AI,
-                                id = messages.last().id
+                                id = messages.last().id,
+                                dateTime = EMPTY
                             )
                         )
                     } else {
@@ -235,7 +239,8 @@ class ApiServiceImpl(
                             Message(
                                 content = data,
                                 sender = EnumSender.AI,
-                                id = messages.last().id
+                                id = messages.last().id,
+                                dateTime = EMPTY
                             )
                         )
                     }
@@ -248,14 +253,12 @@ class ApiServiceImpl(
                     Message(
                         content = dataBuilder.toString(),
                         sender = EnumSender.AI,
-                        id = messages.last().id
+                        id = messages.last().id,
+                        dateTime = EMPTY
                     )
                 )
             }
-
-
         }
-
     }
 
     override suspend fun getHealthAi(): HealthAiDto {
