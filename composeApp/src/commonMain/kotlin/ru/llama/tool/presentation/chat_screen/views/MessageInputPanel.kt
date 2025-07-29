@@ -28,6 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import llamacppdektoptool.composeapp.generated.resources.Res
+import llamacppdektoptool.composeapp.generated.resources.input_placeholder
+import llamacppdektoptool.composeapp.generated.resources.send
+import llamacppdektoptool.composeapp.generated.resources.stop
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun MessageInputPanel(
@@ -51,7 +56,7 @@ fun MessageInputPanel(
                 .weight(1f)
                 .heightIn(min = 48.dp, max = 150.dp),
             shape = RoundedCornerShape(10.dp),
-            placeholder = { Text("Введите ваше сообщение") },
+            placeholder = { Text(stringResource(Res.string.input_placeholder)) },
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Default),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
@@ -79,7 +84,7 @@ fun MessageInputPanel(
                         modifier = Modifier.size(18.dp).aspectRatio(1f),
                         imageVector = Icons.Rounded.Stop,
                         tint = Color.White,
-                        contentDescription = "Stop"
+                        contentDescription = stringResource(Res.string.stop)
                     )
                 }
             } else {
@@ -87,7 +92,7 @@ fun MessageInputPanel(
                     modifier = Modifier.size(20.dp).aspectRatio(1f),
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     tint = Color.Black,
-                    contentDescription = "Send"
+                    contentDescription = stringResource(Res.string.send)
                 )
             }
         }

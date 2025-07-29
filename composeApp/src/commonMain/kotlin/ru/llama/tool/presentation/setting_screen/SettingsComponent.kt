@@ -23,6 +23,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import llamacppdektoptool.composeapp.generated.resources.Res
+import llamacppdektoptool.composeapp.generated.resources.settings_about_info
+import llamacppdektoptool.composeapp.generated.resources.settings_about_section
+import llamacppdektoptool.composeapp.generated.resources.settings_account_info
+import llamacppdektoptool.composeapp.generated.resources.settings_account_section
+import llamacppdektoptool.composeapp.generated.resources.settings_ai_section
+import llamacppdektoptool.composeapp.generated.resources.settings_application_section
+import llamacppdektoptool.composeapp.generated.resources.settings_dark_theme
+import llamacppdektoptool.composeapp.generated.resources.settings_default_system_prompt
+import llamacppdektoptool.composeapp.generated.resources.settings_save_button
+import llamacppdektoptool.composeapp.generated.resources.settings_test_base_url
+import llamacppdektoptool.composeapp.generated.resources.settings_title
+import org.jetbrains.compose.resources.stringResource
 import ru.llama.tool.presentation.generals_view.input.SystemPromptField
 
 
@@ -49,14 +62,14 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "Настройки",
+            text = stringResource(Res.string.settings_title),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
 
         // Раздел Приложение
         Text(
-            "Приложение",
+            stringResource(Res.string.settings_application_section),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -65,7 +78,10 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Темная тема", color = MaterialTheme.colorScheme.onBackground)
+            Text(
+                stringResource(Res.string.settings_dark_theme),
+                color = MaterialTheme.colorScheme.onBackground
+            )
             Switch(
                 checked = uiModel.appSettingState.value.isDarkMode,
                 onCheckedChange = { newValue ->
@@ -78,19 +94,19 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
 
         // Раздел Аккаунт
         Text(
-            "Аккаунт",
+            stringResource(Res.string.settings_account_section),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            "Информация об аккаунте",
+            stringResource(Res.string.settings_account_info),
             modifier = Modifier.padding(horizontal = 8.dp),
             color = MaterialTheme.colorScheme.onBackground
         )
 
         // Раздел Настройки ИИ
         Text(
-            "Настройки ИИ",
+            stringResource(Res.string.settings_ai_section),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -98,7 +114,7 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
         OutlinedTextField(
             value = "127.0.0.1:8080",
             onValueChange = { },
-            label = { Text("test base url") },
+            label = { Text(stringResource(Res.string.settings_test_base_url)) },
             modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
             maxLines = 1
         )
@@ -107,7 +123,7 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
         SystemPromptField(
             value = defaultSystemPrompt.value,
             onValueChanged = { defaultSystemPrompt.value = it },
-            labelText = "Дефолтный системный промпт",
+            labelText = stringResource(Res.string.settings_default_system_prompt),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
         )
 
@@ -119,18 +135,18 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
                     )
                     component.viewModel.saveDefaultSystemPrompt(updatedProperties)
                 }) {
-                Text("Сохранить")
+                Text(stringResource(Res.string.settings_save_button))
             }
         }
 
         // Раздел About
         Text(
-            "О приложении",
+            stringResource(Res.string.settings_about_section),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            "Версия приложения, лицензии и т.д.",
+            stringResource(Res.string.settings_about_info),
             modifier = Modifier.padding(horizontal = 8.dp),
             color = MaterialTheme.colorScheme.onBackground
         )

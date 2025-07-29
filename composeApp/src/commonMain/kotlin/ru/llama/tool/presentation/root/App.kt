@@ -21,6 +21,10 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import llamacppdektoptool.composeapp.generated.resources.Res
+import llamacppdektoptool.composeapp.generated.resources.nav_chat
+import llamacppdektoptool.composeapp.generated.resources.nav_settings
+import org.jetbrains.compose.resources.stringResource
 import ru.llama.tool.presentation.root.first_tab_root.FirstTabContent
 import ru.llama.tool.presentation.setting_screen.SettingsContent
 
@@ -65,14 +69,24 @@ fun App(root: IRootComponent) {
                     NavigationBarItem(
                         selected = selectedIndex == 0,
                         onClick = root::onChatTabClicked,
-                        icon = { Icon(Icons.Filled.Home, contentDescription = "Чат") },
-                        label = { Text("Чат") }
+                        icon = {
+                            Icon(
+                                Icons.Filled.Home,
+                                contentDescription = stringResource(Res.string.nav_chat)
+                            )
+                        },
+                        label = { Text(stringResource(Res.string.nav_chat)) }
                     )
                     NavigationBarItem(
                         selected = selectedIndex == 1,
                         onClick = root::onSettingsTabClicked,
-                        icon = { Icon(Icons.Filled.Settings, contentDescription = "Настройки") },
-                        label = { Text("Настройки") }
+                        icon = {
+                            Icon(
+                                Icons.Filled.Settings,
+                                contentDescription = stringResource(Res.string.nav_settings)
+                            )
+                        },
+                        label = { Text(stringResource(Res.string.nav_settings)) }
                     )
                 }
             }) { innerPadding ->
