@@ -16,6 +16,9 @@ if need desktop exe file:
 android studio: terminal: ./gradlew composeApp:runDistributable (looks logs see path)
 
 ### 🌐 USING 
+
+For android : using Termux.
+
 Installation & Build
 
 ### 1. Install required packages
