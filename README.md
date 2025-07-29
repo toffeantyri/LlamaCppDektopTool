@@ -37,7 +37,7 @@ Perfect for developers, researchers, and privacy-focused users who want full con
 | Platform  | Supported | Notes |
 |---------|-----------|-------|
 | Android | ✅ Yes    | Requires Termux to run `llama-server` |
-| Desktop (JVM) | ✅ Yes | Runs on Windows, macOS, Linux |
+| Desktop (JVM) | ✅ Yes | Runs on Windows, Linux |
 
 Built with **Kotlin Multiplatform**, **Jetpack Compose**, and **Ktor**.
 
