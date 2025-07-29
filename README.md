@@ -13,3 +13,7 @@ Gradle run configuration : "composeApp:jvmRun -DmainClass=ru/llama/tool/MainKt -
 
 if need desktop exe file: 
 android studio: terminal: ./gradlew composeApp:runDistributable (looks logs see path)
+
+## ⚠️ Disclaimer
+This software is for educational purposes only. The author disclaims all responsibility 
+for any damages or legal issues arising from its use.
