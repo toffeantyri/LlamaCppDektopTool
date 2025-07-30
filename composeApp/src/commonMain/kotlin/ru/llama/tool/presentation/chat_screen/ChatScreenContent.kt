@@ -35,6 +35,7 @@ import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListScreen
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
 import ru.llama.tool.presentation.chat_screen.views.MessageItem
+import ru.llama.tool.presentation.chat_screen.views.renaming_dialog.RenamingDialog
 import ru.llama.tool.presentation.events.UiEvent
 import ru.llama.tool.presentation.utils.onKeyEnter
 
@@ -78,6 +79,7 @@ fun ChatScreenContent(component: ChatComponent) {
     dialogSlot.value.child?.also { child ->
         when (val item = child.instance) {
             is ChatComponent.DialogChild.AiSettingDialogChild -> AiChatSettingsScreen(item.component)
+            is ChatComponent.DialogChild.RenameChatDialogChild -> RenamingDialog(item.component)
         }
     }
 

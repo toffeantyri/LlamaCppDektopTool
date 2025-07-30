@@ -51,4 +51,8 @@ class ChatRepositoryImpl(
             )
         }
     }
+
+    override suspend fun renameChat(id: Long, newChatName: String) {
+        return chatsDataSource.renameChat(id, newChatName)
+    }
 }

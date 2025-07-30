@@ -21,4 +21,8 @@ class ChatInteractorImpl(private val repo: ChatsRepository) : ChatInteractor {
     override suspend fun getAllChatsList(): List<AIDialogChatDto> {
         return repo.getAllChatsList()
     }
+
+    override suspend fun renameChat(id: Long, newChatName: String) {
+        return repo.renameChat(id, newChatName)
+    }
 }

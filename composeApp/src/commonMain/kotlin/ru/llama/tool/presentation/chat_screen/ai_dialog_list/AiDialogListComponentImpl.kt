@@ -16,6 +16,7 @@ class AiDialogListComponentImpl(
     private val coroutineScope: CoroutineScope,
     private val chatInteractor: ChatInteractor,
     private val onDialogSelectedAction: (chatId: Long) -> Unit,
+    private val onDialogChatRenameOpenDialog: (chatId: Long, oldChatName: String) -> Unit,
     private val onCreateNewDialog: () -> Unit,
 ) : AiDialogListComponent, ComponentContext by componentContext {
 
@@ -24,8 +25,17 @@ class AiDialogListComponentImpl(
 
     override fun onDialogSelected(chatId: Long) = onDialogSelectedAction(chatId)
 
+    override fun onDialogChatRenameClicked(chatId: Long, oldChatName: String) =
+        onDialogChatRenameOpenDialog(chatId, oldChatName)
+
+
     override fun onCreateNewDialogClicked() {
         onCreateNewDialog()
+    }
+
+    override fun renameDialogInList(chatId: Long, newChatName: String) {
+        val index = dialogs.value.indexOfFirst { it.chatId == chatId }
+        dialogs.value[index] = dialogs.value[index].copy(chatName = newChatName)
     }
 
     override fun onDeleteDialogClicked(chatId: Long) {

@@ -13,4 +13,6 @@ interface ChatInteractor {
 
     suspend fun getAllChatsList(): List<AIDialogChatDto>
 
+    suspend fun renameChat(id: Long, newChatName: String)
+
 }

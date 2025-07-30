@@ -21,4 +21,7 @@ interface AiChatDao {
     @Query("SELECT * FROM ${DBConst.CHAT_TABLE}")
     suspend fun getAllChats(): List<AiChatEntity>
 
+    @Query("UPDATE ${DBConst.CHAT_TABLE} SET chat_name = :newName WHERE id = :id")
+    suspend fun renameChat(id: Long, newName: String)
+
 }

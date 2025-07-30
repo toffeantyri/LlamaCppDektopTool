@@ -21,4 +21,8 @@ class AiDialogChatDataSourceImpl(private val dao: AiChatDao) : AiDialogChatDataS
     override suspend fun getAllChats(): List<AiChatEntity> {
         return dao.getAllChats()
     }
+
+    override suspend fun renameChat(id: Long, newChatName: String) {
+        return dao.renameChat(id, newChatName)
+    }
 }

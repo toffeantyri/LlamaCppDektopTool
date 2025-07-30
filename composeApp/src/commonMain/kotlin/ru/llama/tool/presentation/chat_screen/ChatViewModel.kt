@@ -182,6 +182,19 @@ class ChatViewModel(
         uiModel.value.messageInput.value = input
     }
 
+    override fun saveChatWithNewName(
+        chatId: Long,
+        newChatName: String,
+        onSuccess: (chatId: Long, newChatName: String) -> Unit
+    ) {
+        coroutineScope.launch {
+            runCatching { chatInteractor.renameChat(chatId, newChatName) }
+                .onSuccess {
+                    onSuccess(chatId, newChatName)
+                }
+        }
+    }
+
     private fun saveCurrentDialog(onSuccess: () -> Unit) {
         coroutineScope.launch {
             if (uiModel.value.chatMessagesData.last().sender != EnumSender.AI) return@launch

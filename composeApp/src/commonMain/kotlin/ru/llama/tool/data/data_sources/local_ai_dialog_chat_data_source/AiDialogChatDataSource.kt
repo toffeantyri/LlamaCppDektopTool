@@ -13,4 +13,6 @@ interface AiDialogChatDataSource {
 
     suspend fun getAllChats(): List<AiChatEntity>
 
+    suspend fun renameChat(id: Long, newChatName: String)
+
 }

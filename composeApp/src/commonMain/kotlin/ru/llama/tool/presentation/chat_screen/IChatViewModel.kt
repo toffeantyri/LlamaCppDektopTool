@@ -12,4 +12,10 @@ interface IChatViewModel {
 
     fun onMessageInputChanged(input: String)
 
+    fun saveChatWithNewName(
+        chatId: Long,
+        newChatName: String,
+        onSuccess: (chatId: Long, newChatName: String) -> Unit
+    )
+
 }
