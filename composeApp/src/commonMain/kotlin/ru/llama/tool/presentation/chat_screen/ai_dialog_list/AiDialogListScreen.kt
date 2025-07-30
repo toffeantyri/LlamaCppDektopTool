@@ -88,20 +88,34 @@ fun AiDialogListScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(start = 16.dp, end = 2.dp)
+                                .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Box(modifier = Modifier.weight(1f)) {
+                            Column(
+                                modifier = Modifier.weight(1f).padding(end = 8.dp)
+                            ) {
+                                // Название чата
                                 Text(
                                     text = dialog.chatName.takeIf { it.isNotBlank() }
-                                        ?: buildString {
-                                            append(dialog.chatId)
-                                            append(" / ")
-                                            append(dialog.date)
-                                        },
+                                        ?: "no name",
                                     maxLines = 1,
                                     style = MaterialTheme.typography.titleMedium,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                // ID и время под названием
+                                Text(
+                                    text = buildString {
+                                        append("ID: ")
+                                        append(dialog.chatId)
+                                        append(" / ")
+                                        append(dialog.date)
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
