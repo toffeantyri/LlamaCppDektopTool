@@ -29,6 +29,7 @@ import ru.llama.tool.domain.use_cases.chat_property_interactor.ChatPropsInteract
 import ru.llama.tool.domain.use_cases.llama_props_use_case.GetLlamaPropertiesUseCase
 import ru.llama.tool.domain.use_cases.messaging_use_case.SendChatRequestUseCase
 import ru.llama.tool.presentation.chat_screen.utils.extractErrorMessage503LoadingModel
+import ru.llama.tool.presentation.chat_screen.utils.formatAiResponse
 import ru.llama.tool.presentation.events.UpEventChat
 import ru.llama.tool.presentation.utils.getFormattedNowTime
 import kotlin.time.Duration.Companion.seconds
@@ -110,14 +111,32 @@ class ChatViewModel(
                         setErrorMessage(userMessageId, it)
                         uiModel.value.isAiTyping.value = false
                     }
-                    .onCompletion {
-                        println("VM onCompletion $it")
+                    .onCompletion { cause ->
+                        println("VM onCompletion $cause")
                         uiModel.value.isAiTyping.value = false
                         saveDialogTrigger.emit(Unit) //save dialog trigger
+
+
+                        // Находим финальное сообщение по ID
+                        val finalMessage =
+                            uiModel.value.chatMessagesData.firstOrNull { it.id == aiResponseId }
+                        if (finalMessage != null) {
+                            val formattedContent = formatAiResponse(finalMessage.content)
+                            if (formattedContent.isNotBlank()) {
+                                val updatedMessage = finalMessage.copy(content = formattedContent)
+                                val index = uiModel.value.chatMessagesData.indexOf(finalMessage)
+                                uiModel.value.chatMessagesData[index] = updatedMessage
+                                println("Formatted AI response: $formattedContent")
+                            } else {
+                                // Если после форматирования пусто — удаляем сообщение
+                                uiModel.value.chatMessagesData.removeAll { it.id == aiResponseId }
+                            }
+                        }
                     }
                     .flowOn(Dispatchers.IO)
             }.onSuccess { flowResult ->
                 flowResult.onEach { aiResponse ->
+                    println("VM CONTENT: $aiResponse")
                     // Обновляем ID ответа, чтобы он соответствовал зарезервированному
                     val updatedResponse = aiResponse.copy(id = aiResponseId)
 
@@ -204,9 +223,13 @@ class ChatViewModel(
                 messages = uiModel.value.chatMessagesData,
                 date = EMPTY
             )
-            val savedChatId = chatInteractor.saveChatToDb(currentChat)
-            uiModel.value.chatId.value = savedChatId
-            onSuccess()
+            try {
+                val savedChatId = chatInteractor.saveChatToDb(currentChat)
+                uiModel.value.chatId.value = savedChatId
+                onSuccess()
+            } catch (e: Exception) {
+                println("VM SAVING ERROR $e")
+            }
         }
     }
 
@@ -220,7 +243,7 @@ class ChatViewModel(
     private fun updateChatDialogBy(newChatId: Long) {
         if (newChatId == AiDialogProperties.DEFAULT_ID) {
             with(uiModel.value) {
-                chatId.value = AiDialogProperties.DEFAULT_ID
+                chatId.value = newChatId
                 chatName.value = EMPTY
                 messageInput.value = EMPTY
                 chatMessagesData.clear()
@@ -229,7 +252,6 @@ class ChatViewModel(
         } else {
             coroutineScope.launch {
                 chatInteractor.getDialogChat(newChatId).first().let { chat ->
-
                     val oldId: Int = (chat.messages.findLast {
                         it.sender == EnumSender.AI
                     }?.id?.plus(1) ?: 0)
