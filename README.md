@@ -1,5 +1,11 @@
 # 🧠 LlamaTool — Local LLM Client for Android & Desktop
 
+![1000064834](https://github.com/user-attachments/assets/6ee3f184-8ad0-455e-9838-7ba007e255f8)
+![1000064837](https://github.com/user-attachments/assets/600f7604-1baa-442f-a771-069bfd3c362b)
+![1000064838](https://github.com/user-attachments/assets/441c8d06-b7e4-4bb9-a02f-62360d8f2e25)
+![1000064836](https://github.com/user-attachments/assets/203fc67b-162e-4d48-801e-307adf4932ac)
+
+
 A Kotlin Multiplatform desktop and mobile application for interacting with **locally running LLMs** via `llama-server` from [`llama.cpp`](https://github.com/ggerganov/llama.cpp).  
 Run large language models **completely offline** on your device — no internet, no cloud, no privacy concerns.
 
