@@ -12,12 +12,12 @@ import ru.llama.tool.presentation.chat_screen.ChatScreenContent
 
 
 @Composable
-fun FirstTabContent(component: FirstTabComponent) {
+fun FirstTabContent(modifier: Modifier, component: FirstTabComponent) {
 
     val childStack by component.stack.subscribeAsState()
     Children(
         stack = childStack,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         animation = stackAnimation(animator = slide())
     ) {
         when (val child = it.instance) {

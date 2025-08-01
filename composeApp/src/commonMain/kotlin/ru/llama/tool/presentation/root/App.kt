@@ -1,7 +1,10 @@
 package ru.llama.tool.presentation.root
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -63,7 +66,8 @@ fun App(root: IRootComponent) {
         val selectedIndex by root.selectedIndex.subscribeAsState()
 
         Scaffold(
-            modifier = Modifier/*.navigationBarsPadding()*/,
+            modifier = Modifier.systemBarsPadding(),
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
             bottomBar = {
                 NavigationBar(modifier = Modifier) {
                     NavigationBarItem(
@@ -90,14 +94,22 @@ fun App(root: IRootComponent) {
                     )
                 }
             }) { innerPadding ->
+
             Children(
                 stack = childStack,
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier.fillMaxSize().imePadding(),
                 animation = stackAnimation(animator = slide())
             ) {
                 when (val child = it.instance) {
-                    is IRootComponent.Child.ChatContentChild -> FirstTabContent(child.component)
-                    is IRootComponent.Child.SettingContentChild -> SettingsContent(child.component)
+                    is IRootComponent.Child.ChatContentChild -> FirstTabContent(
+                        modifier = Modifier.padding(innerPadding),
+                        child.component
+                    )
+
+                    is IRootComponent.Child.SettingContentChild -> SettingsContent(
+                        modifier = Modifier,
+                        component = child.component
+                    )
                 }
             }
         }
