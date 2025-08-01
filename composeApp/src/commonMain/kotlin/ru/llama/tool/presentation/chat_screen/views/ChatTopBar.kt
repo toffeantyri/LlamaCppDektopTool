@@ -4,17 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
@@ -25,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import ru.llama.tool.domain.models.UiText
 import ru.llama.tool.presentation.utils.asString
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatTopBar(
     modelName: State<UiText>,
@@ -34,9 +34,32 @@ fun ChatTopBar(
     onChatListOpenClicked: () -> Unit,
     onChatSettingOpenClicked: () -> Unit
 ) {
-    TopAppBar(
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shadowElevation = 8.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Навигационная иконка (меню)
+            IconButton(
+                onClick = onChatListOpenClicked,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu"
+                )
+            }
+
+            // Индикатор состояния и название модели
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Box(
                     modifier = Modifier
                         .size(14.dp)
@@ -54,24 +77,26 @@ fun ChatTopBar(
                 )
 
                 Text(
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.padding(start = 8.dp),
                     text = modelName.value.asString(),
                     maxLines = 1,
-                    overflow = TextOverflow.StartEllipsis
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-        },
-        navigationIcon = {
-            IconButton(onClick = onChatListOpenClicked) {
-                Icon(Icons.Default.Menu, contentDescription = "Menu")
-            }
-        },
-        actions = {
+
+            // Кнопка настроек (если модель известна)
             if (modelName.value.asString() != "Unknown") {
-                IconButton(onClick = onChatSettingOpenClicked, enabled = aiTyping.value.not()) {
-                    Icon(Icons.Default.Settings, contentDescription = "Settings")
+                IconButton(
+                    onClick = onChatSettingOpenClicked,
+                    enabled = aiTyping.value.not(),
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings"
+                    )
                 }
             }
         }
-    )
-} 
+    }
+}
