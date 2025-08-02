@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import ru.llama.tool.domain.use_cases.ChatInteractor
 import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsComponentImpl
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponent
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponentImpl
@@ -35,11 +34,12 @@ class ChatComponentImpl(
 ) : ChatComponent, ComponentContext by componentContext, KoinComponent {
 
     private val coroutineScope = componentContext.componentCoroutineScope()
-    private val chatInteractor: ChatInteractor = get()
+
+
     private val _chatEventState = MutableSharedFlow<UpEventChat>(replay = 0)
     override val chatEventState: SharedFlow<UpEventChat> get() = _chatEventState
-    private val _uiEvent = MutableStateFlow<UiEvent>(UiEvent.Initial)
 
+    private val _uiEvent = MutableStateFlow<UiEvent>(UiEvent.Initial)
     override val uiEvent: StateFlow<UiEvent> get() = _uiEvent
 
 
@@ -50,7 +50,7 @@ class ChatComponentImpl(
             sendChatRequestUseCase = get(),
             getLlamaPropertiesUseCase = get(),
             chatPropsInteractor = get(),
-            chatInteractor = chatInteractor
+            chatInteractor = get()
         )
     }
 

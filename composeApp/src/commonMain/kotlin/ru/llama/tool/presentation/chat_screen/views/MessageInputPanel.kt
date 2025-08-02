@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import llamacppdektoptool.composeapp.generated.resources.Res
 import llamacppdektoptool.composeapp.generated.resources.input_placeholder
@@ -34,14 +35,18 @@ import llamacppdektoptool.composeapp.generated.resources.send
 import llamacppdektoptool.composeapp.generated.resources.stop
 import org.jetbrains.compose.resources.stringResource
 
+private const val MAX_INPUT_CHARS = 200
+
+
 @Composable
 fun MessageInputPanel(
     messageInput: State<String>,
     onMessageInputChanged: (String) -> Unit,
     onMessageSend: () -> Unit,
     onMessageStopGen: () -> Unit,
-    isAiTyping: State<Boolean>
+    isAiTyping: State<Boolean>,
 ) {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -66,7 +71,16 @@ fun MessageInputPanel(
             singleLine = false,
             maxLines = 5,
             minLines = 1,
-            enabled = !isAiTyping.value
+            enabled = !isAiTyping.value,
+            supportingText = {
+                if (messageInput.value.length > (MAX_INPUT_CHARS - 10)) {
+                    Text(
+                        text = "${messageInput.value.length}/$MAX_INPUT_CHARS",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End,
+                    )
+                }
+            }
         )
         Button(
             modifier = Modifier.padding(horizontal = 8.dp).padding(vertical = 4.dp),

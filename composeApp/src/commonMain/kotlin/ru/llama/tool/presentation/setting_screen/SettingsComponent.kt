@@ -1,6 +1,7 @@
 package ru.llama.tool.presentation.setting_screen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,6 +57,7 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(state = rememberScrollState())
+            .animateContentSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
         horizontalAlignment = Alignment.Start,
