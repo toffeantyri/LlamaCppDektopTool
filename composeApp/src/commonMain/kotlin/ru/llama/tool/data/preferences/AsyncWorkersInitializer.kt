@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.plus
 import ru.llama.tool.core.io
+import ru.llama.tool.data.api.setting_http_client_provider.ISettingHttpClientProvider
 import ru.llama.tool.data.preferences.data_store_handler.PreferenceHandlerImpl
 import ru.llama.tool.data.preferences.preferances.AppPreferencesImpl
 import ru.llama.tool.data.preferences.preferances.IAppPreferences
@@ -32,7 +33,7 @@ private constructor() : CoroutinesComponent {
 }
 
 interface CoreComponent : CoroutinesComponent {
-    val preferences: IAppPreferences
+    val preferences: (httpSettingProvider: ISettingHttpClientProvider) -> IAppPreferences
 }
 
 internal class CoreComponentImpl
@@ -44,8 +45,13 @@ internal constructor(context: Any? = null) :
         coroutineScope = appScope.plus(Dispatchers.io()),
         migrations = emptyList(),
     )
-    override val preferences: IAppPreferences
-        get() = AppPreferencesImpl(PreferenceHandlerImpl(datastore))
+    override val preferences: (httpSettingProvider: ISettingHttpClientProvider) -> IAppPreferences =
+        { httpSettingProvider ->
+            AppPreferencesImpl(
+                preferences = PreferenceHandlerImpl(datastore),
+                httpSettingProvider = httpSettingProvider
+            )
+        }
 
 }
 

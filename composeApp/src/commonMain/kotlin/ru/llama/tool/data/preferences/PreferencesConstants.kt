@@ -9,6 +9,7 @@ object PreferencesConstants {
 
     val PREF_KEY_DEFAULT_SYSTEM_PROMPT = stringPreferencesKey(SettingConst.DEFAULT_SYSTEM_PROMPT)
 
+    val PREF_KEY_BASE_URL = stringPreferencesKey(SettingConst.KEY_BASE_URL)
 
 
 }

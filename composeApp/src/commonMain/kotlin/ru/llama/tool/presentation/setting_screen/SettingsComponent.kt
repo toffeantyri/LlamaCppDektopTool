@@ -53,6 +53,10 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
     val defaultSystemPrompt =
         remember(aiSettings.defSystemPrompt) { mutableStateOf(aiSettings.defSystemPrompt) }
 
+    val baseUrl = remember {
+        mutableStateOf(aiSettings.baseUrl)
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -114,12 +118,27 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
         )
 
         OutlinedTextField(
-            value = "127.0.0.1:8080",
-            onValueChange = { },
+            value = baseUrl.value,
+            onValueChange = {
+                baseUrl.value = it
+            },
             label = { Text(stringResource(Res.string.settings_test_base_url)) },
             modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
             maxLines = 1
         )
+
+        AnimatedVisibility(uiModel.aiSettings.value.baseUrl != baseUrl.value) {
+            Button(
+                onClick = {
+                    val updatedProperties = uiModel.aiSettings.value.copy(
+                        defSystemPrompt = defaultSystemPrompt.value,
+                        baseUrl = baseUrl.value
+                    )
+                    component.viewModel.saveDefaultSystemPrompt(updatedProperties)
+                }) {
+                Text(stringResource(Res.string.settings_save_button))
+            }
+        }
 
 
         SystemPromptField(
