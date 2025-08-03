@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import ru.llama.tool.data.room.DBConst
 
@@ -13,6 +14,9 @@ interface AiChatDao {
     //@Upsert
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(data: AiChatEntity): Long
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun update(data: AiChatEntity): Int
 
     @Query("DELETE FROM ${DBConst.CHAT_TABLE} WHERE id = :id")
     suspend fun delete(id: Long)

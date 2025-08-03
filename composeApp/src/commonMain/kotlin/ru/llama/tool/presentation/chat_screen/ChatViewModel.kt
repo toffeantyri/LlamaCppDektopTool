@@ -223,13 +223,9 @@ class ChatViewModel(
                 messages = uiModel.value.chatMessagesData,
                 date = EMPTY
             )
-            try {
-                val savedChatId = chatInteractor.saveChatToDb(currentChat)
-                uiModel.value.chatId.value = savedChatId
-                onSuccess()
-            } catch (e: Exception) {
-                println("VM SAVING ERROR $e")
-            }
+            val savedChatId = chatInteractor.saveChatToDb(currentChat)
+            uiModel.value.chatId.value = savedChatId
+            onSuccess()
         }
     }
 

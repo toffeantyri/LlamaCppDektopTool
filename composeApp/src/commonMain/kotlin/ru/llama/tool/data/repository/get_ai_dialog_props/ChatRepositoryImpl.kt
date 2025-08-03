@@ -15,7 +15,7 @@ class ChatRepositoryImpl(
 
     override suspend fun saveChatToDb(chat: AIDialogChatDto): Long {
         val formattedDate = getFormattedNowDate()
-        return chatsDataSource.saveToDb(
+        return chatsDataSource.saveToDbReturnId(
             AiChatEntity(
                 id = chat.chatId,
                 messages = chat.messages,
