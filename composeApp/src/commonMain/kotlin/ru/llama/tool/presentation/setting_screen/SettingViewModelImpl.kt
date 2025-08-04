@@ -42,7 +42,7 @@ class SettingViewModelImpl(
     private fun preferencesCollector() {
         coroutineScope.launch {
             val defSysPrompt = preferences.getSystemPrompt(AiDialogProperties.INITIAL_SYSTEM_PROMPT)
-            val baseUrl = preferences.getBaseUrl()
+            val baseUrl = preferences.getCachedBaseUrl()
             uiModel.value.aiSettings.value =
                 uiModel.value.aiSettings.value.copy(
                     defSystemPrompt = defSysPrompt,

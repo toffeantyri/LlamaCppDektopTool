@@ -6,15 +6,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import ru.llama.tool.core.EMPTY
 import ru.llama.tool.core.io
-import ru.llama.tool.data.api.setting_http_client_provider.ISettingHttpClientProvider
+import ru.llama.tool.data.api.ApiConst
 import ru.llama.tool.data.preferences.PreferencesConstants
 import ru.llama.tool.data.preferences.data_store_handler.IPreferenceHandler
 
 class AppPreferencesImpl(
     private val preferences: IPreferenceHandler,
-    private val httpSettingProvider: ISettingHttpClientProvider
 ) : IAppPreferences {
+
+    private var cachedBaseUrl = EMPTY
 
     private fun <T> syncLoad(key: Preferences.Key<T>): T? {
         return preferences.syncLoad(key)
@@ -46,14 +48,16 @@ class AppPreferencesImpl(
         preferences.save(PreferencesConstants.PREF_KEY_DEFAULT_SYSTEM_PROMPT, prompt)
     }
 
-    override suspend fun getBaseUrl(): String {
-        return preferences.load(
-            PreferencesConstants.PREF_KEY_BASE_URL,
-            httpSettingProvider.getBaseUrl()
-        ).first()
+    override fun getCachedBaseUrl(): String {
+        return if (cachedBaseUrl == EMPTY) {
+            cachedBaseUrl = syncLoad(PreferencesConstants.PREF_KEY_BASE_URL) ?: ApiConst.BASE_URL
+            cachedBaseUrl
+        } else cachedBaseUrl
     }
 
+
     override suspend fun setBaseUrl(url: String) {
+        cachedBaseUrl = url
         preferences.save(PreferencesConstants.PREF_KEY_BASE_URL, url)
     }
 
