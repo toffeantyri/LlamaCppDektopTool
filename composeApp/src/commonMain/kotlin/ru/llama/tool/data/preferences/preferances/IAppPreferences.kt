@@ -14,4 +14,9 @@ interface IAppPreferences {
 
     suspend fun setSystemPrompt(prompt: String)
 
+
+    fun getCachedBaseUrl(): String
+
+    suspend fun setBaseUrl(url: String)
+
 }

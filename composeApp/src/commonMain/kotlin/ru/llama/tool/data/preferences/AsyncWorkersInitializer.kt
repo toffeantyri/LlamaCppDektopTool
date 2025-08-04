@@ -44,8 +44,9 @@ internal constructor(context: Any? = null) :
         coroutineScope = appScope.plus(Dispatchers.io()),
         migrations = emptyList(),
     )
-    override val preferences: IAppPreferences
-        get() = AppPreferencesImpl(PreferenceHandlerImpl(datastore))
+    override val preferences: IAppPreferences =
+        AppPreferencesImpl(preferences = PreferenceHandlerImpl(datastore))
+
 
 }
 

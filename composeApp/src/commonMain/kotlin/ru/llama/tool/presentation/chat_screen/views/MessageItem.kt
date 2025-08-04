@@ -40,7 +40,9 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import llamacppdektoptool.composeapp.generated.resources.Res
+import llamacppdektoptool.composeapp.generated.resources.exclamation_error
 import llamacppdektoptool.composeapp.generated.resources.repeat_send
+import llamacppdektoptool.composeapp.generated.resources.unknown_error
 import org.jetbrains.compose.resources.stringResource
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
@@ -93,7 +95,7 @@ fun MessageItem(
                         lineHeight = 18.2.sp,
                         letterSpacing = 0.42.sp
                     ),
-                    text = "!",
+                    text = stringResource(Res.string.exclamation_error),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.size(24.dp).background(
                         color = Color.Red.copy(alpha = 0.3f),
@@ -108,7 +110,7 @@ fun MessageItem(
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
                         shape = RoundedCornerShape(10.dp)
                     ),
-                    text = message.sender.throwable ?: "Unknown error",
+                    text = message.sender.throwable ?: stringResource(Res.string.unknown_error),
                     maxLines = 1,
                     fontSize = 12.sp,
                     textAlign = TextAlign.Center
@@ -117,19 +119,10 @@ fun MessageItem(
             }
 
             if (isAiMessage) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .align(Alignment.Bottom),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = message.sender.toString().first().toString(),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
+                SenderNameBox(
+                    sender = message.sender,
+                    dateTime = message.dateTime
+                )
                 Spacer(modifier = Modifier.width(8.dp))
 
 
@@ -152,19 +145,11 @@ fun MessageItem(
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary)
-                        .align(Alignment.Bottom),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = message.sender.toString().first().toString(),
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
+
+                SenderNameBox(
+                    sender = message.sender,
+                    dateTime = message.dateTime
+                )
             }
         }
 
@@ -186,5 +171,37 @@ fun MessageItem(
             }
         }
 
+    }
+}
+
+@Composable
+private fun SenderNameBox(
+    sender: EnumSender,
+    dateTime: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.secondary),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = sender.toString().first().toString(),
+                color = MaterialTheme.colorScheme.onSecondary,
+                fontSize = 12.sp
+            )
+        }
+
+        // Отображение времени для пользовательского сообщения
+        Text(
+            text = dateTime,
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 2.dp)
+        )
     }
 }

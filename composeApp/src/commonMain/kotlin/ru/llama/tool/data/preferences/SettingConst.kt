@@ -6,5 +6,6 @@ object SettingConst {
 
     const val DEFAULT_SYSTEM_PROMPT = "DEFAULT_SYSTEM_PROMPT"
 
+    const val KEY_BASE_URL = "KEY_BASE_URL"
 
 }

@@ -1,7 +1,10 @@
 package ru.llama.tool.presentation.root
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -21,6 +24,10 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import llamacppdektoptool.composeapp.generated.resources.Res
+import llamacppdektoptool.composeapp.generated.resources.nav_chat
+import llamacppdektoptool.composeapp.generated.resources.nav_settings
+import org.jetbrains.compose.resources.stringResource
 import ru.llama.tool.presentation.root.first_tab_root.FirstTabContent
 import ru.llama.tool.presentation.setting_screen.SettingsContent
 
@@ -59,31 +66,50 @@ fun App(root: IRootComponent) {
         val selectedIndex by root.selectedIndex.subscribeAsState()
 
         Scaffold(
-            modifier = Modifier/*.navigationBarsPadding()*/,
+            modifier = Modifier.systemBarsPadding(),
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
             bottomBar = {
                 NavigationBar(modifier = Modifier) {
                     NavigationBarItem(
                         selected = selectedIndex == 0,
                         onClick = root::onChatTabClicked,
-                        icon = { Icon(Icons.Filled.Home, contentDescription = "Чат") },
-                        label = { Text("Чат") }
+                        icon = {
+                            Icon(
+                                Icons.Filled.Home,
+                                contentDescription = stringResource(Res.string.nav_chat)
+                            )
+                        },
+                        label = { Text(stringResource(Res.string.nav_chat)) }
                     )
                     NavigationBarItem(
                         selected = selectedIndex == 1,
                         onClick = root::onSettingsTabClicked,
-                        icon = { Icon(Icons.Filled.Settings, contentDescription = "Настройки") },
-                        label = { Text("Настройки") }
+                        icon = {
+                            Icon(
+                                Icons.Filled.Settings,
+                                contentDescription = stringResource(Res.string.nav_settings)
+                            )
+                        },
+                        label = { Text(stringResource(Res.string.nav_settings)) }
                     )
                 }
             }) { innerPadding ->
+
             Children(
                 stack = childStack,
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier.fillMaxSize().imePadding(),
                 animation = stackAnimation(animator = slide())
             ) {
                 when (val child = it.instance) {
-                    is IRootComponent.Child.ChatContentChild -> FirstTabContent(child.component)
-                    is IRootComponent.Child.SettingContentChild -> SettingsContent(child.component)
+                    is IRootComponent.Child.ChatContentChild -> FirstTabContent(
+                        modifier = Modifier.padding(innerPadding),
+                        child.component
+                    )
+
+                    is IRootComponent.Child.SettingContentChild -> SettingsContent(
+                        modifier = Modifier,
+                        component = child.component
+                    )
                 }
             }
         }

@@ -21,7 +21,7 @@ fun ContentCloud(modifier: Modifier, backgroundColor: Color, message: Message) {
     ) {
         SelectionContainer {
             Text(
-                text = message.content,
+                text = message.content.trimStart(),
                 modifier = Modifier.padding(12.dp)
             )
         }

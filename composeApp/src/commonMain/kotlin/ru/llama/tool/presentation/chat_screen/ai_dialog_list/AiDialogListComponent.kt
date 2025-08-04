@@ -10,8 +10,11 @@ interface AiDialogListComponent {
 
     fun onDialogSelected(chatId: Long)
 
+    fun onDialogChatRenameClicked(chatId: Long, oldChatName: String)
+
     fun onCreateNewDialogClicked()
 
+    fun renameDialogInList(chatId: Long, newChatName: String)
 
     fun onDeleteDialogClicked(chatId: Long)
 

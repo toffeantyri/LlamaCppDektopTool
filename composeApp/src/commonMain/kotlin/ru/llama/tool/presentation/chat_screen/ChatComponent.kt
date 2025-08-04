@@ -16,6 +16,7 @@ import ru.llama.tool.domain.models.Message
 import ru.llama.tool.domain.models.UiText
 import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsComponent
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponent
+import ru.llama.tool.presentation.chat_screen.views.renaming_dialog.RenamingDialogComponent
 import ru.llama.tool.presentation.events.UiEvent
 import ru.llama.tool.presentation.events.UpEventChat
 
@@ -55,6 +56,8 @@ interface ChatComponent {
     @Stable
     sealed interface DialogChild {
         data class AiSettingDialogChild(val component: AiChatSettingsComponent) : DialogChild
+
+        data class RenameChatDialogChild(val component: RenamingDialogComponent) : DialogChild
 
     }
 }

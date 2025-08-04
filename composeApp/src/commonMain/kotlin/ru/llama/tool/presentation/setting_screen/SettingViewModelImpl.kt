@@ -20,7 +20,12 @@ class SettingViewModelImpl(
     override fun saveDefaultSystemPrompt(data: AiDefaultSetting) {
         coroutineScope.launch {
             runCatching {
-                preferences.setSystemPrompt(data.defSystemPrompt)
+                if (uiModel.value.aiSettings.value.defSystemPrompt != data.defSystemPrompt) {
+                    preferences.setSystemPrompt(data.defSystemPrompt)
+                }
+                if (uiModel.value.aiSettings.value.baseUrl != data.baseUrl) {
+                    preferences.setBaseUrl(data.baseUrl)
+                }
             }.onSuccess {
                 uiModel.value.aiSettings.value = data
             }.onFailure {
@@ -37,8 +42,12 @@ class SettingViewModelImpl(
     private fun preferencesCollector() {
         coroutineScope.launch {
             val defSysPrompt = preferences.getSystemPrompt(AiDialogProperties.INITIAL_SYSTEM_PROMPT)
+            val baseUrl = preferences.getCachedBaseUrl()
             uiModel.value.aiSettings.value =
-                uiModel.value.aiSettings.value.copy(defSystemPrompt = defSysPrompt)
+                uiModel.value.aiSettings.value.copy(
+                    defSystemPrompt = defSysPrompt,
+                    baseUrl = baseUrl
+                )
         }
     }
 

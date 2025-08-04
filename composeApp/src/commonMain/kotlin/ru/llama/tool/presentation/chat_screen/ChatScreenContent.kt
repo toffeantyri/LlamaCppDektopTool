@@ -3,10 +3,8 @@ package ru.llama.tool.presentation.chat_screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,7 +12,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -35,6 +32,7 @@ import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListScreen
 import ru.llama.tool.presentation.chat_screen.views.ChatTopBar
 import ru.llama.tool.presentation.chat_screen.views.MessageInputPanel
 import ru.llama.tool.presentation.chat_screen.views.MessageItem
+import ru.llama.tool.presentation.chat_screen.views.renaming_dialog.RenamingDialog
 import ru.llama.tool.presentation.events.UiEvent
 import ru.llama.tool.presentation.utils.onKeyEnter
 
@@ -78,6 +76,7 @@ fun ChatScreenContent(component: ChatComponent) {
     dialogSlot.value.child?.also { child ->
         when (val item = child.instance) {
             is ChatComponent.DialogChild.AiSettingDialogChild -> AiChatSettingsScreen(item.component)
+            is ChatComponent.DialogChild.RenameChatDialogChild -> RenamingDialog(item.component)
         }
     }
 
@@ -86,70 +85,64 @@ fun ChatScreenContent(component: ChatComponent) {
             AiDialogListScreen(component.drawerComponent)
         },
         drawerState = drawerState,
-    ) {
-        Scaffold(
-            modifier = Modifier
-                .onKeyEnter(focusRequester) {
-                    component.viewModel.onMessageSend()
-                },
-            contentWindowInsets = WindowInsets(0.dp),
-            topBar = {
-                ChatTopBar(
-                    modelName = uiModel.modelName,
-                    aiTyping = uiModel.isAiTyping,
-                    aiLoading = uiModel.titleLoading,
-                    onChatListOpenClicked = { coroutineScope.launch { drawerState::open.invoke() } },
-                    onChatSettingOpenClicked = component::onChatSettingOpen,
-                )
+        modifier = Modifier
+            .onKeyEnter(focusRequester) {
+                component.viewModel.onMessageSend()
             }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .imePadding(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                BoxWithConstraints(modifier = Modifier.weight(1f)) {
-                    val maxMessageWidth = maxWidth * 0.7f
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        state = scrollState,
-                        reverseLayout = true
-                    ) {
-                        items(uiModel.chatMessagesData.asReversed()) { message ->
-                            MessageItem(
-                                modifier = Modifier,
-                                message = message,
-                                maxMessageWidth = maxMessageWidth,
-                                onResendClicked = component.viewModel::onRepeatMessageSend
-                            )
-                        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            ChatTopBar(
+                modelName = uiModel.modelName,
+                aiTyping = uiModel.isAiTyping,
+                aiLoading = uiModel.titleLoading,
+                onChatListOpenClicked = { coroutineScope.launch { drawerState::open.invoke() } },
+                onChatSettingOpenClicked = component::onChatSettingOpen,
+            )
+
+            BoxWithConstraints(modifier = Modifier.weight(1f)) {
+                val maxMessageWidth = maxWidth * 0.7f
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    state = scrollState,
+                    reverseLayout = true
+                ) {
+                    items(uiModel.chatMessagesData.asReversed()) { message ->
+                        MessageItem(
+                            modifier = Modifier,
+                            message = message,
+                            maxMessageWidth = maxMessageWidth,
+                            onResendClicked = component.viewModel::onRepeatMessageSend
+                        )
                     }
                 }
+            }
 
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    shadowElevation = 8.dp
-                ) {
-                    MessageInputPanel(
-                        messageInput = uiModel.messageInput,
-                        onMessageInputChanged = component.viewModel::onMessageInputChanged,
-                        onMessageSend = component.viewModel::onMessageSend,
-                        isAiTyping = uiModel.isAiTyping,
-                        onMessageStopGen = component.viewModel::stopMessageGen
-                    )
-                }
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shadowElevation = 8.dp
+            ) {
+                MessageInputPanel(
+                    messageInput = uiModel.messageInput,
+                    onMessageInputChanged = component.viewModel::onMessageInputChanged,
+                    onMessageSend = component.viewModel::onMessageSend,
+                    isAiTyping = uiModel.isAiTyping,
+                    onMessageStopGen = component.viewModel::stopMessageGen
+                )
             }
         }
-
-
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
     }
+
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
 }

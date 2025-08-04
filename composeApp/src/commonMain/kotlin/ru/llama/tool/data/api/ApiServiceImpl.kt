@@ -34,7 +34,7 @@ import ru.llama.tool.data.api.models.llama_models.LlamaResponseDto
 import ru.llama.tool.data.api.models.llama_props_dto.HealthAiDto
 import ru.llama.tool.data.api.models.llama_props_dto.LlamaProperties
 import ru.llama.tool.data.api.models.messages.MessageRequest
-import ru.llama.tool.data.api.setting_http_client_provider.ISettingHttpClientProvider
+import ru.llama.tool.data.preferences.preferances.IAppPreferences
 import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.domain.models.EnumSender
 import ru.llama.tool.domain.models.Message
@@ -56,10 +56,10 @@ private fun extractHostAndPort(url: String): String {
 
 class ApiServiceImpl(
     private val client: HttpClient,
-    private val settingProvider: ISettingHttpClientProvider
+    private val pref: IAppPreferences
 ) : ApiService {
 
-    private val baseUrl = { settingProvider.getBaseUrl() }
+    private val baseUrl = { pref.getCachedBaseUrl() }
 
     override suspend fun getModelProperties(): LlamaProperties {
         return client.get(baseUrl()) {
@@ -126,6 +126,7 @@ class ApiServiceImpl(
 
                     fun sendNotEmittedError(t: Throwable? = null) {
                         if (emitted.not()) {
+
                             trySend(
                                 Message(
                                     content = EMPTY,
@@ -133,6 +134,7 @@ class ApiServiceImpl(
                                         t?.message ?: "Server is busy. Try again later."
                                     ),
                                     id = messages.last().id,
+                                    dateTime = EMPTY
                                 )
                             )
                         }
@@ -158,7 +160,8 @@ class ApiServiceImpl(
                                     Message(
                                         content = content,
                                         sender = EnumSender.AI,
-                                        id = messages.last().id
+                                        id = messages.last().id,
+                                        dateTime = EMPTY
                                     )
                                 )
                             } else if (data == "[DONE]") {
@@ -222,7 +225,8 @@ class ApiServiceImpl(
                             Message(
                                 content = "",
                                 sender = EnumSender.AI,
-                                id = messages.last().id
+                                id = messages.last().id,
+                                dateTime = EMPTY
                             )
                         )
                     } else {
@@ -235,7 +239,8 @@ class ApiServiceImpl(
                             Message(
                                 content = data,
                                 sender = EnumSender.AI,
-                                id = messages.last().id
+                                id = messages.last().id,
+                                dateTime = EMPTY
                             )
                         )
                     }
@@ -248,14 +253,12 @@ class ApiServiceImpl(
                     Message(
                         content = dataBuilder.toString(),
                         sender = EnumSender.AI,
-                        id = messages.last().id
+                        id = messages.last().id,
+                        dateTime = EMPTY
                     )
                 )
             }
-
-
         }
-
     }
 
     override suspend fun getHealthAi(): HealthAiDto {

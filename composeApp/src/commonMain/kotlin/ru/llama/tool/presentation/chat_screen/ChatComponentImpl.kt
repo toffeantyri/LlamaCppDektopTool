@@ -21,10 +21,10 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import ru.llama.tool.domain.use_cases.ChatInteractor
 import ru.llama.tool.presentation.chat_screen.ai_chat_settings.AiChatSettingsComponentImpl
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponent
 import ru.llama.tool.presentation.chat_screen.ai_dialog_list.AiDialogListComponentImpl
+import ru.llama.tool.presentation.chat_screen.views.renaming_dialog.RenamingDialogComponentImpl
 import ru.llama.tool.presentation.events.UiEvent
 import ru.llama.tool.presentation.events.UpEventChat
 import ru.llama.tool.presentation.utils.componentCoroutineScope
@@ -34,11 +34,12 @@ class ChatComponentImpl(
 ) : ChatComponent, ComponentContext by componentContext, KoinComponent {
 
     private val coroutineScope = componentContext.componentCoroutineScope()
-    private val chatInteractor: ChatInteractor = get()
+
+
     private val _chatEventState = MutableSharedFlow<UpEventChat>(replay = 0)
     override val chatEventState: SharedFlow<UpEventChat> get() = _chatEventState
-    private val _uiEvent = MutableStateFlow<UiEvent>(UiEvent.Initial)
 
+    private val _uiEvent = MutableStateFlow<UiEvent>(UiEvent.Initial)
     override val uiEvent: StateFlow<UiEvent> get() = _uiEvent
 
 
@@ -49,7 +50,7 @@ class ChatComponentImpl(
             sendChatRequestUseCase = get(),
             getLlamaPropertiesUseCase = get(),
             chatPropsInteractor = get(),
-            chatInteractor = chatInteractor
+            chatInteractor = get()
         )
     }
 
@@ -78,6 +79,9 @@ class ChatComponentImpl(
             },
             onCreateNewDialog = ::onCreateNewEmptyDialog,
             coroutineScope = coroutineScope,
+            onDialogChatRenameOpenDialog = { chatId, oldChatName ->
+                slotNavigation.navigate { DialogConfig.RenameChatDialogConfig(chatId, oldChatName) }
+            }
         )
 
     private fun onCreateNewEmptyDialog() {
@@ -108,6 +112,22 @@ class ChatComponentImpl(
                     savePropertiesAction = viewModel::saveProperties
                 )
             )
+
+            is DialogConfig.RenameChatDialogConfig -> ChatComponent.DialogChild.RenameChatDialogChild(
+                component = RenamingDialogComponentImpl(
+                    initialText = config.oldChatName,
+                    onDismissAction = {
+                        slotNavigation.navigate { null }
+                    },
+                    onSaveAction = {
+                        viewModel.saveChatWithNewName(
+                            chatId = config.chatId,
+                            newChatName = it,
+                            onSuccess = drawerComponent::renameDialogInList
+                        )
+                    }
+                )
+            )
         }
     }
 
@@ -130,6 +150,10 @@ class ChatComponentImpl(
     private sealed class DialogConfig {
         @Serializable
         data object AiSettingDialogConfig : DialogConfig()
+
+        @Serializable
+        data class RenameChatDialogConfig(val chatId: Long, val oldChatName: String) :
+            DialogConfig()
 
     }
 

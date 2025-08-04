@@ -29,7 +29,9 @@ import ru.llama.tool.domain.use_cases.chat_property_interactor.ChatPropsInteract
 import ru.llama.tool.domain.use_cases.llama_props_use_case.GetLlamaPropertiesUseCase
 import ru.llama.tool.domain.use_cases.messaging_use_case.SendChatRequestUseCase
 import ru.llama.tool.presentation.chat_screen.utils.extractErrorMessage503LoadingModel
+import ru.llama.tool.presentation.chat_screen.utils.formatAiResponse
 import ru.llama.tool.presentation.events.UpEventChat
+import ru.llama.tool.presentation.utils.getFormattedNowTime
 import kotlin.time.Duration.Companion.seconds
 
 class ChatViewModel(
@@ -60,12 +62,16 @@ class ChatViewModel(
     }
 
     override fun onMessageSend() {
+
+        val formattedDateTime = getFormattedNowTime()
+
         //перед каждым запросом - системный промпт
         uiModel.value.chatMessagesData.removeIf { it.sender == EnumSender.System }
         uiModel.value.chatMessagesData += Message(
             sender = EnumSender.System,
             id = -1,
-            content = uiModel.value.aiProps.value.systemPrompt
+            content = uiModel.value.aiProps.value.systemPrompt,
+            dateTime = EMPTY
         )
 
         val userMessageId = uiModel.value.messageId++
@@ -74,7 +80,8 @@ class ChatViewModel(
         val message = Message(
             content = uiModel.value.messageInput.value.trim(),
             sender = EnumSender.User,
-            id = userMessageId
+            id = userMessageId,
+            dateTime = formattedDateTime
         )
 
         if (message.content.isNotBlank()) {
@@ -85,10 +92,7 @@ class ChatViewModel(
                 userMessageId = userMessageId,
                 aiResponseId = aiResponseId
             )
-
         }
-
-
     }
 
 
@@ -107,16 +111,36 @@ class ChatViewModel(
                         setErrorMessage(userMessageId, it)
                         uiModel.value.isAiTyping.value = false
                     }
-                    .onCompletion {
-                        println("VM onCompletion $it")
+                    .onCompletion { cause ->
+                        println("VM onCompletion $cause")
                         uiModel.value.isAiTyping.value = false
                         saveDialogTrigger.emit(Unit) //save dialog trigger
+
+
+                        // Находим финальное сообщение по ID
+                        val finalMessage =
+                            uiModel.value.chatMessagesData.firstOrNull { it.id == aiResponseId }
+                        if (finalMessage != null) {
+                            val formattedContent = formatAiResponse(finalMessage.content)
+                            if (formattedContent.isNotBlank()) {
+                                val updatedMessage = finalMessage.copy(content = formattedContent)
+                                val index = uiModel.value.chatMessagesData.indexOf(finalMessage)
+                                uiModel.value.chatMessagesData[index] = updatedMessage
+                                println("Formatted AI response: $formattedContent")
+                            } else {
+                                // Если после форматирования пусто — удаляем сообщение
+                                uiModel.value.chatMessagesData.removeAll { it.id == aiResponseId }
+                            }
+                        }
                     }
                     .flowOn(Dispatchers.IO)
             }.onSuccess { flowResult ->
                 flowResult.onEach { aiResponse ->
+                    println("VM CONTENT: $aiResponse")
                     // Обновляем ID ответа, чтобы он соответствовал зарезервированному
                     val updatedResponse = aiResponse.copy(id = aiResponseId)
+
+                    val formattedDateTime = getFormattedNowTime()
 
                     if (uiModel.value.chatMessagesData.none { it.id == updatedResponse.id }) {
                         uiModel.value.chatMessagesData += updatedResponse
@@ -129,7 +153,8 @@ class ChatViewModel(
                             val newMessage = Message(
                                 id = updatedResponse.id,
                                 sender = updatedResponse.sender,
-                                content = oldMessage.content + updatedResponse.content
+                                content = oldMessage.content + updatedResponse.content,
+                                dateTime = formattedDateTime
                             )
                             uiModel.value.chatMessagesData[oldIndex] = newMessage
                         }
@@ -176,6 +201,19 @@ class ChatViewModel(
         uiModel.value.messageInput.value = input
     }
 
+    override fun saveChatWithNewName(
+        chatId: Long,
+        newChatName: String,
+        onSuccess: (chatId: Long, newChatName: String) -> Unit
+    ) {
+        coroutineScope.launch {
+            runCatching { chatInteractor.renameChat(chatId, newChatName) }
+                .onSuccess {
+                    onSuccess(chatId, newChatName)
+                }
+        }
+    }
+
     private fun saveCurrentDialog(onSuccess: () -> Unit) {
         coroutineScope.launch {
             if (uiModel.value.chatMessagesData.last().sender != EnumSender.AI) return@launch
@@ -201,7 +239,7 @@ class ChatViewModel(
     private fun updateChatDialogBy(newChatId: Long) {
         if (newChatId == AiDialogProperties.DEFAULT_ID) {
             with(uiModel.value) {
-                chatId.value = AiDialogProperties.DEFAULT_ID
+                chatId.value = newChatId
                 chatName.value = EMPTY
                 messageInput.value = EMPTY
                 chatMessagesData.clear()
@@ -210,7 +248,6 @@ class ChatViewModel(
         } else {
             coroutineScope.launch {
                 chatInteractor.getDialogChat(newChatId).first().let { chat ->
-
                     val oldId: Int = (chat.messages.findLast {
                         it.sender == EnumSender.AI
                     }?.id?.plus(1) ?: 0)

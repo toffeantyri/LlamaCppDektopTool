@@ -1,12 +1,27 @@
 <resources>
-
     <string name="model_is_not_exist_name">Модель не определена</string>
     <string name="your_dialogs">Ваши диалоги</string>
     <string name="create_new_dialog">Создать новый диалог</string>
     <string name="actions">Действия</string>
     <string name="rename">Переименовать</string>
     <string name="delete">Удалить</string>
-
     <string name="repeat_send">Повторить отправку</string>
-
+    <string name="settings_title">Настройки</string>
+    <string name="settings_application_section">Приложение</string>
+    <string name="settings_dark_theme">Темная тема</string>
+    <string name="settings_account_section">Аккаунт</string>
+    <string name="settings_account_info">Информация об аккаунте</string>
+    <string name="settings_ai_section">Настройки ИИ</string>
+    <string name="settings_test_base_url">Тестовый базовый URL</string>
+    <string name="settings_default_system_prompt">Дефолтный системный промпт</string>
+    <string name="settings_save_button">Сохранить</string>
+    <string name="settings_about_section">О приложении</string>
+    <string name="settings_about_info">Версия приложения, лицензии и т.д.</string>
+    <string name="nav_chat">Чат</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="input_placeholder">Введите ваше сообщение</string>
+    <string name="stop">Стоп</string>
+    <string name="send">Отправить</string>
+    <string name="exclamation_error">!</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
 </resources>

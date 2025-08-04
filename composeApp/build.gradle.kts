@@ -103,11 +103,12 @@ room {
 
 android {
     namespace = libs.versions.nameSpace.get()
-    compileSdk = 35
+    compileSdk = libs.versions.compileSDK.toString().toInt()
 
     defaultConfig {
-
         minSdk = 26
+        versionCode = 1
+        versionName = libs.versions.appVersion.get()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     sourceSets["main"].apply {

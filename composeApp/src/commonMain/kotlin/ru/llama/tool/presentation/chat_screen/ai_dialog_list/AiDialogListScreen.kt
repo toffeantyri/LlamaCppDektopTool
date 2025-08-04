@@ -30,12 +30,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import llamacppdektoptool.composeapp.generated.resources.Res
 import llamacppdektoptool.composeapp.generated.resources.actions
 import llamacppdektoptool.composeapp.generated.resources.create_new_dialog
 import llamacppdektoptool.composeapp.generated.resources.delete
+import llamacppdektoptool.composeapp.generated.resources.rename
 import llamacppdektoptool.composeapp.generated.resources.your_dialogs
 import org.jetbrains.compose.resources.stringResource
 
@@ -86,19 +88,37 @@ fun AiDialogListScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(start = 16.dp, end = 2.dp)
+                                .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(
-                                text = dialog.chatName.takeIf { it.isNotBlank() } ?: buildString {
-                                    append(dialog.chatId)
-                                    append(" / ")
-                                    append(dialog.date)
-                                },
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                            Column(
+                                modifier = Modifier.weight(1f).padding(end = 8.dp)
+                            ) {
+                                // Название чата
+                                Text(
+                                    text = dialog.chatName.takeIf { it.isNotBlank() }
+                                        ?: "no name",
+                                    maxLines = 1,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    overflow = TextOverflow.Ellipsis
+                                )
 
+                                // ID и время под названием
+                                Text(
+                                    text = buildString {
+                                        append("ID: ")
+                                        append(dialog.chatId)
+                                        append(" / ")
+                                        append(dialog.date)
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                             Box {
                                 IconButton(onClick = { expanded = true }) {
                                     Icon(
@@ -110,13 +130,16 @@ fun AiDialogListScreen(
                                     expanded = expanded,
                                     onDismissRequest = { expanded = false }
                                 ) {
-//                                    DropdownMenuItem(
-//                                        text = { Text(stringResource(Res.string.rename)) },
-//                                        onClick = {
-//                                            expanded = false
-//                                            component.onRenameDialogClicked(dialog.chatId)
-//                                        }
-//                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(Res.string.rename)) },
+                                        onClick = {
+                                            expanded = false
+                                            component.onDialogChatRenameClicked(
+                                                dialog.chatId,
+                                                dialog.chatName
+                                            )
+                                        }
+                                    )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(Res.string.delete)) },
                                         onClick = {
