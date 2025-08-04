@@ -103,7 +103,7 @@ room {
 
 android {
     namespace = libs.versions.nameSpace.get()
-    compileSdk = libs.versions.compileSDK.toString().toInt()
+    compileSdk = libs.versions.compileSDK.get().toInt()
 
     defaultConfig {
         minSdk = 26
