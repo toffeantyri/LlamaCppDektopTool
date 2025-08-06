@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -79,7 +78,7 @@ fun ChatTopBar(
                 )
 
                 Text(
-                    modifier = Modifier.padding(start = 8.dp).sizeIn(minWidth = 200.dp),
+                    modifier = Modifier.padding(start = 8.dp),
                     text = modelName.value.asString(),
                     maxLines = 1,
                     overflow = TextOverflow.StartEllipsis,
