@@ -112,9 +112,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     sourceSets["main"].apply {
-        //manifest.srcFile("src/androidMain/AndroidManifest.xml")
+        manifest.srcFile("src/androidMain/AndroidManifest.xml")
         res.srcDirs("src/androidMain/res")
         assets.srcDirs("src/androidMain/assets")
+        resources.srcDirs("src/androidMain/resources")
+        jniLibs.srcDirs("src/androidMain/jniLibs")
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/androidMain/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     buildFeatures {
@@ -139,10 +148,11 @@ android {
     packaging {
         jniLibs {
             // Включаем все .so, даже если они не являются shared-libs
-            excludes -= "/lib/**/libllama_server.so"
-            pickFirsts += "/lib/**/libllama_server.so"
+            excludes -= "/lib/**/libllama.so"
+            pickFirsts += "/lib/**/libllama.so"
         }
     }
+
 
 }
 
