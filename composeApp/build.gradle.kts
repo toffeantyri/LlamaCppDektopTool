@@ -110,6 +110,15 @@ android {
         versionCode = 1
         versionName = libs.versions.appVersion.get()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags += "-std=c++17"
+            }
+        }
+        ndk {
+            abiFilters += "arm64-v8a" // только нужные архитектуры
+        }
     }
     sourceSets["main"].apply {
         manifest.srcFile("src/androidMain/AndroidManifest.xml")
