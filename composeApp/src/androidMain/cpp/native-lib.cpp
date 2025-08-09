@@ -22,23 +22,23 @@ extern "C" {
 // Тестовая функция
 JNIEXPORT jstring JNICALL
 Java_ru_llama_tool_MainActivity_stringFromJNI(JNIEnv *env, jobject /* this */) {
-    return env->NewStringUTF("Hello from llama.cpp!");
+    return env->NewStringUTF("LLAMA_LOG");
 }
 
 // Загрузка модели
 JNIEXPORT jboolean JNICALL
 Java_ru_llama_tool_MainActivity_loadModel(JNIEnv *env, jobject /* this */, jstring modelPath) {
     if (g_model || g_ctx) {
-        LOGE("Model already loaded");
+        LOGE("LLAMA_LOG Model already loaded");
         return false;
     }
 
     const char *path = env->GetStringUTFChars(modelPath, nullptr);
     if (!path) {
-        LOGE("Failed to get model path string");
+        LOGE("LLAMA_LOG Failed to get model path string");
         return false;
     }
-    LOGI("Loading model from: %s", path);
+    LOGI("LLAMA_LOG Loading model from: %s", path);
 
     // Инициализация бэкенда (один раз)
     llama_backend_init();
@@ -56,7 +56,7 @@ Java_ru_llama_tool_MainActivity_loadModel(JNIEnv *env, jobject /* this */, jstri
     env->ReleaseStringUTFChars(modelPath, path);
 
     if (!g_model) {
-        LOGE("Failed to load model");
+        LOGE("LLAMA_LOG Failed to load model");
         return false;
     }
 
@@ -74,13 +74,13 @@ Java_ru_llama_tool_MainActivity_loadModel(JNIEnv *env, jobject /* this */, jstri
 
     g_ctx = llama_init_from_model(g_model, ctx_params);
     if (!g_ctx) {
-        LOGE("Failed to create context");
+        LOGE("LLAMA_LOG Failed to create context");
         llama_model_free(g_model);
         g_model = nullptr;
         return false;
     }
 
-    LOGI("Model loaded successfully");
+    LOGI("LLAMA_LOG Model loaded successfully");
     return true;
 }
 
@@ -90,12 +90,12 @@ Java_ru_llama_tool_MainActivity_unloadModel(JNIEnv *env, jobject /* this */) {
     if (g_ctx) {
         llama_free(g_ctx);
         g_ctx = nullptr;
-        LOGI("Context freed");
+        LOGI("LLAMA_LOG Context freed");
     }
     if (g_model) {
         llama_model_free(g_model);
         g_model = nullptr;
-        LOGI("Model freed");
+        LOGI("LLAMA_LOG Model freed");
     }
 }
 
@@ -104,7 +104,7 @@ JNIEXPORT jstring JNICALL
 Java_ru_llama_tool_MainActivity_generateText(JNIEnv *env, jobject /* this */, jstring prompt,
                                              jint maxTokens) {
     if (!g_ctx || !g_model) {
-        LOGE("Model or context not loaded");
+        LOGE("LLAMA_LOG Model or context not loaded");
         return env->NewStringUTF("Error: Model not loaded");
     }
 
@@ -112,10 +112,9 @@ Java_ru_llama_tool_MainActivity_generateText(JNIEnv *env, jobject /* this */, js
     if (!promptStr) {
         return env->NewStringUTF("");
     }
-    LOGI("Generating text for prompt: %s", promptStr);
+    LOGI("LLAMA_LOG Generating text for prompt: %s", promptStr);
 
     const struct llama_vocab *vocab = llama_model_get_vocab(g_model);
-    int32_t n_vocab = llama_vocab_n_tokens(vocab);
 
     // === 1. Токенизация ===
     int text_len = strlen(promptStr);
@@ -129,76 +128,120 @@ Java_ru_llama_tool_MainActivity_generateText(JNIEnv *env, jobject /* this */, js
                                   false  // parse_special
     );
 
+    env->ReleaseStringUTFChars(prompt, promptStr);
+
     if (n_tokens < 0) {
-        LOGE("Tokenization failed (buffer too small), trying larger buffer");
+        LOGE("LLAMA_LOG Tokenization failed (buffer too small)");
         tokens.resize(-n_tokens);
         n_tokens = llama_tokenize(vocab, promptStr, text_len,
                                   tokens.data(), tokens.size(),
                                   true, false);
         if (n_tokens < 0 || n_tokens > (int) tokens.size()) {
-            LOGE("Tokenization failed again");
-            env->ReleaseStringUTFChars(prompt, promptStr);
+            LOGE("LLAMA_LOG Tokenization failed again");
             return env->NewStringUTF("Tokenization failed");
         }
     }
     tokens.resize(n_tokens);
 
-    env->ReleaseStringUTFChars(prompt, promptStr);
+    if (n_tokens == 0) {
+        LOGE("LLAMA_LOG No tokens after tokenization");
+        return env->NewStringUTF("Empty prompt");
+    }
 
-    // === 2. Оценка промпта через llama_batch ===
-    llama_batch batch = llama_batch_init(n_tokens, 0, 1);
+    // === 2. Очистка памяти (новый способ) ===
+    llama_memory_t mem = llama_get_memory(g_ctx);
+    if (mem != nullptr) {
+        llama_memory_clear(mem, true);
+    } else {
+        LOGE("LLAMA_LOG Failed to get memory from context");
+        return env->NewStringUTF("Memory error");
+    }
 
+    // === 3. Оценка промпта — С РУЧНЫМ ВЫДЕЛЕНИЕМ seq_id ===
     for (int i = 0; i < n_tokens; i++) {
-        batch.token[i] = tokens[i];
-        batch.pos[i] = i;
-        batch.n_seq_id[i] = 1;
-        batch.seq_id[i][0] = 0;
-        batch.logits[i] = (i == n_tokens - 1) ? 1 : 0;  // только последний токен выводит логиты
-    }
+        // 🔥 ДИНАМИЧЕСКИЙ n_logits
+        const int n_logits = (i == n_tokens - 1) ? 1 : 0;
 
-    if (llama_decode(g_ctx, batch) != 0) {
-        LOGE("Failed to decode prompt");
+        llama_batch batch = llama_batch_init(1, n_logits, 1);
+        batch.n_tokens = 1;
+        batch.token[0] = tokens[i];
+        batch.pos[0] = i;
+        batch.n_seq_id[0] = 1;
+        batch.logits[0] = n_logits;  // Теперь совпадает с n_logits
+
+        // ВРУЧНУЮ ВЫДЕЛЯЕМ seq_id[0] (безопасно для Android)
+        batch.seq_id[0] = (int *) malloc(sizeof(int));
+        if (!batch.seq_id[0]) {
+            LOGE("LLAMA_LOG Failed to allocate seq_id[0]");
+            free(batch.seq_id); // Важно: сначала seq_id, потом batch
+            llama_batch_free(batch);
+            return env->NewStringUTF("Memory error");
+        }
+        batch.seq_id[0][0] = 0;
+
+        LOGI("LLAMA_LOG token=%d, pos=%d, logits=%d, seq_id[0]=%p",
+             batch.token[0],
+             batch.pos[0],
+             batch.logits[0],
+             batch.seq_id[0]);
+
+        int result = llama_decode(g_ctx, batch);
+        free(batch.seq_id[0]);
         llama_batch_free(batch);
-        return env->NewStringUTF("Decode failed");
+
+        if (result != 0) {
+            LOGE("LLAMA_LOG Failed to decode token %d: error %d", i, result);
+            return env->NewStringUTF("Decode failed");
+        }
     }
-    llama_batch_free(batch);
 
     int n_past = n_tokens;
 
-    // === 3. Настройка сэмплера ===
+    // === 4. Настройка сэмплера ===
     llama_sampler *sampler = llama_sampler_chain_init(llama_sampler_chain_default_params());
     llama_sampler_chain_add(sampler, llama_sampler_init_top_k(40));
     llama_sampler_chain_add(sampler, llama_sampler_init_top_p(0.95f, 1));
     llama_sampler_chain_add(sampler, llama_sampler_init_temp(1.0f));
-    llama_sampler_chain_add(sampler, llama_sampler_init_dist(1234)); // seed
+    llama_sampler_chain_add(sampler, llama_sampler_init_dist(1234));
 
-    // === 4. Генерация токенов ===
+    // === 5. Генерация токенов — С РУЧНЫМ ВЫДЕЛЕНИЕМ seq_id ===
     std::vector<llama_token> generated;
     const int max_tokens_gen = (maxTokens > 0 && maxTokens <= 512) ? maxTokens : 128;
     llama_token eos_token = llama_vocab_eos(vocab);
 
     for (int i = 0; i < max_tokens_gen; i++) {
-        llama_token id = llama_sampler_sample(sampler, g_ctx, -1);  // последний логит
+        llama_token id = llama_sampler_sample(sampler, g_ctx, -1);
         if (id == eos_token) break;
 
         generated.push_back(id);
         llama_sampler_accept(sampler, id);
 
         // Подаем сгенерированный токен обратно
-        llama_batch single = llama_batch_get_one(&id, 1);
-        single.pos[0] = n_past;
-        if (llama_decode(g_ctx, single) != 0) {
-            LOGE("Failed to decode generated token");
-            llama_batch_free(single);
+        // 🔥 ВСЕГДА n_logits = 0 для генерации
+        llama_batch batch = llama_batch_init(1, 0, 1);
+        batch.n_tokens = 1;
+        batch.token[0] = id;
+        batch.pos[0] = n_past;
+        batch.n_seq_id[0] = 1;
+        batch.logits[0] = 0;  // Совпадает с n_logits=0
+
+        batch.seq_id[0] = (int *) malloc(sizeof(int));
+        batch.seq_id[0][0] = 0;
+
+        int result = llama_decode(g_ctx, batch);
+        free(batch.seq_id[0]);
+        llama_batch_free(batch);
+
+        if (result != 0) {
+            LOGE("LLAMA_LOG Failed to decode generated token");
             break;
         }
-        llama_batch_free(single);
         n_past++;
     }
 
     llama_sampler_free(sampler);
 
-    // === 5. Декодинг в строку ===
+    // === 6. Декодинг в строку ===
     std::string result;
     for (llama_token token: generated) {
         char piece[64];
