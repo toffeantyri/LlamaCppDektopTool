@@ -57,7 +57,10 @@ class MainActivity : ComponentActivity() {
                 loadModel(modelPath)
                 println(LLAMA_LOG + "ModelInfo" + getModelInfo())
 
-                generateText("Hello! How are you?", 100)
+                withContext(Dispatchers.Default) {
+                    val result = generateText("Hello! How are you today?", 1000)
+                    Log.d(LLAMA_LOG, "gen RESULT $result")
+                }
             }.onFailure { error ->
                 Log.i(LLAMA_LOG, "LOAD MODEL ERROR $error")
             }
