@@ -1,34 +1,71 @@
-cmake_minimum_required(VERSION 3.22)
-project("llamaapp")
+cmake_minimum_required(VERSION 3.22.1)
+project(llama_jni LANGUAGES C CXX)
 
-# Включаем C++17
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fexceptions -frtti")
+# Для C
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 
-# Опционально: отключаем RTTI и exceptions (если не используются)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
 
-# Указываем путь к заголовкам llama.h
-# ВАЖНО: путь должен вести к папке, содержащей llama.h
-# Пример: если llama.h лежит в src/main/cpp/include/llama.h → указываем эту папку
-include_directories(src/androidMain/cpp/include)  # или src/main/cpp
-
-# Импортируем libllama.so как shared library
-add_library(llama SHARED IMPORTED)
-
-# Устанавливаем путь к libllama.so для текущей архитектуры (ARM64, x86_64 и т.д.)
-set_target_properties(llama PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libllama.so)
-
-# Создаём свою библиотеку (native-lib.so)
-add_library(native-lib SHARED native-lib.cpp)
-
-# Подключаем системную библиотеку log (__android_log_print)
-find_library(log-lib log)
-
-# Линкуем: native-lib → libllama.so + log
-target_link_libraries(
-        native-lib
-        llama
-        ${log-lib}
+# --- Источники ---
+# JNI обёртка
+set(JNI_SOURCES
+        llama-android.cpp
 )
+
+# Common
+set(COMMON_SOURCES
+        common/common.cpp
+        common/log.cpp # <-- Добавлено
+)
+
+# GGML
+set(GGML_SOURCES
+        ggml/src/ggml.c      # <-- Добавлено
+        ggml/src/ggml-opt.cpp# <-- Добавлено
+        ggml/src/gguf.cpp     # <-- Добавлено
+        ggml/src/ggml-impl.h     # <-- Добавлено
+        # Добавьте другие ggml-*.c файлы, если они используются common/common.cpp
+        # ggml/src/ggml-alloc.c
+        # ggml/src/ggml-backend.c
+        # ggml/src/ggml-quants.c
+        # ...
+)
+
+# Llama (основной код модели)
+set(LLAMA_SOURCES
+        # llama.cpp # <-- Обычно НЕ компилируется в JNI, если используется libllama.so.
+        # Но если мы отказываемся от .so, нужно добавить.
+        # Проверьте, требует ли common/common.cpp символы из llama.cpp.
+        # Если да, добавьте сюда llama.cpp.
+        # Это может значительно увеличить размер .so.
+)
+
+# Объединяем все источники для одной библиотеки
+add_library(llama_jni SHARED
+        ${JNI_SOURCES}
+        ${COMMON_SOURCES}
+        ${GGML_SOURCES}
+        # ${LLAMA_SOURCES} # Добавьте, если необходимо
+)
+
+# --- Заголовки ---
+target_include_directories(llama_jni PRIVATE
+        .                     # Для файлов в корне cpp/
+        ./include             # Если llama.h и ggml.h лежат здесь
+        ./common              # Для common.h, log.h
+        ./ggml/include        # Для ggml.h, gguf.h
+        ./ggml/src            # Иногда нужно, если .c файлы инклудят друг друга по относительным путям
+)
+
+# --- Линковка ---
+find_library(log-lib log)
+# Линкуем ТОЛЬКО системные библиотеки. Все остальные .c/.cpp скомпилированы внутри.
+target_link_libraries(llama_jni PRIVATE ${log-lib}) # -latomic и -lm могут понадобиться
+
+# --- (Опционально) Флаги компилятора ---
+# Добавьте флаги, если они требуются для ggml или других библиотек
+# target_compile_definitions(llama_jni PRIVATE GGML_USE_ACCELERATE) # Например, для iOS
+# target_compile_options(llama_jni PRIVATE -mfma -mf16c) # Например, для x86_64, если нужно
+# Для Android arm64 эти флаги обычно устанавливаются тулчейном.

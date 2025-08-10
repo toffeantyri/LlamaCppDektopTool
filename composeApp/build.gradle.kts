@@ -120,6 +120,21 @@ android {
             abiFilters += "arm64-v8a" // только нужные архитектуры
         }
     }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/androidMain/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+
+    packaging {
+        jniLibs {
+            // Включаем все .so, даже если они не являются shared-libs
+            excludes -= "/lib/**/libllama.so"
+            pickFirsts += "/lib/**/libllama.so"
+        }
+    }
     sourceSets["main"].apply {
         manifest.srcFile("src/androidMain/AndroidManifest.xml")
         res.srcDirs("src/androidMain/res")
@@ -128,12 +143,7 @@ android {
         jniLibs.srcDirs("src/androidMain/jniLibs")
     }
 
-    externalNativeBuild {
-        cmake {
-            path = file("src/androidMain/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
+
 
     buildFeatures {
         buildConfig = true
@@ -152,14 +162,6 @@ android {
             isMinifyEnabled = false
         }
 
-    }
-
-    packaging {
-        jniLibs {
-            // Включаем все .so, даже если они не являются shared-libs
-            excludes -= "/lib/**/libllama.so"
-            pickFirsts += "/lib/**/libllama.so"
-        }
     }
 
 
