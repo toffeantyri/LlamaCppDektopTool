@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                 println(LLAMA_LOG + "ModelInfo" + getModelInfo())
 
                 withContext(Dispatchers.Default) {
-                    val result = generateText("Hello! How are you today?", 1000)
+                    val result = generateText("What is your name?", 1000)
                     Log.d(LLAMA_LOG, "gen RESULT $result")
                 }
             }.onFailure { error ->
