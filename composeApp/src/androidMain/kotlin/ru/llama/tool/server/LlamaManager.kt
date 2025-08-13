@@ -1,80 +1,79 @@
 package ru.llama.tool.server
 
 import android.content.Context
+import android.util.Log
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ru.llama.tool.MainActivity
 import java.io.File
+
+private const val LLAMA_LOG = "LLAMA_LOG"
+
 
 class LlamaManager(private val context: Context) {
 
     private var modelLoaded = false
-    private val libFile = File(context.filesDir, "jniLibs/arm64-v8a/libllama.so")
 
     init {
         System.loadLibrary("native-lib") // Твой JNI-обёртку (напишем ниже)
     }
 
-    /**
-     * Копирует libllama.so из assets в internal storage
-     */
-    private fun installLibrary() {
-        if (libFile.exists()) return
+    init {
+        println(LLAMA_LOG + getModelInfo())
+        (context as MainActivity).lifecycleScope.launch {
+            val modelPathResult = context.copyModelFromAssets()
+            modelPathResult.onSuccess { modelPath ->
+                Log.i(LLAMA_LOG, "LOAD MODEL success")
+                loadModel(modelPath)
+                println(LLAMA_LOG + "ModelInfo" + getModelInfo())
 
-        context.assets.open("jniLibs/arm64-v8a/libllama.so").use { input ->
-            libFile.outputStream().use { output ->
-                input.copyTo(output)
+                withContext(Dispatchers.Default) {
+                    val result = generateText("What is your name?", 1000)
+                    Log.d(LLAMA_LOG, "gen RESULT $result")
+                }
+            }.onFailure { error ->
+                Log.i(LLAMA_LOG, "LOAD MODEL ERROR $error")
             }
         }
-        libFile.setExecutable(true, true)
+
+        println(LLAMA_LOG + getModelInfo())
     }
 
-    /**
-     * Загружает модель через нативный код
-     * @param modelPath — путь к .gguf файлу
-     * @return true, если модель загружена
-     */
-    fun loadModel(modelPath: String): Boolean {
-        try {
-            installLibrary()
-            System.load(libFile.absolutePath) // Загружаем libllama.so
 
-            modelLoaded = nativeLoadModel(modelPath)
-            return modelLoaded
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return false
+    private suspend fun Context.copyModelFromAssets(): Result<String> =
+        withContext(Dispatchers.IO) {
+            val modelFileName = "model.gguf"
+            val outFile = File(filesDir, modelFileName)
+
+            if (outFile.exists()) {
+                Log.i(LLAMA_LOG, "Model already exists: ${outFile.absolutePath}")
+                return@withContext Result.success(outFile.absolutePath)
+            }
+
+            try {
+                Log.i(LLAMA_LOG, "Copying model from assets to ${outFile.absolutePath}")
+                assets.open(modelFileName).use { input ->
+                    outFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                Log.i(LLAMA_LOG, "Model copied successfully")
+                Result.success(outFile.absolutePath)
+            } catch (e: Exception) {
+                Log.e(LLAMA_LOG, "Failed to copy model from assets", e)
+                Result.failure(e)
+            }
         }
-    }
 
-    /**
-     * Генерирует ответ на промпт
-     * @param prompt — входной текст
-     * @param maxTokens — макс. длина ответа
-     * @return сгенерированный текст или null
-     */
-    fun generate(prompt: String, maxTokens: Int = 256): String? {
-        return if (modelLoaded) {
-            nativeGenerate(prompt, maxTokens)
-        } else {
-            null
-        }
-    }
-
-    /**
-     * Освобождает ресурсы модели
-     */
-    fun unloadModel() {
-        if (modelLoaded) {
-            nativeUnloadModel()
-            modelLoaded = false
-        }
-    }
-
-    /**
-     * Проверяет, загружена ли модель
-     */
     fun isModelLoaded(): Boolean = modelLoaded
 
     // ——————— Нативные методы (JNI) ———————
-    private external fun nativeLoadModel(modelPath: String): Boolean
-    private external fun nativeGenerate(prompt: String, maxTokens: Int): String?
-    private external fun nativeUnloadModel()
+    private external fun stringFromJNI(): String
+    private external fun getModelInfo(): String
+    private external fun unloadModel()
+    private external fun generateText(prompt: String, maxTokens: Int): String
+    private external fun loadModel(modelPath: String): Boolean
+
 }
