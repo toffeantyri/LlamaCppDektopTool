@@ -41,7 +41,7 @@ extern "C" {
 
 // Тестовая функция
 JNIEXPORT jstring JNICALL
-Java_ru_llama_tool_server_LlamaManager_stringFromJNI(JNIEnv *env, jobject /* this */) {
+Java_ru_llama_tool_server_LlamaManagerImpl_stringFromJNI(JNIEnv *env, jobject /* this */) {
     return env->NewStringUTF("LLAMA_LOG");
 }
 
@@ -93,8 +93,8 @@ Java_ru_llama_tool_MainActivity_getGenerationParams(JNIEnv *env, jobject /* this
 
 // Загрузка модели
 JNIEXPORT jboolean JNICALL
-Java_ru_llama_tool_server_LlamaManager_loadModel(JNIEnv *env, jobject /* this */,
-                                                 jstring modelPath) {
+Java_ru_llama_tool_server_LlamaManagerImpl_loadModel(JNIEnv *env, jobject /* this */,
+                                                     jstring modelPath) {
     if (g_model || g_ctx) {
         LOGE("LLAMA_LOG Model already loaded");
         return false;
@@ -153,7 +153,7 @@ Java_ru_llama_tool_server_LlamaManager_loadModel(JNIEnv *env, jobject /* this */
 
 // Выгрузка модели
 JNIEXPORT void JNICALL
-Java_ru_llama_tool_server_LlamaManager_unloadModel(JNIEnv *env, jobject /* this */) {
+Java_ru_llama_tool_server_LlamaManagerImpl_unloadModel(JNIEnv *env, jobject /* this */) {
     if (g_ctx) {
         llama_free(g_ctx);
         g_ctx = nullptr;
@@ -167,8 +167,9 @@ Java_ru_llama_tool_server_LlamaManager_unloadModel(JNIEnv *env, jobject /* this 
 }
 
 JNIEXPORT jstring JNICALL
-Java_ru_llama_tool_server_LlamaManager_generateText(JNIEnv *env, jobject /* this */, jstring prompt,
-                                             jint maxTokens) {
+Java_ru_llama_tool_server_LlamaManagerImpl_generateText(JNIEnv *env, jobject /* this */,
+                                                        jstring prompt,
+                                                        jint maxTokens) {
     LOGI("LLAMA_LOG Starting generateText");
 
     if (!g_ctx || !g_model) {
@@ -545,7 +546,7 @@ decode_tokens(const std::vector<llama_token> &tokens, const struct llama_vocab *
 
 // Получение информации о модели
 JNIEXPORT jstring JNICALL
-Java_ru_llama_tool_server_LlamaManager_getModelInfo(JNIEnv *env, jobject /* this */) {
+Java_ru_llama_tool_server_LlamaManagerImpl_getModelInfo(JNIEnv *env, jobject /* this */) {
     if (!g_model) {
         return env->NewStringUTF("Model not loaded");
     }
