@@ -1,5 +1,6 @@
 package ru.llama.tool.server
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -82,6 +83,7 @@ class LlamaManagerImpl(private val context: Context) : ILlamaManager {
     }
 
     // Обновленная реализация loadLangModel для Android
+    @SuppressLint("UseKtx")
     override suspend fun loadLangModel(sourcePath: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             return@withContext try {
@@ -94,7 +96,7 @@ class LlamaManagerImpl(private val context: Context) : ILlamaManager {
                     when {
                         // Если путь начинается с "content://" - это URI
                         sourcePath.startsWith("content://") -> {
-                            val uri = Uri.parse(sourcePath)
+                            val uri = sourcePath.toUri()
                             context.copyModelFromUri(uri, targetFile)
                         }
                         // Если путь начинается с "asset://" - из assets

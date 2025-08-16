@@ -38,6 +38,9 @@ import llamacppdektoptool.composeapp.generated.resources.settings_test_base_url
 import llamacppdektoptool.composeapp.generated.resources.settings_title
 import org.jetbrains.compose.resources.stringResource
 import ru.llama.tool.presentation.generals_view.input.SystemPromptField
+import ru.llama.tool.presentation.setting_screen.models.LangModelInfo
+import ru.llama.tool.presentation.setting_screen.view.ModelCard
+import ru.llama.tool.presentation.setting_screen.view.openFilePicker
 
 
 sealed interface SettingsEvent {
@@ -115,6 +118,29 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
             stringResource(Res.string.settings_ai_section),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
+        )
+
+        ModelCard(
+            selectedModel = LangModelInfo(
+                "test",
+                "home/path/modelname",
+                "1.8gb",
+                "x64",
+                parameters = "1",
+                quantization = "q4"
+            ),
+            isModelLoading = false,
+            isModelRunning = false,
+            onModelSelected = { s -> },
+            onStartModel = {},
+            onStopModel = {},
+            onOpenFileManager = {
+                val selectFileCallback: (path: String?) -> Unit = { path ->
+                    //todo
+                    println("File Selected $path")
+                }
+                openFilePicker(selectFileCallback)
+            }
         )
 
         OutlinedTextField(
