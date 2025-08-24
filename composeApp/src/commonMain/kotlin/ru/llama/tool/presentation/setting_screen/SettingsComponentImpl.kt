@@ -21,7 +21,11 @@ class SettingsComponentImpl(
     private val coroutineScope = componentContext.componentCoroutineScope()
 
     override val viewModel: ISettingViewModel = instanceKeeper.getOrCreate {
-        SettingViewModelImpl(coroutineScope = coroutineScope, preferences = get())
+        SettingViewModelImpl(
+            coroutineScope = coroutineScope,
+            preferences = get(),
+            ggufFileManager = get()
+        )
     }
 
     override fun getAppSettingState(): Value<SettingsState> =

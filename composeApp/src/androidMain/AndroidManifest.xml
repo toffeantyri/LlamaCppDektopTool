@@ -22,7 +22,7 @@
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:launchMode="singleInstance"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize"
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden|adjustResize"
             android:screenOrientation="locked"
             android:exported="true"
             tools:ignore="DiscouragedApi">

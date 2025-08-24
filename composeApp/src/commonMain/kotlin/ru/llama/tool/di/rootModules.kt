@@ -20,7 +20,8 @@ private fun rootModules(enableNetworkLogs: Boolean) = module {
         dataSourceModule,
         repositoryModule,
         useCasesModule,
-        databaseModule
+        databaseModule,
+        IOModule
     )
 
 }

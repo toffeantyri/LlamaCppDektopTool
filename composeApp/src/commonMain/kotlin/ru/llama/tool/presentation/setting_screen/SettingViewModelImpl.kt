@@ -5,13 +5,15 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import ru.llama.tool.data.io.GGUFFileManager
 import ru.llama.tool.data.preferences.preferances.IAppPreferences
 import ru.llama.tool.domain.models.AiDialogProperties
 import ru.llama.tool.presentation.setting_screen.models.AiDefaultSetting
 
 class SettingViewModelImpl(
     private val coroutineScope: CoroutineScope,
-    private val preferences: IAppPreferences
+    private val preferences: IAppPreferences,
+    private val ggufFileManager: GGUFFileManager
 ) : ISettingViewModel, InstanceKeeper.Instance {
 
     override val uiModel: Value<ISettingViewModel.UiModel> =
@@ -36,6 +38,10 @@ class SettingViewModelImpl(
 
     init {
         preferencesCollector()
+
+        ggufFileManager.getExistFiles().forEach {
+            println("LLAMA_LOG $it")
+        }
     }
 
 

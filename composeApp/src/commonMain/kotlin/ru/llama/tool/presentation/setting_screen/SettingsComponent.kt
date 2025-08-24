@@ -3,6 +3,7 @@ package ru.llama.tool.presentation.setting_screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,11 +18,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import llamacppdektoptool.composeapp.generated.resources.Res
@@ -48,6 +53,13 @@ sealed interface SettingsEvent {
 @Composable
 fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) {
 
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus() // Запрашиваем фокус
+    }
+
+
     val uiModel by component.viewModel.uiModel.subscribeAsState()
     val aiSettings by uiModel.aiSettings.subscribeAsState()
 
@@ -69,6 +81,10 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .focusable() // Обязательно!
+                .onFocusChanged { println("Focus: ${it.hasFocus}") },
             text = stringResource(Res.string.settings_title),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground
@@ -188,4 +204,6 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
             color = MaterialTheme.colorScheme.onBackground
         )
     }
+
+
 } 
