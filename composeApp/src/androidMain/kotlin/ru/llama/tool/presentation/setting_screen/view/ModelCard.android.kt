@@ -51,8 +51,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.llama.tool.App
 import ru.llama.tool.presentation.setting_screen.models.LangModelInfo
+import java.io.File
+import java.io.FileOutputStream
 
 actual fun openFilePicker(onFileSelected: (String?) -> Unit, activity: Any?) {
     val launcher: ActivityResultLauncher<Intent> =
@@ -62,8 +67,6 @@ actual fun openFilePicker(onFileSelected: (String?) -> Unit, activity: Any?) {
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data
                 if (uri != null) {
-                    // В Android обычно возвращается URI, а не путь
-                    // Можно сохранить URI или попробовать получить путь (не всегда возможно)
                     onFileSelected(uri.toString())
                 } else {
                     onFileSelected(null)
@@ -75,7 +78,7 @@ actual fun openFilePicker(onFileSelected: (String?) -> Unit, activity: Any?) {
 
     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
-        type = "*/*" // Не фильтрует по расширению, но можно ограничить позже
+        type = "*/gguf" // Не фильтрует по расширению, но можно ограничить позже
         putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("*/*"))
     }
 
@@ -87,15 +90,27 @@ actual fun openFilePicker(onFileSelected: (String?) -> Unit, activity: Any?) {
 
 
 @Composable
-fun FilePickerExample(openState: State<Boolean>, onSuccess: (String) -> Unit) {
+fun FilePickerExample(
+    openState: State<Boolean>,
+    onSuccess: (String) -> Unit,
+    onFailure: (String) -> Unit
+) {
+
+    val coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let {
-            // Обработка выбранного файла
-            handleSelectedFile(context, it, onSuccess)
+            coroutineScope.launch {
+                handleSelectedFile(
+                    context = context,
+                    uri = it,
+                    onSuccess = onSuccess,
+                    onFailure = onFailure
+                )
+            }
         }
     }
 
@@ -107,17 +122,34 @@ fun FilePickerExample(openState: State<Boolean>, onSuccess: (String) -> Unit) {
 
 }
 
-private fun handleSelectedFile(context: Context, uri: Uri, onSuccess: (String) -> Unit) {
+private suspend fun handleSelectedFile(
+    context: Context,
+    uri: Uri,
+    onSuccess: (String) -> Unit,
+    onFailure: (String) -> Unit
+) {
     val fileName = getFileName(context, uri)
-    if (fileName?.endsWith(".gguf", ignoreCase = true) == true) {
-        // Файл подходит
-        println("LLAMA_LOG Выбран файл: $fileName")
-        println("LLAMA_LOG URI: $uri")
-        onSuccess(fileName)
-        // Для чтения содержимого:
-        context.contentResolver.openInputStream(uri)?.use { inputStream ->
-            // Работа с файлом
+    if (fileName?.endsWith(".gguf", ignoreCase = true) != true) {
+        onFailure("Illegal file type: $fileName")
+        return
+    }
+
+    try {
+        val result = withContext(Dispatchers.IO) {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val internalFile = File(context.filesDir, fileName)
+                FileOutputStream(internalFile).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+                internalFile.absolutePath
+            } ?: throw Exception("Failed to open input stream")
         }
+
+        println("LLAMA_LOG Файл скопирован во внутреннюю память: $result")
+        onSuccess(result)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        onFailure(e.message ?: "Unknown error")
     }
 }
 
@@ -149,7 +181,8 @@ actual fun ModelCard(
     onModelSelected: (String) -> Unit,
     onStartModel: () -> Unit,
     onStopModel: () -> Unit,
-    onOpenFileManager: (String) -> Unit
+    onOpenFileManager: (String) -> Unit,
+    onErrorLoadModel: (error: String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -158,10 +191,14 @@ actual fun ModelCard(
     }
 
 
-    FilePickerExample(openState = needOpenFilePicker) { uri ->
-        onOpenFileManager(uri)
-        needOpenFilePicker.value = false
-    }
+    FilePickerExample(
+        openState = needOpenFilePicker,
+        onSuccess = { uri ->
+            onOpenFileManager(uri)
+            needOpenFilePicker.value = false
+        }, onFailure = {
+
+        })
 
     Card(
         modifier = Modifier

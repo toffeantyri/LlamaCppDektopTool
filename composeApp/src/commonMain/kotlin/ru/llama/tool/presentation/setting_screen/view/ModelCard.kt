@@ -13,7 +13,8 @@ expect fun ModelCard(
     onModelSelected: (String) -> Unit,
     onStartModel: () -> Unit,
     onStopModel: () -> Unit,
-    onOpenFileManager: (String) -> Unit
+    onOpenFileManager: (String) -> Unit,
+    onErrorLoadModel: (error: String) -> Unit
 )
 
 

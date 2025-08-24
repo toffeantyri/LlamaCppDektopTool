@@ -38,10 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.llama.tool.presentation.setting_screen.models.LangModelInfo
-import java.awt.FileDialog
-import java.awt.Frame
 import java.io.File
-import java.io.FilenameFilter
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
@@ -55,7 +52,8 @@ actual fun ModelCard(
     onModelSelected: (String) -> Unit,
     onStartModel: () -> Unit,
     onStopModel: () -> Unit,
-    onOpenFileManager: (String) -> Unit
+    onOpenFileManager: (String) -> Unit,
+    onErrorLoadModel: (error: String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -365,44 +363,5 @@ private fun showFileChooserByJFileChooser(onFileSelected: (String?) -> Unit) {
         }
     } else {
         onFileSelected(null)
-    }
-}
-
-
-private fun openFilePickerNative(onFileSelected: (String?) -> Unit) {
-    var selectedPath: String? = null
-
-    val fileDialog = FileDialog(null as Frame?, "Выберите GGUF модель", FileDialog.LOAD).apply {
-        filenameFilter = FilenameFilter { _, name ->
-            name.lowercase().endsWith(".gguf")
-        }
-
-        // Устанавливаем начальное значение для фильтрации
-        file = "*.gguf"
-    }
-
-    fileDialog.isVisible = true
-
-    val selectedFile = fileDialog.file
-    val directory = fileDialog.directory
-
-    if (selectedFile != null && directory != null) {
-        // Проверяем, что файл действительно заканчивается на .gguf
-        if (selectedFile.lowercase().endsWith(".gguf")) {
-            val fullPath = buildFilePath(directory, selectedFile)
-            selectedPath = fullPath
-        }
-        // Если файл не .gguf, возвращаем null (пользователь может игнорировать фильтр)
-    }
-
-    fileDialog.dispose()
-    onFileSelected(selectedPath)
-}
-
-private fun buildFilePath(directory: String, file: String): String {
-    return when {
-        directory.endsWith("/") -> "$directory$file"
-        directory.endsWith("\\") -> "$directory$file"
-        else -> "$directory${java.io.File.separator}$file"
     }
 }

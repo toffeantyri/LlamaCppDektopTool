@@ -127,6 +127,9 @@ fun SettingsContent(component: SettingComponent, modifier: Modifier = Modifier) 
             onStopModel = {},
             onOpenFileManager = { uri ->
                 println("File Selected TOP F $uri")
+            },
+            onErrorLoadModel = {
+                //todo
             }
         )
 
